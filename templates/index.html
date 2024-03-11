@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    New Bin
+{% endblock %}
+
+{% block body %}
+    <section class="text-gray-400 bg-gray-900 body-font">
+        <div class="container px-5 py-24 mx-auto">
+          <div class="flex flex-col text-center w-full mb-12">
+            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">Create a Bin</h1>
+            <p class="lg:w-2/3 mx-auto leading-relaxed text-base">Dump your code or whatever you want.</p>
+          </div>
+          <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
+            <div class="relative sm:mb-0 flex-grow w-full">
+              <label for="clip_name" class="leading-7 text-sm text-gray-400">Enter Title</label>
+              <form action="/" method="post">
+                <input type="text" id="clip_name" name="clip_name" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Title" autocapitalize="off" autocomplete="off" autofocus>
+                <label for="clip_text" class="leading-7 text-sm text-gray-400">Enter your Text</label>
+                <textarea id="clip_text" name="clip_text" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 h-32 transition-colors duration-200 ease-in-out rounded-md resize-none hover:resize-y ubuntu-mono-regular" placeholder="Enter your Text"></textarea>
+                <details class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 roundedtext-lg">
+                  <summary>
+                      Optionals
+                  </summary>
+                  <div class="relative">
+                    <label for="clip_passwd" class="leading-7 text-sm text-gray-400">Create a Password Protected Clip</label>
+                    <input type="text" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password" autocapitalize="off" autocomplete="off">
+                    <div class="text-center">
+                      <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? </label>
+                      <input type="checkbox" name="clip_edit" id="clip_edit">&nbsp;
+                      <label for="clip_disp" class="leading-7 text-l text-gray-400">Set Unlisted? </label>
+                      <input type="checkbox" name="clip_disp" id="clip_disp">
+                    </div>
+                  </div>
+                </details>
+                <br>
+                <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+{% endblock %}
