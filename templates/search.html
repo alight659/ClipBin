@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block body %}
+    <section class="text-gray-400 bg-gray-900 body-font">
+        <div class="container px-5 py-24 mx-auto">
+            <div class="flex flex-col text-center w-full mb-12">
+                <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">Search a Bin</h1>
+            </div>
+            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
+                <div class="relative sm:mb-0 flex-grow w-full">
+                    <label for="clip_info" class="leading-7 text-sm text-gray-400">Enter Clip Name or URL Id</label>
+                    <form action="/clip" method="post">
+                        <input type="text" id="clip_info" name="clip_info" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" autocapitalize="off" autocomplete="off" autofocus>
+                        <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Go</button>
+                    </form>
+                </div>
+            </div>
+            <br>
+            {% if data %}
+                <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+                    <table class="table-auto w-full text-left whitespace-no-wrap">
+                    <thead>
+                        <tr>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800 rounded-tl rounded-bl">Name</th>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">Clip Id</th>
+                        <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">Created at</th>
+                        <th class="w-10 title-font tracking-wider font-medium text-white text-sm bg-gray-800 rounded-tr rounded-br"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in data %}
+                            <tr>
+                            <td class="px-4 py-3">{{ d["clip_name"] }}</td>
+                            <td class="px-4 py-3">{{ d["clip_url"] }}</td>
+                            <td class="px-4 py-3">{{ d["clip_time"] }}</td>
+                            <td class="px-4 py-3"><a class="text-white border-2 py-2 px-8 focus:outline-none roundedtext-lg" href="/clip/{{ d["clip_url"] }}">Go</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            {% if error %}
+                <div class="flex flex-col text-center w-full mb-12">
+                    <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 text-white">{{ error }}</h1>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

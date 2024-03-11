@@ -1,0 +1,4 @@
+flask
+cs50
+flask-session
+werkzeug

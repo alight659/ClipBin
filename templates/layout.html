@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+
+        <!-- main stylesheet -->
+        <link rel="stylesheet" href="/static/style.css">
+
+        <!-- favicon -->
+        <link rel="icon" type="image/png" sizes="180x180" href="">
+
+        <!-- scripts.js -->
+        <script src="/static/scripts.js"></script>
+
+        <!-- google fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+        <!-- tailwind css -->
+        <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+        <script src="/static/tailwind.es"></script>
+
+        <!-- font awesome -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css" integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous">
+        <script src="https://kit.fontawesome.com/fe5f56cf4b.js" crossorigin="anonymous"></script>
+
+        <!-- highlight.js -->
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/default.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js/dist/highlightjs-line-numbers.min.js"></script>
+
+        <title>
+            ClipBin: {% block title %}{% endblock %}
+        </title>
+    </head>
+
+    <body class="bg-gray-900">
+        <header class="text-gray-400 bg-gray-900 body-font">
+            <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+              <a class="flex title-font font-medium items-center text-white mb-4 md:mb-0" href="/">
+                <span class="ml-3 text-xl">ClipBin</span>
+              </a>
+              <nav class="md:ml-auto md:mr-auto flex flex-wrap items-center text-base justify-center">
+                <a class="mr-5 hover:text-white" href="/">Home</a>
+                <a class="mr-5 hover:text-white" href="/clip">Search</a>
+                <a class="mr-5 hover:text-white" href="/about">About</a>
+                {% if dat %}
+                {% if dat[0] == True %}
+                <a class="mr-5 hover:text-white" href="/dashboard">Dashboard</a>
+                <a class="mr-5 hover:text-white" href="/logout">Logout</a>
+                {% endif %}
+                {% endif %}
+              </nav>
+              {% if dat %}
+                {% if dat[0] == True %}
+                  <a class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0" href="/dashboard">{{ dat[1] }}</a>
+                {% else %}
+                  <a class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0" href="/login">Login</a>
+                {% endif %}
+              {% endif %}
+            </div>
+        </header>
+
+        {% block body %}
+        
+        {% endblock %}
+
+        <footer class="text-gray-400 bg-gray-900 body-font">
+            <div class="container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
+              <a class="flex title-font font-medium items-center md:justify-start justify-center text-white">
+                <span class="ml-3 text-xl">ClipBin</span>
+              </a>
+              <p class="text-sm text-gray-400 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-800 sm:py-2 sm:mt-0 mt-4">© 2024 Aanis Ali Shah —
+                <a href="https://alight659.github.io" class="text-gray-500 ml-1" target="_blank" rel="noopener noreferrer">@alight659</a>
+              </p>
+              <span class="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
+                <a class="text-gray-400" href="https://github.com/alight659" target="_blank">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+              </span>
+            </div>
+        </footer>
+
+        <!-- initialise highlight js -->
+        <script>hljs.initHighlightingOnLoad();</script>
+        <script>hljs.initLineNumbersOnLoad({singleLine: true});</script>
+    </body>
+
+</html>
