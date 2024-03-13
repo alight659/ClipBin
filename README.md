@@ -8,7 +8,7 @@ The Simplest way of sharing code or anything that is text.
 
 - Dark mode
 - Anonymous
-- Password Protected Clips
+- Password Protected Bins
 - Full CRUD Support
 - Login/Sign-Up Features
 - Dashboard Features
@@ -49,7 +49,7 @@ Start the server
 
 To enable debugging mode, edit app.py
 
-```bash
+```python
   app.run(debug=True)
 ```
 ## Support
