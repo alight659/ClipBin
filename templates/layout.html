@@ -63,6 +63,13 @@
               {% endif %}
             </div>
         </header>
+        {% if get_flashed_messages() %}
+          <div class="container mx-auto">
+              <div class="flex flex-col text-center w-full">
+                  <p class="mx-auto leading-relaxed text-base text-white">{{ get_flashed_messages() | join(" ") }}</p>
+              </div>
+          </div>
+        {% endif %}
 
         {% block body %}
         

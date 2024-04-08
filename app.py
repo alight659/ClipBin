@@ -1,7 +1,7 @@
 import os
 
 from cs50 import SQL
-from flask import Flask, render_template, request, redirect, session, Response
+from flask import Flask, flash, render_template, request, redirect, session, Response
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from additional import gen_id, login_required, stat
@@ -193,10 +193,13 @@ def login():
             return render_template("error.html", code="Password cannot be empty.")
 
         data = db.execute("SELECT * FROM users WHERE username=?", uname)
-        if check_password_hash(data[0]["password"], passwd):
-            session["user_id"] = data[0]["id"]
-            session["uname"] = uname
-            return redirect("/")
+        if len(data) != 0:
+            if check_password_hash(data[0]["password"], passwd):
+                session["user_id"] = data[0]["id"]
+                session["uname"] = uname
+                return redirect("/")
+        else:
+            flash("Account Not Found!")
 
     return render_template("login.html")
 
