@@ -126,7 +126,7 @@ def search():
         if not clip_info:
             return render_template("search.html", error="Search Field cannot be empty!", dat=loginData())
         info = str("%"+clip_info+"%")
-        data = db.execute("SELECT clip_name, clip_url, clip_time FROM clips WHERE clip_url LIKE ? OR clip_name LIKE ? AND is_unlisted!=1", info, info)
+        data = db.execute("SELECT clip_name, clip_url, clip_time FROM clips WHERE clip_url LIKE ? AND is_unlisted!=1 OR clip_name LIKE ? AND is_unlisted!=1", info, info)
         if len(data) != 0:
             return render_template("search.html", data=data, dat=loginData())
         return render_template("search.html", error="Nothing was found!", dat=loginData())
