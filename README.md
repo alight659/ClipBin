@@ -54,7 +54,7 @@ To enable debugging mode, edit app.py
 ```
 ## Support
 
-For support, email at [aanisali@proton.me](mailto:aanisali@proton.me)
+For support, email at [aanis@clipb.in](mailto:aanis@clipb.in)
 
 
 ## Authors
