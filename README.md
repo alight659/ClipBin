@@ -3,7 +3,6 @@
 
 The Simplest way of sharing code or anything that is text.
 
-
 ## Features
 
 - Dark mode
@@ -12,6 +11,7 @@ The Simplest way of sharing code or anything that is text.
 - Full CRUD Support
 - Login/Sign-Up Features
 - Dashboard Features
+- **Many more Coming SOON!**
 
 
 ## Tech Stack
