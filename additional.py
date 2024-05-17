@@ -23,3 +23,8 @@ def stat(s):
         return "No"
     elif s == 1:
         return "Yes"
+
+def file_check(name):
+    exts = {'txt', 'md', 'csv', 'json', 'xml', 'html', 'css', 'js', 'py', 'java', 'c', 'cpp', 'cs', 'h', 'php', 'rb', 'go', 'sh', 'bat', 'pl', 'r', 'kt', 'swift'}
+    return '.' in name and \
+           name.rsplit('.', 1)[1].lower() in exts

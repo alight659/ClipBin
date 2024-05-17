@@ -9,6 +9,7 @@ The Simplest way of sharing code or anything that is text.
 - Anonymous
 - Password Protected Bins
 - Full CRUD Support
+- File Upload Support
 - Login/Sign-Up Features
 - Dashboard Features
 - **Many more Coming SOON!**

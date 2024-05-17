@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}
-    {{ name }}
+    {% if passwd %}
+        Password Protected Bin
+    {% else %}
+        {{ name }}
+    {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -52,7 +56,7 @@
                 </div>
             </div>
             <div class="flex flex-col text-center w-full mb-12">
-                <p class="leading-7 text-l text-white-400"><a class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/download/{{ url_id }}">Download as TXT</a></p>
+                <p class="leading-7 text-l text-white-400"><a class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/download/{{ url_id }}">Download as {{ ext }}</a></p>
                 {% if edit %}
                 <br>
                 <p class="leading-7 text-l text-white-400"></p>
