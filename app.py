@@ -4,7 +4,8 @@ from cs50 import SQL
 from flask import Flask, flash, render_template, request, redirect, session, Response
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
-from additional import gen_id, login_required, stat
+from werkzeug.utils import secure_filename
+from additional import gen_id, login_required, stat, file_check
 
 app = Flask(__name__)
 
@@ -60,6 +61,34 @@ def index():
         passwd = str(request.form.get("clip_passwd"))
         editable = request.form.get("clip_edit")
         unlist = request.form.get("clip_disp")
+        file = request.files["clip_file"]
+
+        if editable:
+            is_editable = 1
+        
+        if unlist:
+            is_unlisted = 1
+
+        if text and file:
+            flash("Cannot upload both Text and File together!")
+            return redirect("/")
+
+        if not text and not file:
+            flash("Text Field or File Cannot be Empty!")
+            return redirect("/")
+
+        if text and not name:
+            flash("Title Cannot be Empty!")
+            return redirect("/")
+
+        if file:
+            if file_check(file.filename):
+                text = str(file.read().decode("utf-8"))
+            else:
+                flash("File Not Allowed!")
+                return redirect("/")
+            if not name:
+                name = secure_filename(file.filename)
 
         if editable:
             is_editable = 1
@@ -98,9 +127,15 @@ def clip(clip_url_id):
         passwd = data[0]["clip_pwd"]
         editable = data[0]["is_editable"]
         updated = data[0]["update_time"]
+        ext = ""
 
         if editable == 1:
             is_editable = True
+
+        try:
+            ext = name.rsplit('.')[1]
+        except IndexError:
+            ext = 'txt'
 
         if passwd and request.method != "POST":
             return render_template("clip.html", passwd=True, url_id=clip_url_id, dat=loginData())
@@ -108,11 +143,11 @@ def clip(clip_url_id):
             clip_passwd = request.form.get("clip_passwd")
             
             if check_password_hash(passwd, clip_passwd):
-                return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated,  dat=loginData())
+                return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
             else:
                 return render_template("clip.html", passwd=True, error="Incorrect Password!", url_id=clip_url_id, dat=loginData())
         else:
-            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, dat=loginData())
+            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
 
     else:
         return render_template("error.html", code="That was not found on this server.")
@@ -171,10 +206,25 @@ def delete(url_id):
 # Download Function
 @app.route("/download/<url_id>")
 def download(url_id):
-    data = db.execute("SELECT clip_text, clip_name FROM clips WHERE clip_url=?", url_id)
+    data = db.execute("SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id)
     text = str(data[0]["clip_text"])
     name = data[0]["clip_name"]
-    return Response(text, mimetype='text/plain',headers={'Content-disposition': f'attachment; filename={name}.txt'})
+    passwd = data[0]["clip_pwd"]
+
+    if not file_check(name):
+        name = name+'.txt'
+
+    if passwd and request.method != "POST":
+        return render_template("passwd.html", url_id=url_id)
+    elif request.method == "POST":
+        clip_passwd = request.form.get("clip_passwd")
+            
+        if check_password_hash(passwd, clip_passwd):
+            return Response(text, mimetype='text/plain',headers={'Content-disposition': f'attachment; filename={name}'})
+        else:
+            return render_template("passwd.html", error="Incorrect Password!", url_id=url_id)
+ 
+    return Response(text, mimetype='text/plain',headers={'Content-disposition': f'attachment; filename={name}'})
 
 
 # Login Function

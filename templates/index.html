@@ -14,10 +14,19 @@
           <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
             <div class="relative sm:mb-0 flex-grow w-full">
               <label for="clip_name" class="leading-7 text-sm text-gray-400">Enter Title</label>
-              <form action="/" method="post">
+              <form action="/" method="post" enctype="multipart/form-data">
                 <input type="text" id="clip_name" name="clip_name" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Title" autocapitalize="off" autocomplete="off" autofocus>
                 <label for="clip_text" class="leading-7 text-sm text-gray-400">Enter your Text</label>
                 <textarea id="clip_text" name="clip_text" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 h-32 transition-colors duration-200 ease-in-out rounded-md resize-none hover:resize-y ubuntu-mono-regular" placeholder="Enter your Text"></textarea>
+
+                <div class="flex flex-col text-white text-center border-0 py-2 px-2">
+                  <p class="leading-7 text-sm text-gray-400"> --OR-- </p>
+                </div>
+                <label for="clip_file" class="leading-7 text-sm text-gray-400">Upload File?</label>
+                <div class="text-white bg-gray-800 bg-opacity-40 border-0 py-2 px-2 mb-1">
+                  <input type="file" name="clip_file" id="clip_file" class="flex text-white py-2 px-2 mb-2 focus:outline-none hover:bg-gray-800 hover:bg-opacity-80 rounded" accept=".txt,.md,.csv,.json,.xml,.html,.css,.js,.py,.java,.c,.cpp,.cs,.h,.php,.rb,.go,.sh,.bat,.pl,.r,.kt,.swift">
+                </div>
+
                 <details class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 roundedtext-lg">
                   <summary>
                       Optionals
@@ -25,11 +34,19 @@
                   <div class="relative">
                     <label for="clip_passwd" class="leading-7 text-sm text-gray-400">Create a Password Protected Clip</label>
                     <input type="text" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password" autocapitalize="off" autocomplete="off">
-                    <div class="text-center">
+                    <div class="flex text-center mt-1">
                       <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? </label>
-                      <input type="checkbox" name="clip_edit" id="clip_edit">&nbsp;
+                      <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="clip_edit" id="clip_edit" class="sr-only peer">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 8920dedcb8f64121adaffd541e2ec130after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span> 
+                      </label>
                       <label for="clip_disp" class="leading-7 text-l text-gray-400">Set Unlisted? </label>
-                      <input type="checkbox" name="clip_disp" id="clip_disp">
+                      <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="clip_disp" id="clip_disp" class="sr-only peer">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span> 
+                      </label>
                     </div>
                   </div>
                 </details>
