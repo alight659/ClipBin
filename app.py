@@ -204,7 +204,7 @@ def delete(url_id):
 
 
 # Download Function
-@app.route("/download/<url_id>")
+@app.route("/download/<url_id>", methods=["GET","POST"])
 def download(url_id):
     data = db.execute("SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id)
     text = str(data[0]["clip_text"])
