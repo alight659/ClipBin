@@ -12,6 +12,7 @@ The Simplest way of sharing code or anything that is text.
 - File Upload Support
 - Login/Sign-Up Features
 - Dashboard Features
+- Open API
 - **Many more Coming SOON!**
 
 
