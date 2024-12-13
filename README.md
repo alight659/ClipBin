@@ -63,3 +63,5 @@ For support, email at [aanis@clipb.in](mailto:aanis@clipb.in)
 
 - [@alight659](https://www.github.com/alight659)
 
+## Licence
+Released under [MIT Licence](https://github.com/alight659/ClipBin/blob/main/LICENSE)
