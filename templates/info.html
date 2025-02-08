@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+{% block title %}
+    {% if terms %}
+    Terms & Privacy
+    {% elif feedback %}
+    Feedback
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+<section class="text-gray-400 bg-gray-900 body-font">
+    <div class="container px-5 py-24 mx-auto">
+        <div class="flex flex-col w-full mb-12">
+            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">ClipBin</h1>
+            <p class="leading-relaxed text-base">
+                The Simplest way of sharing code or anything that is text.
+            </p>
+            {% if terms %}
+            <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 mt-5 text-white">Terms & Privacy</h1>
+            <p class="leading-relaxed text-white">
+                The developer maybe referred as I, we, our. ClipBin maybe referred by name, or simply 'this'.
+            </p>
+            <ul class="list-disc list-inside text-l">
+                <li><b>By using this service you agree to not use this for any illegal purpose.</b></li>
+                <li>This is an open source service for which the source code can be found on GitHub. Navigate to <a href="https://github.com/Alight659/ClipBin" class="hover:bg-gray-700 underline">https://github.com/Alight659/ClipBin</a></li>
+                <li>You are free to self-host this in whatever way you want. The code is released under <a href="https://github.com/Alight659/ClipBin/blob/main/LICENSE" class="underline" target="_blank">MIT License</a>.</li>
+                <li>We always try to maintain your privacy by not tracking your ip. However basic logs maybe saved.</li>
+                <li>Protecting your data is our priority. That is why we implemented End-to-End Encryption(E2EE).</li>
+                <li>E2EE gets activated automatically when you protect your text with a password.</li>
+                <li>This essentially means that even we cannot see what you saved. For non passwd case, yes we can see what you saved.</li>
+                <li>The API is open. You are free to for any purpose except for illegal.</li>
+                <li>For any Queries related to Terms and Privacy; please mail at <a href="mailto:tnp@clipb.in" class="underline">tnp@clipb.in</a></li>
+            </ul>
+            {% endif %}
+            {% if feedback %}
+            <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 mt-5 text-white">Feedback</h1>
+            <p class="leading-relaxed text-base">
+                Feedbacks are welcomed. Please share your experience with us at <a href="mailto:feedback@clipb.in" class="underline">feedback@clip.in</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
