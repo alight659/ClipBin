@@ -1,5 +1,5 @@
 flask
-cs50
+cryptography
 flask-session
 werkzeug
 cachelib

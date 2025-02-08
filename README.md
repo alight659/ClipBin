@@ -8,6 +8,7 @@ The Simplest way of sharing code or anything that is text.
 - Dark mode
 - Anonymous
 - Password Protected Bins
+- End-To-End Encryption(E2EE)
 - Full CRUD Support
 - File Upload Support
 - Login/Sign-Up Features

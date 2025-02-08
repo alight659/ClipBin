@@ -1,23 +1,25 @@
 import os
+from datetime import datetime
 
-from cs50 import SQL
+from sqlite import SQLite
 from flask import Flask, flash, render_template, request, redirect, session, Response, jsonify
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from additional import gen_id, login_required, stat, file_check
+from additional import gen_id, login_required, stat, file_check, encrypt, decrypt
 
 app = Flask(__name__)
 
 # Connect to SQLITE3 Database
-db = SQL("sqlite:///clipbin.db")
+db = SQLite("clipbin.db")
 
 
 # Custom Filter JINJA
 app.jinja_env.filters["stat"] = stat
 
 
-# Configure Login Session Cache
+# Configure Flask, Login Session Cache
+app.config['MAX_CONTENT_LENGTH'] = 1.5 * 1024 * 1024
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -39,13 +41,19 @@ def loginData():
 # Error Handling 404
 @app.errorhandler(404)
 def error(code):
-    return render_template("error.html", code=code), 404
+    return render_template("error.html", code="404 Not Found!"), 404
 
 
 # Error Handling 500
 @app.errorhandler(500)
 def error(code):
-    return render_template("error.html", code=code), 500
+    return render_template("error.html", code="500 Internal Server Error!"), 500
+
+
+# Error Handling 413
+@app.errorhandler(413)
+def error(code):
+    return render_template("error.html", code="413 Content Too Large!"), 413
 
 
 # Main Index Function
@@ -96,13 +104,15 @@ def index():
         if unlist:
             is_unlisted = 1
 
+        cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
         if not passwd:
-            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time) VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'))", str(
-            post_id), name, text, is_editable, is_unlisted)
+            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time) VALUES (?, ?, ?, ?, ?, ?)", str(
+            post_id), name, text, is_editable, is_unlisted, cur_time)
         else:
-            pwd = generate_password_hash(passwd)
-            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time) VALUES (?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))", str(
-            post_id), name, text, pwd, is_editable, is_unlisted)
+            pwd = generate_password_hash(passwd, method='scrypt')
+            text = encrypt(text.encode(), passwd)
+            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time) VALUES (?, ?, ?, ?, ?, ?, ?)", str(
+            post_id), name, text, pwd, is_editable, is_unlisted, cur_time)
 
         if loginData()[0]:
             uid = db.execute("SELECT id FROM users WHERE username=?", loginData()[1])[0]["id"]
@@ -121,7 +131,7 @@ def clip(clip_url_id):
     passwd = ""
     is_editable = False
     if len(data) != 0:
-        text = str(data[0]["clip_text"])
+        text = data[0]["clip_text"]
         name = data[0]["clip_name"]
         time = data[0]["clip_time"]
         passwd = data[0]["clip_pwd"]
@@ -143,10 +153,12 @@ def clip(clip_url_id):
             clip_passwd = request.form.get("clip_passwd")
             
             if check_password_hash(passwd, clip_passwd):
+                text = decrypt(text, clip_passwd).decode()
                 return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
             else:
                 return render_template("clip.html", passwd=True, error="Incorrect Password!", url_id=clip_url_id, dat=loginData())
         else:
+            text = str(text)
             return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
 
     else:
@@ -182,10 +194,11 @@ def update(url_id):
         if len(data) != 0 and data[0]["is_editable"] == 1:
             if request.method == "POST":
                 text = str(request.form.get("clip_text")).strip()
-                db.execute("UPDATE clips SET clip_text=?, update_time=datetime('now', 'localtime') WHERE id=?", text, data[0]["id"])
+                cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
+                db.execute("UPDATE clips SET clip_text=?, update_time=? WHERE id=?", text, cur_time, data[0]["id"])
                 return redirect(f"/clip/{url_id}")
             return render_template("error.html", code="Cannot Edit this Clip")
-        return render_template("error.html", code="This Clip Cannot be Edited!")
+        return render_template("error.html", code="You cannot edit this clip!")
     return redirect("/login")
 
 
@@ -250,6 +263,7 @@ def login():
                 return redirect("/")
             else:
                 flash("Incorrect Username or Password!")
+                return render_template("login.html", dat=loginData(), reg=True)
         else:
             flash("Account Not Found!")
 
@@ -289,7 +303,7 @@ def register():
         if check_password_hash(passwd, conf):
             return render_template("register.html", error="Passwords do not match!")
 
-        db.execute("INSERT INTO users (username, password) VALUES (?, ?)", uname, generate_password_hash(passwd))
+        db.execute("INSERT INTO users (username, password) VALUES (?, ?)", uname, generate_password_hash(passwd, method='scrypt'))
 
         return redirect("/login")
     return render_template("register.html", dat=loginData())
@@ -345,7 +359,11 @@ def get_data():
             dat = {}
             dat['id'] = i['clip_url']
             dat['name'] = i['clip_name']
-            dat['text'] = i['clip_text']
+            text = i['clip_text']
+            if type(text) == bytes:
+                dat['text'] = decrypt(text, clip_pass).decode()
+            else:
+                dat['text'] = text
             dat['time'] = i['clip_time']
             datl.append(dat)
         return jsonify(datl)
@@ -355,9 +373,9 @@ def get_data():
 # API POST Function
 @app.route("/api/post_data", methods=["GET","POST"])
 def post_data():
-    clip_name = request.form.get("name")
+    clip_name = str(request.form.get("name"))
     clip_id = gen_id()
-    clip_text = request.form.get("text")
+    clip_text = str(request.form.get("text"))
     unlist = request.form.get("unlisted")
     clip_pass = request.form.get("pwd")
 
@@ -373,12 +391,14 @@ def post_data():
         unlist = 0
 
     successStatus = False
+    cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
     if not clip_pass:
-        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time) VALUES (?,?,?,0,?, datetime('now', 'localtime'))", str(clip_id), str(clip_name), str(clip_text), unlist)
+        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time) VALUES (?,?,?,0,?,?)", str(clip_id), clip_name, clip_text, unlist, cur_time)
         successStatus = True
     elif clip_pass:
-        pwd = generate_password_hash(clip_pass)
-        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time) VALUES (?,?,?,?,0,?, datetime('now', 'localtime'))", str(clip_id), str(clip_name), str(clip_text), pwd, unlist)
+        pwd = generate_password_hash(clip_pass, method='scrypt')
+        clip_text = encrypt(clip_text.encode(), clip_pass) 
+        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time) VALUES (?,?,?,?,0,?,?)", str(clip_id), clip_name, clip_text, pwd, unlist, cur_time)
         successStatus = True
     if successStatus:
         return jsonify({'id': str(clip_id),'Message': 'Successfully added!'}), 201
@@ -390,6 +410,17 @@ def post_data():
 @app.route("/api/")
 def api():
     return render_template("api.html", dat=loginData())
+
+
+# Terms and Privacy Policy Page
+@app.route("/terms")
+def terms():
+    return render_template("info.html", terms=True, dat=loginData())
+
+
+@app.route("/feedback")
+def feedbackroute():
+    return render_template("info.html", feedback=True, dat=loginData())
 
 
 if __name__ == "__main__":

@@ -36,13 +36,20 @@
         <div class="container px-5 py-24 mx-auto">
             <div class="flex flex-col text-center w-full mb-12">
                 <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">{{ name }}</h1>
-                <p class="leading-7 text-l text-white-400">ID: {{ url_id }} <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="copyurl()">Copy URL</button> </p>
+                <p class="leading-7 text-l text-white-400">ID: {{ url_id }} <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(window.location.href);alert('URL Copied!');">Copy URL</button> </p>
+            </div>
+            <div class="flex flex-col text-center w-full ">
+                <p class="leading-7 text-l text-white-400"><a class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/download/{{ url_id }}">Download as {{ ext }}</a></p>
+                {% if edit %}
+                <br>
+                <p class="leading-7 text-l text-white-400"></p>
+                {% endif %}
             </div>
             <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
                 <div class="relative sm:mb-0 flex-grow w-full">
                     {% if edit and dat[0] == True %}
                     <form action="/update/{{ url_id }}" method="post">
-                        <textarea name="clip_text" id="clip_text" class="w-full bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap">{{ text }}</textarea>
+                        <textarea name="clip_text" id="clip_text" class="w-full mt-4 bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap" rows="4">{{ text }}</textarea>
                         <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
                     </form>
                     {% else %}
@@ -54,16 +61,9 @@
                 </div>
             </div>
             <div class="flex flex-col text-center w-full mb-12">
-                <p class="leading-7 text-l text-white-400"><a class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/download/{{ url_id }}">Download as {{ ext }}</a></p>
-                {% if edit %}
-                <br>
-                <p class="leading-7 text-l text-white-400"></p>
-                {% endif %}
-            </div>
-            <div class="flex flex-col text-center w-full mb-12">
-                <p class="leading-7 text-l text-white-400"> Created at: {{ time }} </p>
+                <p class="leading-7 text-l text-white-400"> Created: {{ time }} UTC</p>
                 {% if edit and update %}
-                <p class="leading-7 text-l text-white-400"> Updated at: {{ update }} </p>
+                <p class="leading-7 text-l text-white-400"> Updated: {{ update }} UTC</p>
                 {% endif %}
             </div>
         </div>
