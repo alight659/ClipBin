@@ -1,5 +1,6 @@
 import re
 import os
+import base64
 from uuid import uuid4
 from functools import wraps
 from flask import redirect, session
@@ -10,9 +11,10 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
-# generates unique random hex
+# generates unique random url
 def gen_id():
-    return uuid4().hex
+    genid = base64.urlsafe_b64encode(bytes.fromhex(uuid4().hex)).decode('utf-8').strip('=')[:7]
+    return genid
 
 # login decorator
 def login_required(f):
