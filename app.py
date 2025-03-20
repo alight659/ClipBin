@@ -71,6 +71,10 @@ def index():
         unlist = request.form.get("clip_disp")
         file = request.files["clip_file"]
 
+        check = db.execute("SELECT clip_url from clips WHERE clip_url=?", post_id)
+        if len(check) != 0:
+            post_id = gen_id()
+
         if editable:
             is_editable = 1
         
@@ -122,6 +126,12 @@ def index():
         return redirect(f"/clip/{post_id}")
     else:
         return render_template("index.html", dat=loginData())
+
+
+# Redirect
+@app.route("/<url>")
+def urlsrdir(url):
+    return redirect(f"/clip/{url}")
 
 
 # Show CLIP Function
