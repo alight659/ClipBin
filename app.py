@@ -6,7 +6,7 @@ from flask import Flask, flash, render_template, request, redirect, session, Res
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from additional import gen_id, login_required, stat, file_check, encrypt, decrypt
+from additional import gen_id, login_required, stat, file_check, encrypt, decrypt, validate_alias
 
 app = Flask(__name__)
 
@@ -70,11 +70,19 @@ def index():
         editable = request.form.get("clip_edit")
         unlist = request.form.get("clip_disp")
         file = request.files["clip_file"]
+        custom_alias = request.form.get("clip_alias")
 
-        check = db.execute("SELECT clip_url from clips WHERE clip_url=?", post_id)
-        if len(check) != 0:
-            post_id = gen_id()
-
+        if custom_alias:
+            custom_alias = custom_alias.strip()
+            if not validate_alias(custom_alias):
+                flash("Alias must be 4-12 characters long and contain only letters, numbers, hyphens and underscores!")
+                return redirect("/")
+            check = db.execute("SELECT clip_url from clips WHERE clip_url=?", custom_alias)
+            if len(check) != 0:
+                flash("This alias is already taken!")
+                return redirect("/")
+            post_id = custom_alias
+        
         if editable:
             is_editable = 1
         
@@ -107,6 +115,14 @@ def index():
         
         if unlist:
             is_unlisted = 1
+
+        check = db.execute("SELECT clip_url from clips WHERE clip_url=?", post_id)
+        if len(check) != 0:
+            if not custom_alias:
+                post_id = gen_id()
+            else:
+                flash("This alias is already taken!")
+                return redirect("/")
 
         cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
         if not passwd:

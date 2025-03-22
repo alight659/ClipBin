@@ -72,3 +72,12 @@ def decrypt(encrypted_data: bytes, passwd: str):
     plaintext = aesgcm.decrypt(nonce, cipher, None)
     
     return plaintext
+
+# Validate custom alias
+def validate_alias(alias):
+    # Check if alias length is between 4 and 12 characters
+    if len(alias) < 4 or len(alias) > 12:
+        return False
+    # Check if alias contains only alphanumeric, hyphen and underscore
+    pattern = r'^[a-zA-Z0-9_-]+$'
+    return bool(re.match(pattern, alias))
