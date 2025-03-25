@@ -1,8 +1,8 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlite import SQLite
-from flask import Flask, flash, render_template, request, redirect, session, Response, jsonify
+from flask import Flask, flash, render_template, request, redirect, session, Response, jsonify, abort
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -24,6 +24,14 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+time = {
+    "day": timedelta(days=1),
+    "week": timedelta(weeks=1),
+    "twoweek": timedelta(weeks=2),
+    "month": timedelta(weeks=4),
+    "half": timedelta(weeks=26),
+    "year": timedelta(weeks=52)
+}
 
 # Set Login Data
 def loginData():
@@ -69,8 +77,9 @@ def index():
         passwd = str(request.form.get("clip_passwd"))
         editable = request.form.get("clip_edit")
         unlist = request.form.get("clip_disp")
-        file = request.files["clip_file"]
         custom_alias = request.form.get("clip_alias")
+        remove_time = request.form.get('clip_delete')
+        file = request.files["clip_file"]
 
         if custom_alias:
             custom_alias = custom_alias.strip()
@@ -124,15 +133,21 @@ def index():
                 flash("This alias is already taken!")
                 return redirect("/")
 
+        if remove_time:
+            if remove_time == 'never':
+                remove_time = None
+            else:
+                remove_time = (time[remove_time] + datetime.now()).strftime('%d-%m-%Y %H:%M:%S')
+
         cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
         if not passwd:
-            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time) VALUES (?, ?, ?, ?, ?, ?)", str(
-            post_id), name, text, is_editable, is_unlisted, cur_time)
+            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time, delete_time) VALUES (?, ?, ?, ?, ?, ?, ?)", str(
+            post_id), name, text, is_editable, is_unlisted, cur_time, remove_time)
         else:
             pwd = generate_password_hash(passwd, method='scrypt')
             text = encrypt(text.encode(), passwd)
-            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time) VALUES (?, ?, ?, ?, ?, ?, ?)", str(
-            post_id), name, text, pwd, is_editable, is_unlisted, cur_time)
+            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time, delete_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", str(
+            post_id), name, text, pwd, is_editable, is_unlisted, cur_time, remove_time)
 
         if loginData()[0]:
             uid = db.execute("SELECT id FROM users WHERE username=?", loginData()[1])[0]["id"]
@@ -153,7 +168,7 @@ def urlsrdir(url):
 # Show CLIP Function
 @app.route("/clip/<clip_url_id>", methods=["GET", "POST"])
 def clip(clip_url_id):
-    data = db.execute("SELECT clip_name, clip_text, clip_time, clip_pwd, is_editable, update_time FROM clips WHERE clip_url=?", clip_url_id)
+    data = db.execute("SELECT clip_name, clip_text, clip_time, clip_pwd, is_editable, update_time, delete_time FROM clips WHERE clip_url=?", clip_url_id)
     passwd = ""
     is_editable = False
     if len(data) != 0:
@@ -163,7 +178,13 @@ def clip(clip_url_id):
         passwd = data[0]["clip_pwd"]
         editable = data[0]["is_editable"]
         updated = data[0]["update_time"]
+        remove_time = data[0]["delete_time"]
         ext = ""
+
+        if remove_time:
+            if datetime.strptime(remove_time, '%d-%m-%Y %H:%M:%S') < datetime.now():
+                db.execute("DELETE FROM clips WHERE clip_url=?", clip_url_id)
+                return render_template("error.html", code="This Clip was Expired.", dat=loginData()), 404
 
         if editable == 1:
             is_editable = True
@@ -188,7 +209,7 @@ def clip(clip_url_id):
             return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
 
     else:
-        return render_template("error.html", code="That was not found on this server."), 404
+        return render_template("error.html", code="That was not found on this server.", dat=loginData()), 404
 
 
 # Search Function
@@ -352,7 +373,7 @@ def get_data():
     clip_name = request.args.get("name")
     clip_pass = request.args.get("pwd")
     unlisted = request.args.get("unlisted")
-    
+
     data = {}
 
     if not clip_id and not clip_name:
@@ -363,24 +384,31 @@ def get_data():
 
     if clip_name:
         clip_name = '%'+clip_name+'%'
-    
+        
+    query = 0
     if not clip_pass:
         if unlisted == 'true' and clip_id:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1 AND clip_pwd IS NULL", str(clip_id))
+            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1 AND clip_pwd IS NULL", str(clip_id))
         else:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1 AND clip_pwd IS NULL", str(clip_id), str(clip_name))
+            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1 AND clip_pwd IS NULL", str(clip_id), clip_name)
     else:
         if unlisted == 'true' and clip_id:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1", str(clip_id))
+            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1", str(clip_id))
         else:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1", str(clip_id), str(clip_name))
+            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1", str(clip_id), clip_name)
+
+    if len(data) != 0:
+        for i in data:
+            if i['delete_time']:
+                if datetime.strptime(i['delete_time'], '%d-%m-%Y %H:%M:%S') < datetime.now():
+                    db.execute("DELETE FROM clips WHERE clip_url=?", i['clip_url'])
+                    data.remove(i)
+
+    data_list = []
+    if len(data) != 0:
         if data[0]['clip_pwd'] != None:
             if not check_password_hash(data[0]['clip_pwd'], clip_pass):
                 return jsonify({'Error': 'Incorrect Password'}), 401
-        
-    
-    datl = []
-    if len(data) != 0:
         for i in data:
             dat = {}
             dat['id'] = i['clip_url']
@@ -391,8 +419,8 @@ def get_data():
             else:
                 dat['text'] = text
             dat['time'] = i['clip_time']
-            datl.append(dat)
-        return jsonify(datl)
+            data_list.append(dat)
+        return jsonify(data_list)
     return jsonify({'Error': 'No Data'}), 404
 
 
@@ -404,6 +432,19 @@ def post_data():
     clip_text = str(request.form.get("text"))
     unlist = request.form.get("unlisted")
     clip_pass = request.form.get("pwd")
+    remove_after = request.form.get("remove")
+
+    if remove_after:
+        if remove_after in time.keys():
+            remove_after = (time[remove_after] + datetime.now()).strftime('%d-%m-%Y %H:%M:%S')
+        else:
+            remove_after = None
+    else:
+        remove_after = None
+
+    check = db.execute("SELECT clip_url FROM clips WHERE clip_url=?", clip_id)
+    if len(check) != 0:
+        clip_id = gen_id()
 
     if not clip_name or not clip_text:
         return jsonify({'Error': 'Missing Parameters!'}), 400
@@ -419,12 +460,12 @@ def post_data():
     successStatus = False
     cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
     if not clip_pass:
-        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time) VALUES (?,?,?,0,?,?)", str(clip_id), clip_name, clip_text, unlist, cur_time)
+        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time, delete_time) VALUES (?,?,?,0,?,?,?)", str(clip_id), clip_name, clip_text, unlist, cur_time, remove_after)
         successStatus = True
     elif clip_pass:
         pwd = generate_password_hash(clip_pass, method='scrypt')
         clip_text = encrypt(clip_text.encode(), clip_pass) 
-        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time) VALUES (?,?,?,?,0,?,?)", str(clip_id), clip_name, clip_text, pwd, unlist, cur_time)
+        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time, delete_time) VALUES (?,?,?,?,0,?,?,?)", str(clip_id), clip_name, clip_text, pwd, unlist, cur_time, remove_after)
         successStatus = True
     if successStatus:
         return jsonify({'id': str(clip_id),'Message': 'Successfully added!'}), 201
@@ -444,6 +485,7 @@ def terms():
     return render_template("info.html", terms=True, dat=loginData())
 
 
+# Feedback Page
 @app.route("/feedback")
 def feedbackroute():
     return render_template("info.html", feedback=True, dat=loginData())
