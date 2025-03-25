@@ -14,6 +14,8 @@ The Simplest way of sharing code or anything that is text.
 - Login/Sign-Up Features
 - Dashboard Features
 - Open API
+- Custom URL Alias
+- Temporary Time Based Clips
 - **Many more Coming SOON!**
 
 

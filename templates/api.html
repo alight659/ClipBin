@@ -143,6 +143,22 @@
                                 <td class="border border-gray-700 px-4 py-2">No</td>
                                 <td class="border border-gray-700 px-4 py-2">Specify if the data should be unlisted. Accepted values: true or false.</td>
                             </tr>
+                            <tr>
+                                <td class="border border-gray-700 px-4 py-2">remove</td>
+                                <td class="border border-gray-700 px-4 py-2">string</td>
+                                <td class="border border-gray-700 px-4 py-2">No</td>
+                                <td class="border border-gray-700 px-4 py-2">Specify when the clip will be removed. Available options: 
+                                    <ul>
+                                        <li>day - for 1 day</li>
+                                        <li>week - for 1 week</li>
+                                        <li>twoweek - for 2 week</li>
+                                        <li>month - for 1 month</li>
+                                        <li>half - for 6 month</li>
+                                        <li>year - for 1 year</li>
+                                    </ul>
+                                    If any other option is provided, it will be treated as never.
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
             
@@ -151,7 +167,8 @@
     "name": "Sample Name",
     "text": "Sample Text",
     "pwd": "example_password",
-    "unlisted": "false"
+    "unlisted": "false",
+    "remove": "half"
 }</code></pre>
             
                     <h3 class="text-lg font-semibold mb-2">Responses</h3>
@@ -177,7 +194,8 @@ Body:
     "name": "Sample Name",
     "text": "Sample Text",
     "pwd": "example_password",
-    "unlisted": "false"
+    "unlisted": "false",
+    "remove": "half"
 }</code></pre>
             
                     <h3 class="text-lg font-semibold mb-2">Example Response</h3>

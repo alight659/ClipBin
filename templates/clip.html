@@ -40,16 +40,16 @@
             </div>
             <div class="flex flex-col text-center w-full ">
                 <p class="leading-7 text-l text-white-400"><a class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/download/{{ url_id }}">Download as {{ ext }}</a></p>
-                {% if edit %}
+                {% if edit and dat[0] == False %}
                 <br>
-                <p class="leading-7 text-l text-white-400"></p>
+                <p class="leading-7 text-l text-white-400 mt-2">This Clip can be editted by the Owner.</p>
                 {% endif %}
             </div>
             <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
                 <div class="relative sm:mb-0 flex-grow w-full">
                     {% if edit and dat[0] == True %}
                     <form action="/update/{{ url_id }}" method="post">
-                        <textarea name="clip_text" id="clip_text" class="w-full mt-4 bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap" rows="4">{{ text }}</textarea>
+                        <textarea name="clip_text" id="clip_text" class="w-full mt-4 bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap" rows="4" oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } ">{{ text }}</textarea>
                         <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
                     </form>
                     {% else %}

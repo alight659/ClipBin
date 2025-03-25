@@ -17,8 +17,7 @@
               <form action="/" method="post" enctype="multipart/form-data">
                 <input type="text" id="clip_name" name="clip_name" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Hello Title" autocapitalize="off" autocomplete="off" autofocus>
                 <label for="clip_text" class="leading-7 text-sm text-gray-400">Enter your Text</label>
-                <textarea id="clip_text" name="clip_text" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 h-32 transition-colors duration-200 ease-in-out rounded-md resize-none hover:resize-y ubuntu-mono-regular" placeholder="Something Interesting..."></textarea>
-
+                <textarea id="clip_text" name="clip_text" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 h-32 transition-colors duration-200 ease-in-out rounded-md resize-none hover:resize-y ubuntu-mono-regular" placeholder="Something Interesting..." oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } "></textarea>
                 <div class="flex flex-col text-white text-center border-0 py-2 px-2">
                   <p class="leading-7 text-sm text-gray-400"> --OR-- </p>
                 </div>
@@ -30,14 +29,23 @@
                 <div class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 roundedtext-lg">
                   <h1 class="leading-7 text-white">Optionals</h1>
                   <div class="relative">
-                    <label for="clip_alias" class="leading-7 text-sm text-gray-400">Custom URL Alias (4-12 characters, only letters, numbers, hyphens and underscores)</label>
-                    <input type="text" id="clip_alias" name="clip_alias" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Custom-Alias" autocapitalize="off" autocomplete="off">
-                    
+                    <label for="clip_alias" class="leading-7 text-sm text-gray-400">Custom URL Alias</label>
+                    <input type="text" id="clip_alias" name="clip_alias" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Custom-Alias (a-z A-Z 0-9 -_ only)" autocapitalize="off" autocomplete="off" maxlength="12" minlength="4">
                     <label for="clip_passwd" class="leading-7 text-sm text-gray-400">Create a Password Protected Clip</label>
                     <input type="text" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password" autocapitalize="off" autocomplete="off">
-                    <label class="leading-7 text-sm text-gray-400">Using Password also enables E2EE.</label>
+                    <label class="leading-7 text-sm text-gray-400">Using Password also enables E2EE.</label><br>
+                    <label class="leading-7 text-sm text-gray-400" for="clip_delete">Remove After:</label>
+                    <select name="clip_delete" id="clip_delete" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                      <option value="never">Never</option>
+                      <option value="day">1 Day</option>
+                      <option value="week">1 Week</option>
+                      <option value="twoweek">2 Weeks</option>
+                      <option value="month">1 Month</option>
+                      <option value="half">6 Months</option>
+                      <option value="year">1 Year</option>
+                    </select>
                     <div class="flex text-center mt-1">
-                      <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? </label>
+                      <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? (Login)</label>
                       <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="clip_edit" id="clip_edit" class="sr-only peer">
                         <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 8920dedcb8f64121adaffd541e2ec130after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
