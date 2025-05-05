@@ -22,6 +22,7 @@ app.jinja_env.filters["stat"] = stat
 app.config['MAX_CONTENT_LENGTH'] = 1.5 * 1024 * 1024
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.secret_key = os.environ.get("SECRET_KEY")
 Session(app)
 
 time = {
@@ -210,6 +211,39 @@ def clip(clip_url_id):
 
     else:
         return render_template("error.html", code="That was not found on this server.", dat=loginData()), 404
+
+
+# Show Raw
+@app.route("/clip/<clip_url_id>/raw", methods=["GET", "POST"])
+def clipraw(clip_url_id):
+    data = db.execute("SELECT clip_text, clip_pwd, delete_time FROM clips WHERE clip_url=?", clip_url_id)
+    passwd = ""
+    if len(data) != 0:
+        text = data[0]["clip_text"]
+        passwd = data[0]["clip_pwd"]
+        remove_time = data[0]["delete_time"]
+
+        if remove_time:
+            if datetime.strptime(remove_time, '%d-%m-%Y %H:%M:%S') < datetime.now():
+                db.execute("DELETE FROM clips WHERE clip_url=?", clip_url_id)
+                return Response("This Clip was Expired.", mimetype='text/plain'), 404
+
+        if passwd and request.method != "POST":
+            return Response(f"This Clip is Password Protected. Send a POST request at the url {request.url} with parameter passwd=<your_password>\nExample Request: curl -d \"passwd=<your_password>\" -X POST {request.url}\n", mimetype="text/plain")
+        elif request.method == "POST":
+            clip_passwd = request.form.get("passwd")
+            
+            if check_password_hash(passwd, clip_passwd):
+                text = decrypt(text, clip_passwd).decode()
+                return text, {'Content-Type': 'text/plain'}
+            else:
+                return Response("Incorrect Password!\n", mimetype='text/plain')
+        else:
+            text = str(text)
+            return text, {'Content-Type': 'text/plain'}
+            
+    else:
+        return Response("That was not found on this server.\n", mimetype='text/plain'), 404
 
 
 # Search Function
