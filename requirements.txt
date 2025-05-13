@@ -3,3 +3,5 @@ cryptography
 flask-session
 werkzeug
 cachelib
+qrcode
+pillow

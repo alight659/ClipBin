@@ -7,6 +7,10 @@ from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from additional import gen_id, login_required, stat, file_check, encrypt, decrypt, validate_alias
+import qrcode
+import io
+import base64
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -182,6 +186,23 @@ def clip(clip_url_id):
         remove_time = data[0]["delete_time"]
         ext = ""
 
+        # Generate QR code (once)
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+
+        qr.add_data(request.url)
+        qr.make(fit=True)
+        img = qr.make_image(fill='black', back_color='white')
+
+        # Convert to base64
+        img_io = BytesIO()
+        img.save(img_io, 'PNG')
+        img_data = base64.b64encode(img_io.getvalue()).decode('utf-8')
+
         if remove_time:
             if datetime.strptime(remove_time, '%d-%m-%Y %H:%M:%S') < datetime.now():
                 db.execute("DELETE FROM clips WHERE clip_url=?", clip_url_id)
@@ -207,7 +228,7 @@ def clip(clip_url_id):
                 return render_template("clip.html", passwd=True, error="Incorrect Password!", url_id=clip_url_id, dat=loginData())
         else:
             text = str(text)
-            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
+            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable,qr_code_img=img_data, update=updated, ext=ext, dat=loginData())
 
     else:
         return render_template("error.html", code="That was not found on this server.", dat=loginData()), 404
