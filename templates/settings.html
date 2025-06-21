@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Settings
+{% endblock %}
+
+{% block body %}
+<section class="text-gray-400 bg-gray-900 body-font">
+    <div class="container px-5 py-24 mx-auto">
+        <div class="flex flex-col w-full mb-12">
+            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">Settings</h1>
+            <h1 class="sm:text-l text-xl font-medium title-font mb-4 text-white">Change Password</h1>
+            <div class="lg:w-1/3 md:w-auto flex flex-col md:mr-auto">
+                <form action="/settings" method="post">
+                    <div class="relative mb-4">
+                        <label for="old_passwd" class="leading-7 text-smivide-y divide-gray-100 text-gray-400">Old Password</label>
+                        <input type="password" id="old_passwd" name="old_passwd" class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                    </div>
+                    <div class="relative mb-4">
+                        <label for="new_passwd" class="leading-7 text-sm text-gray-400">New Password</label>
+                        <input type="password" id="new_passwd" name="new_passwd" class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                    </div>
+                    <div class="relative mb-4">
+                        <label for="conf_passwd" class="leading-7 text-sm text-gray-400">Confirm Password</label>
+                        <input type="password" id="conf_passwd" name="conf_passwd" class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                    </div>
+                    <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
+                </form>
+            </div>
+            <hr class="mt-4 border-gray-800 dark:border-gray">
+            <div class="">
+                <h1 class="sm:text-l text-xl font-medium title-font mb-4 text-white">
+                    Data Export
+                </h1>
+                <p class="leading-relaxed text-base mb-4">
+                    Data Export currently does not support exporting encrypted data. Only unencrypted data will be exported.
+                </p>
+                <form action="/settings/export" method="post">
+                    <label for="export_ext">Select export format: </label>
+                    <select name="export_ext" id="export_ext" class="mr-2 bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        <option value="json">JSON</option>
+                        <option value="csv">CSV</option>
+                        <option value="text">TXT</option>
+                    </select>
+                    <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">
+                        Export
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
