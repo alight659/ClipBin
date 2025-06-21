@@ -1,8 +1,11 @@
 import re
 import os
+import csv
+import json
 import base64
 from uuid import uuid4
 from functools import wraps
+from io import StringIO, BytesIO
 from flask import redirect, session
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
@@ -33,7 +36,7 @@ def stat(s):
     elif s == 1:
         return "Yes"
 
-# Check for file extension - LIST TO BE EXPANDED
+# Check for file extension #LIST TO BE EXPANDED
 def file_check(name):
     exts = {'txt', 'md', 'csv', 'json', 'xml', 'html', 'css', 'js', 'py', 'java', 'c', 'cpp', 'cs', 'h', 'php', 'rb', 'go', 'sh', 'bat', 'pl', 'r', 'kt', 'swift', 'ts'}
     return '.' in name and \
@@ -81,3 +84,37 @@ def validate_alias(alias):
     # Check if alias contains only alphanumeric, hyphen and underscore
     pattern = r'^[a-zA-Z0-9_-]+$'
     return bool(re.match(pattern, alias))
+
+# CSVfy data Function
+def csvfy(data):
+    if not data:
+        return ""
+    
+    output = StringIO()
+    fields = data[0].keys()
+    writer = csv.DictWriter(output, fieldnames=fields)
+    writer.writeheader()
+    writer.writerows(data)
+    
+    csv_string = output.getvalue()
+    output.close()
+    return csv_string
+
+# Textify data Function
+def textify(data):
+    buffer = StringIO()
+    for i, element in enumerate(data):
+        if i > 0:
+            buffer.write('\n\n')
+        buffer.write(f"ID: {element['id']}\nName: {element['name']}\nText: {element['text']}\nTime: {element['time']}")
+    return buffer.getvalue()
+
+# Jsonify Export Data Function
+def jsonfy(data):
+    json_data = StringIO()
+    json.dump(data, json_data, indent=4, ensure_ascii=False)
+    
+    json_bytes = BytesIO(json_data.getvalue().encode('utf-8'))
+    json_bytes.seek(0)
+
+    return json_bytes

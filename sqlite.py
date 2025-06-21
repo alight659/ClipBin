@@ -18,6 +18,7 @@ class SQLite:
         try:
             with self.lock:
                 conn = self._get_connection()
+                conn.execute("PRAGMA foreign_keys = ON")
                 with conn:
                     cursor = conn.cursor()
                     cursor.execute(query, args)

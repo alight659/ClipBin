@@ -16,6 +16,7 @@ The Simplest way of sharing code or anything that is text.
 - Open API
 - Custom URL Alias
 - Temporary Time Based Clips
+- Data Export Options
 - **Many more Coming SOON!**
 
 

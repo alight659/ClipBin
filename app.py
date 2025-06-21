@@ -6,7 +6,7 @@ from flask import Flask, flash, render_template, request, redirect, session, Res
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from additional import gen_id, login_required, stat, file_check, encrypt, decrypt, validate_alias
+from additional import gen_id, login_required, stat, file_check, encrypt, decrypt, validate_alias, jsonfy, csvfy, textify
 
 app = Flask(__name__)
 
@@ -34,6 +34,8 @@ time = {
     "year": timedelta(weeks=52)
 }
 
+alias = ['clip', 'login', 'register', 'about', 'api', 'dashboard', 'settings', 'update', 'delete', 'terms', 'feedback']
+
 # Set Login Data
 def loginData():
     login=False
@@ -51,6 +53,12 @@ def loginData():
 @app.errorhandler(404)
 def error(code):
     return render_template("error.html", code="404 Not Found!"), 404
+
+
+# Error Handling 405
+@app.errorhandler(405)
+def error(code):
+    return render_template("error.html", code="405 Method Not Allowed!"), 405
 
 
 # Error Handling 500
@@ -84,6 +92,9 @@ def index():
 
         if custom_alias:
             custom_alias = custom_alias.strip()
+            if custom_alias in alias:
+                flash("Alias cannot be one of the Primary Routes.")
+                return redirect("/")
             if not validate_alias(custom_alias):
                 flash("Alias must be 4-12 characters long and contain only letters, numbers, hyphens and underscores!")
                 return redirect("/")
@@ -269,6 +280,7 @@ def about():
 
 # Update Function
 @app.route("/update/<url_id>", methods=["GET","POST"])
+@login_required
 def update(url_id):
     if loginData()[0]:
         data = db.execute("SELECT clips.id, clips.is_editable FROM clipRef JOIN clips ON clips.id = clipRef.clipid WHERE clipRef.userid=? AND clips.clip_URL=?", session["user_id"], url_id)
@@ -285,11 +297,11 @@ def update(url_id):
 
 # Delete Function
 @app.route("/delete/<url_id>")
+@login_required
 def delete(url_id):
     if loginData()[0]:
         data = db.execute("SELECT clips.id FROM clipRef JOIN clips ON clips.id = clipRef.clipid WHERE clipRef.userid=? AND clips.clip_URL=?", session["user_id"], url_id)
         if len(data) != 0:
-            db.execute("DELETE FROM clipRef WHERE clipid=?", data[0]["id"])
             db.execute("DELETE FROM clips WHERE id=?", data[0]["id"])
             return redirect("/dashboard")
         else:
@@ -297,7 +309,7 @@ def delete(url_id):
     return redirect("/login")
 
 
-# Download Function
+# Download Function -> File
 @app.route("/download/<url_id>", methods=["GET","POST"])
 def download(url_id):
     data = db.execute("SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id)
@@ -400,6 +412,67 @@ def dashboard():
     return render_template("dash.html", dat=loginData(), data=data)
 
 
+# Settings Route
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    if request.method == 'POST':
+        old_pass = str(request.form.get('old_passwd'))
+        new_pass = str(request.form.get('new_passwd'))
+        conf_pass = str(request.form.get('conf_passwd'))
+
+        if not old_pass:
+            flash("Enter your Old Password.")
+            return redirect("/settings")
+
+        if not new_pass:
+            flash("Enter your New Password.")
+            return redirect("/settings")
+
+        if not conf_pass:
+            flash("Confirm your New Password.")
+            return redirect("/settings")
+
+        if conf_pass != new_pass:
+            flash("New Password not Confirmed. Does not Match.")
+            return redirect("/settings")
+
+        if new_pass == old_pass:
+            flash("New Password cannot be same as Old Password.")
+            return redirect("/settings")
+
+        data = db.execute("SELECT password FROM users WHERE id=? AND username=?", session['user_id'], session['uname'])
+
+        if len(data) != 0:
+            if check_password_hash(data[0]['password'], old_pass):
+                db.execute("UPDATE users SET password=? WHERE id=? AND username=?", generate_password_hash(new_pass, method='scrypt'), session['user_id'], session['uname'])
+                flash("Password Updated!")
+                return redirect("/settings")
+            flash("Old Password Does Not Match.")
+
+        return render_template("settings.html", dat=loginData())
+    return render_template("settings.html", dat=loginData())
+
+
+# Export Data Function -> File
+@app.route("/settings/export", methods=["POST", "GET"])
+def exportdata():
+    if request.method == 'POST':
+        ext = request.form.get('export_ext')
+
+        data = db.execute("SELECT clips.clip_url AS id, clips.clip_name AS name, clips.clip_text AS text, clips.clip_time AS time FROM clipRef JOIN clips ON clips.id = clipRef.clipid JOIN users ON users.id = clipRef.userid WHERE users.username=? AND clips.clip_pwd IS NULL", session["uname"])
+
+        if len(data) != 0:
+            if ext == 'json':
+                return Response(jsonfy(data), mimetype='text/json',headers={'Content-disposition': f'attachment; filename={session["uname"]}_export.json', 'Content-Type': 'application/json; charset=utf-8'})
+            elif ext == 'csv':
+                return Response(csvfy(data), mimetype='text/csv', headers={'Content-disposition': f'attachment; filename={session["uname"]}_export.csv'})
+            elif ext == 'text':
+                return Response(textify(data), mimetype='text/plain', headers={'Content-disposition': f'attachment; filename={session["uname"]}_export.txt'})
+        return render_template("error.html", code="Nothing to Export!")
+    return render_template("error.html", code="Nothing to Export!")
+
+
 # API Get Function
 @app.route("/api/get_data")
 def get_data():
@@ -444,16 +517,16 @@ def get_data():
             if not check_password_hash(data[0]['clip_pwd'], clip_pass):
                 return jsonify({'Error': 'Incorrect Password'}), 401
         for i in data:
-            dat = {}
-            dat['id'] = i['clip_url']
-            dat['name'] = i['clip_name']
+            data_dict = {}
+            data_dict['id'] = i['clip_url']
+            data_dict['name'] = i['clip_name']
             text = i['clip_text']
             if type(text) == bytes:
-                dat['text'] = decrypt(text, clip_pass).decode()
+                data_dict['text'] = decrypt(text, clip_pass).decode()
             else:
-                dat['text'] = text
-            dat['time'] = i['clip_time']
-            data_list.append(dat)
+                data_dict['text'] = text
+            data_dict['time'] = i['clip_time']
+            data_list.append(data_dict)
         return jsonify(data_list)
     return jsonify({'Error': 'No Data'}), 404
 
