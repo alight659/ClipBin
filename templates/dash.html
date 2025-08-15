@@ -33,7 +33,7 @@
                 <td class="px-4 py-3">{{ d["clip_time"] }} UTC</td>
                 <td class="px-4 py-3">{{ d["is_editable"] | stat }}</td>
                 <td class="px-4 py-3">{{ d["is_unlisted"] | stat }}</td>
-                <td class="px-4 py-3"><a class="text-white border-2 py-2 px-4 focus:outline-none roundedtext-lg" href="/clip/{{ d["clip_url"] }}">Go</a></td>
+                <td class="px-4 py-3"><a class="text-white border-2 py-2 px-4 focus:outline-none roundedtext-lg" href="/{{ d["clip_url"] }}">Go</a></td>
                 <td class="px-4 py-3"><a class="text-white border-2 py-2 px-4 focus:outline-none roundedtext-lg" href="/delete/{{ d["clip_url"] }}">Delete</a></td>
                 </tr>
             {% endfor %}
