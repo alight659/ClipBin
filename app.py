@@ -166,18 +166,13 @@ def index():
             cid = db.execute("SELECT id FROM clips WHERE clip_url=?", str(post_id))[0]["id"]
             db.execute("INSERT INTO clipRef (userid, clipid) VALUES (?, ?)", int(uid), int(cid))
 
-        return redirect(f"/clip/{post_id}")
+        return redirect(f"/{post_id}")
     else:
         return render_template("index.html", dat=loginData())
 
 
-# Redirect
-@app.route("/<url>")
-def urlsrdir(url):
-    return redirect(f"/clip/{url}")
-
-
 # Show CLIP Function
+@app.route("/<clip_url_id>", methods=["GET", "POST"])
 @app.route("/clip/<clip_url_id>", methods=["GET", "POST"])
 def clip(clip_url_id):
     data = db.execute("SELECT clip_name, clip_text, clip_time, clip_pwd, is_editable, update_time, delete_time FROM clips WHERE clip_url=?", clip_url_id)
@@ -225,6 +220,7 @@ def clip(clip_url_id):
 
 
 # Show Raw
+@app.route("/<clip_url_id>/raw", methods=["GET", "POST"])
 @app.route("/clip/<clip_url_id>/raw", methods=["GET", "POST"])
 def clipraw(clip_url_id):
     data = db.execute("SELECT clip_text, clip_pwd, delete_time FROM clips WHERE clip_url=?", clip_url_id)
@@ -289,7 +285,7 @@ def update(url_id):
                 text = str(request.form.get("clip_text")).strip()
                 cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
                 db.execute("UPDATE clips SET clip_text=?, update_time=? WHERE id=?", text, cur_time, data[0]["id"])
-                return redirect(f"/clip/{url_id}")
+                return redirect(f"/{url_id}")
             return render_template("error.html", code="Cannot Edit this Clip")
         return render_template("error.html", code="You cannot edit this clip!")
     return redirect("/login")
@@ -313,6 +309,9 @@ def delete(url_id):
 @app.route("/download/<url_id>", methods=["GET","POST"])
 def download(url_id):
     data = db.execute("SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id)
+    # HOT FIX
+    if len(data) == 0:
+        return render_template("error.html", code="404 Not Found!"), 404
     text = str(data[0]["clip_text"])
     name = data[0]["clip_name"]
     passwd = data[0]["clip_pwd"]
