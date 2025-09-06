@@ -188,10 +188,20 @@ def clip(clip_url_id):
         remove_time = data[0]["delete_time"]
         ext = ""
 
+        time_left = ""
         if remove_time:
             if datetime.strptime(remove_time, '%d-%m-%Y %H:%M:%S') < datetime.now():
                 db.execute("DELETE FROM clips WHERE clip_url=?", clip_url_id)
                 return render_template("error.html", code="This Clip was Expired.", dat=loginData()), 404
+            time_left = datetime.strptime(remove_time, '%d-%m-%Y %H:%M:%S') - datetime.now()
+
+            if time_left.days < 1:
+                seconds = time_left.seconds
+                hours, remainder = divmod(seconds, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                time_left = f"{hours}h {minutes}m"
+            else:
+                time_left = f"{time_left.days} days"
 
         if editable == 1:
             is_editable = True
@@ -208,12 +218,12 @@ def clip(clip_url_id):
             
             if check_password_hash(passwd, clip_passwd):
                 text = decrypt(text, clip_passwd).decode()
-                return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
+                return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, time_left=time_left, ext=ext, dat=loginData())
             else:
                 return render_template("clip.html", passwd=True, error="Incorrect Password!", url_id=clip_url_id, dat=loginData())
         else:
             text = str(text)
-            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, ext=ext, dat=loginData())
+            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, time_left=time_left, ext=ext, dat=loginData())
 
     else:
         return render_template("error.html", code="That was not found on this server.", dat=loginData()), 404
