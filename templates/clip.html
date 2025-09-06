@@ -67,6 +67,9 @@
                 {% if edit and update %}
                 <p class="leading-7 text-l text-white-400"> Updated: {{ update }} UTC</p>
                 {% endif %}
+                {% if time_left %}
+                <p class="leading-7 text-l text-white-400"> Time Left until Expiration: {{ time_left }}</p>
+                {% endif %}
             </div>
         </div>
     </section>
