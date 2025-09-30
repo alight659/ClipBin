@@ -1,40 +1,38 @@
 # Contributing to ClipBin
 
-Thank you for considering contributing to ClipBin! We welcome contributions from the community to enhance the functionality and user experience of this project. To ensure a smooth collaboration, please review the following guidelines before submitting your contributions.
+Thank you for considering contributing to ClipBin! We welcome contributions from the community to enhance functionality and user experience. Please review the guidelines below before submitting your contributions.
 
 ## How You Can Contribute
 
 ### Reporting Bugs
 
-If you encounter any issues or unexpected behavior:
+If you encounter any issues:
 
-1. **Check Existing Issues**: Ensure the bug hasn't already been reported.
-2. **Provide Detailed Information**: When reporting, include:
-   - A clear description of the bug.
-   - Steps to reproduce the issue.
+1. **Check Existing Issues**: Make sure the bug hasn't already been reported.
+2. **Provide Details**:
+   - Clear description of the bug.
+   - Steps to reproduce.
    - Expected vs. actual behavior.
-   - Relevant screenshots or logs.
+   - Screenshots or logs if relevant.
 
 ### Suggesting Enhancements
 
-Have ideas to improve ClipBin?
+Have an idea to improve ClipBin?
 
-1. **Search for Existing Suggestions**: Verify that your idea hasn't been proposed.
-2. **Detail Your Suggestion**: Provide:
-   - A comprehensive description of the enhancement.
-   - The problem it solves or the improvement it offers.
+1. **Check Existing Suggestions**: Ensure your idea hasn't been proposed.
+2. **Provide Details**:
+   - Description of the enhancement.
+   - Problem it solves or improvement it offers.
    - Any design or implementation ideas.
 
 ### Submitting Code Changes
 
-To contribute code:
-
 #### 1. Fork and Clone the Repository
 
-- **Fork**: Click the "Fork" button at the top-right of the repository page.
-- **Clone**: On your local machine:
+- **Fork** the repository from GitHub.
+- **Clone** your fork locally:
   ```bash
-  git clone https://github.com/[your_username]/clipbin.git
+  git clone https://github.com/<your-username>/ClipBin.git
   ```
 
 #### 2. Set Up the Development Environment
@@ -100,4 +98,4 @@ By contributing, you agree that your contributions will be licensed under the pr
 
 Your contributions help make ClipBin a better tool for everyone. We appreciate your time and effort in improving this project!
 
-~ [@alight659](https://alight659.github.com)
+~ [@alight659](https://github.com/alight659)
