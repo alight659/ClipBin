@@ -1,38 +1,34 @@
-
 # ClipBin
 
-The Simplest way of sharing code or anything that is text.
+The simplest way to share code or any text.
 
 ## Features
 
 - Dark mode
-- Anonymous
-- Password Protected Bins
-- End-To-End Encryption(E2EE)
-- Full CRUD Support
-- File Upload Support
-- Login/Sign-Up Features
-- Dashboard Features
-- Open API
-- Custom URL Alias
-- Temporary Time Based Clips
-- Data Export Options
-- **Many more Coming SOON!**
-
+- Anonymous sharing
+- Password-protected bins
+- End-to-end encryption (E2EE)
+- Full CRUD support
+- File upload support
+- Login/Signup features
+- Dashboard features
+- Public API support
+- Custom URL aliases
+- Temporary, time-based clips
+- Data export options
+- **More features coming soon!**
 
 ## Tech Stack
 
-**Client:** HTML, JavaScript, TailwindCSS
-
+**Client:** HTML, JavaScript, TailwindCSS  
 **Server:** Python, Flask, Jinja, SQLite3
-
 
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone https://github.com/alight659/ClipBin
+git clone https://github.com/alight659/ClipBin
 ```
 
 Go to the project directory
@@ -67,5 +63,5 @@ For support, email at [aanis@clipb.in](mailto:aanis@clipb.in)
 
 - [@alight659](https://www.github.com/alight659)
 
-## Licence
-Released under [MIT Licence](https://github.com/alight659/ClipBin/blob/main/LICENSE)
+## License
+Released under [MIT License](https://github.com/alight659/ClipBin/blob/main/LICENSE)
