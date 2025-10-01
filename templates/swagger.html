@@ -1,0 +1,560 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Interactive API Documentation
+{% endblock %}
+
+{% block body %}
+<section class="text-gray-400 bg-gray-900 body-font">
+    <div class="container px-5 py-24 mx-auto">
+        <!-- Header Section -->
+        <div class="flex flex-col text-center w-full mb-12">
+            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">ClipBin API Documentation</h1>
+            <p class="lg:w-2/3 mx-auto leading-relaxed text-base">RESTful API for text sharing and management</p>
+        </div>
+
+        <!-- Format Toggle -->
+        <div class="flex items-center justify-center gap-3 mb-8">
+            <a href="/docs?spec=json" class="px-4 py-2 rounded text-sm font-medium transition {{ 'bg-blue-600 text-white' if spec_format=='json' else 'bg-gray-800 text-gray-300 hover:bg-gray-700' }}">JSON Spec</a>
+            <a href="/docs?spec=yaml" class="px-4 py-2 rounded text-sm font-medium transition {{ 'bg-blue-600 text-white' if spec_format=='yaml' else 'bg-gray-800 text-gray-300 hover:bg-gray-700' }}">YAML Spec</a>
+            <a href="/openapi.json" class="px-3 py-2 rounded text-xs bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600" download>Download JSON</a>
+            <a href="/openapi.yaml" class="px-3 py-2 rounded text-xs bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-600" download>Download YAML</a>
+        </div>
+
+        <!-- Introduction Section -->
+        <div class="flex flex-col w-full mb-12">
+            <h2 class="sm:text-2xl text-xl font-medium title-font mb-4 text-white">Welcome to ClipBin API</h2>
+            <p class="leading-relaxed text-base mb-4">
+                ClipBin is a powerful text sharing platform that allows you to create, share, and manage text clips programmatically. 
+                This comprehensive API documentation covers all available endpoints, request/response formats, and authentication methods.
+            </p>
+            
+            <h3 class="sm:text-xl text-lg font-medium title-font mb-4 mt-5 text-white">Key Features</h3>
+            <ul class="list-disc list-inside mb-4 text-base">
+                <li><strong class="text-white">Create & Share:</strong> Upload text clips with optional password protection</li>
+                <li><strong class="text-white">Expiration Control:</strong> Set automatic deletion times (day, week, month, etc.)</li>
+                <li><strong class="text-white">Privacy Options:</strong> Make clips unlisted or editable</li>
+                <li><strong class="text-white">Search & Discovery:</strong> Find public clips by name or ID</li>
+                <li><strong class="text-white">User Management:</strong> Account creation and authentication</li>
+                <li><strong class="text-white">Data Export:</strong> Export your clips in JSON, CSV, or text formats</li>
+            </ul>
+        </div>
+
+        <!-- Quick Start Guide -->
+        <div class="flex flex-col w-full mb-12">
+            <h2 class="sm:text-2xl text-xl font-medium title-font mb-4 text-white">Quick Start Examples</h2>
+            
+            <!-- Create Clip Example -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium title-font mb-3 text-white">🚀 Create a Clip</h3>
+                <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+                    <div class="bg-gray-800 rounded p-4 mb-3">
+                        <pre class="ubuntu-mono-regular text-sm text-white whitespace-pre-wrap">curl -X POST /api/post_data \
+  -d "name=My First Clip" \
+  -d "text=Hello World from ClipBin!"</pre>
+                    </div>
+                    <p class="text-base">Creates a public clip that returns a unique ID for sharing.</p>
+                </div>
+            </div>
+
+            <!-- Retrieve Clip Example -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium title-font mb-3 text-white">🔍 Retrieve a Clip</h3>
+                <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+                    <div class="bg-gray-800 rounded p-4 mb-3">
+                        <pre class="ubuntu-mono-regular text-sm text-white">curl -X GET "/api/get_data?id=abc123g"</pre>
+                    </div>
+                    <p class="text-base">Retrieves clip data in JSON format using the clip ID.</p>
+                </div>
+            </div>
+
+            <!-- Password Protected Example -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium title-font mb-3 text-white">🔒 Password Protected Clip</h3>
+                <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+                    <div class="bg-gray-800 rounded p-4 mb-3">
+                        <pre class="ubuntu-mono-regular text-sm text-white whitespace-pre-wrap">curl -X POST /api/post_data \
+  -d "name=Secret Notes" \
+  -d "text=Confidential information" \
+  -d "pwd=mypassword"</pre>
+                    </div>
+                    <p class="text-base">Creates a password-protected clip for sensitive content.</p>
+                </div>
+            </div>
+
+            <!-- Raw Text Access Example -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium title-font mb-3 text-white">📄 Raw Text Access</h3>
+                <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+                    <div class="bg-gray-800 rounded p-4 mb-3">
+                        <pre class="ubuntu-mono-regular text-sm text-white">curl -X GET "/abc123g/raw"</pre>
+                    </div>
+                    <p class="text-base">Get plain text content without HTML formatting.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints Overview -->
+        <div class="flex flex-col w-full mb-12">
+            <h3 class="sm:text-2xl text-xl font-medium title-font mb-4 text-white">API Endpoints Overview</h3>
+            <p class="leading-relaxed text-base mb-4">The ClipBin API provides the following main endpoint categories:</p>
+            
+            <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+                <table class="table-auto w-full text-left whitespace-no-wrap mb-8">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800 rounded-tl rounded-bl">Method</th>
+                            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">Endpoint</th>
+                            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800 rounded-tr rounded-br">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="px-4 py-3"><span class="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">POST</span></td>
+                            <td class="px-4 py-3 ubuntu-mono-regular text-white">/api/post_data</td>
+                            <td class="px-4 py-3">Create new clips</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3"><span class="bg-indigo-500 text-white px-2 py-1 rounded text-xs font-medium">GET</span></td>
+                            <td class="px-4 py-3 ubuntu-mono-regular text-white">/api/get_data</td>
+                            <td class="px-4 py-3">Retrieve clip data</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3"><span class="bg-indigo-500 text-white px-2 py-1 rounded text-xs font-medium">GET</span></td>
+                            <td class="px-4 py-3 ubuntu-mono-regular text-white">/{id}/raw</td>
+                            <td class="px-4 py-3">Get raw text content</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3"><span class="bg-indigo-500 text-white px-2 py-1 rounded text-xs font-medium">GET</span></td>
+                            <td class="px-4 py-3 ubuntu-mono-regular text-white">/download/{id}</td>
+                            <td class="px-4 py-3">Download as file</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3"><span class="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">POST</span></td>
+                            <td class="px-4 py-3 ubuntu-mono-regular text-white">/login</td>
+                            <td class="px-4 py-3">User authentication</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3"><span class="bg-indigo-500 text-white px-2 py-1 rounded text-xs font-medium">GET</span></td>
+                            <td class="px-4 py-3 ubuntu-mono-regular text-white">/dashboard</td>
+                            <td class="px-4 py-3">User's clips management</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Interactive Documentation -->
+        <div class="flex flex-col w-full mb-8">
+            <h2 class="sm:text-2xl text-xl font-medium title-font mb-4 text-white">Interactive API Documentation</h2>
+            <p class="leading-relaxed text-base mb-6">
+                Use the interactive documentation below to explore all endpoints, test API calls, and view detailed request/response examples.
+            </p>
+        </div>
+    </div>
+
+    <!-- Swagger UI Container -->
+    <div class="bg-gray-800 border-t border-gray-700">
+        <div class="container mx-auto">
+            <div id="swagger-ui"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Swagger UI Dependencies -->
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui.css" />
+<script src="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui-bundle.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist@5.10.3/swagger-ui-standalone-preset.js"></script>
+
+<!-- Custom Swagger UI Styling -->
+<style>
+    /* Root Swagger UI styling to match ClipBin */
+    .swagger-ui {
+        font-family: inherit;
+        color: #d1d5db !important;
+    }
+    
+    /* Hide the default topbar */
+    .swagger-ui .topbar {
+        display: none !important;
+    }
+    
+    /* Main wrapper styling */
+    .swagger-ui .wrapper {
+        padding: 0 !important;
+    }
+    
+    /* Info section styling */
+    .swagger-ui .info {
+        margin: 20px 0 !important;
+        background: #1f2937 !important;
+        border: 1px solid #4b5563 !important;
+        border-radius: 0.5rem !important;
+        padding: 1.5rem !important;
+    }
+    
+    .swagger-ui .info .title {
+        color: #f3f4f6 !important;
+        font-size: 1.5rem !important;
+        font-weight: 500 !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .swagger-ui .info .description {
+        color: #d1d5db !important;
+        font-size: 1rem !important;
+        line-height: 1.6 !important;
+    }
+    
+    /* Operation blocks styling */
+    .swagger-ui .opblock {
+        margin: 0 0 15px 0 !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .swagger-ui .opblock.opblock-get {
+        background: rgba(59, 130, 246, 0.1) !important;
+        border: 1px solid #3b82f6 !important;
+    }
+    
+    .swagger-ui .opblock.opblock-post {
+        background: rgba(34, 197, 94, 0.1) !important;
+        border: 1px solid #22c55e !important;
+    }
+    
+    .swagger-ui .opblock.opblock-put {
+        background: rgba(251, 191, 36, 0.1) !important;
+        border: 1px solid #fbbf24 !important;
+    }
+    
+    .swagger-ui .opblock.opblock-delete {
+        background: rgba(239, 68, 68, 0.1) !important;
+        border: 1px solid #ef4444 !important;
+    }
+    
+    /* Operation summary styling */
+    .swagger-ui .opblock .opblock-summary {
+        border: none !important;
+        padding: 15px 20px !important;
+    }
+    
+    .swagger-ui .opblock .opblock-summary-method {
+        border-radius: 0.375rem !important;
+        font-weight: 600 !important;
+        min-width: 80px !important;
+        text-align: center !important;
+        color: white !important;
+        font-size: 0.875rem !important;
+        padding: 6px 12px !important;
+    }
+    
+    .swagger-ui .opblock.opblock-get .opblock-summary-method {
+        background: #3b82f6 !important;
+    }
+    
+    .swagger-ui .opblock.opblock-post .opblock-summary-method {
+        background: #22c55e !important;
+    }
+    
+    .swagger-ui .opblock.opblock-put .opblock-summary-method {
+        background: #fbbf24 !important;
+        color: #111827 !important;
+    }
+    
+    .swagger-ui .opblock.opblock-delete .opblock-summary-method {
+        background: #ef4444 !important;
+    }
+    
+    .swagger-ui .opblock .opblock-summary-path {
+        color: #f3f4f6 !important;
+        font-family: 'Ubuntu Mono', monospace !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+    }
+    
+    .swagger-ui .opblock .opblock-summary-description {
+        color: #d1d5db !important;
+        font-size: 0.95rem !important;
+    }
+    
+    /* Operation body styling */
+    .swagger-ui .opblock-body {
+        background: #1f2937 !important;
+        border: 1px solid #4b5563 !important;
+        border-radius: 0 0 0.5rem 0.5rem !important;
+        padding: 20px !important;
+    }
+    
+    /* Parameters styling */
+    .swagger-ui .parameters-col_name {
+        color: #f3f4f6 !important;
+        font-weight: 600 !important;
+    }
+    
+    .swagger-ui .parameters-col_description {
+        color: #d1d5db !important;
+    }
+    
+    .swagger-ui .parameter__name {
+        color: #f3f4f6 !important;
+        font-weight: 600 !important;
+    }
+    
+    .swagger-ui .parameter__type {
+        color: #60a5fa !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Response styling */
+    .swagger-ui .responses-inner h4 {
+        color: #f3f4f6 !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+    }
+    
+    .swagger-ui .response-col_status {
+        color: #f3f4f6 !important;
+        font-weight: 600 !important;
+    }
+    
+    .swagger-ui .response-col_description {
+        color: #d1d5db !important;
+    }
+    
+    /* Model/Schema styling */
+    .swagger-ui .model-container {
+        background: #111827 !important;
+        border: 1px solid #4b5563 !important;
+        border-radius: 0.375rem !important;
+        margin: 10px 0 !important;
+    }
+    
+    .swagger-ui .model {
+        background: #1f2937 !important;
+        border: 1px solid #4b5563 !important;
+        border-radius: 0.375rem !important;
+    }
+    
+    .swagger-ui .model-title {
+        color: #f3f4f6 !important;
+        font-weight: 600 !important;
+        font-size: 1.1rem !important;
+        background: #374151 !important;
+        padding: 10px 15px !important;
+        border-radius: 0.375rem 0.375rem 0 0 !important;
+        border-bottom: 1px solid #4b5563 !important;
+    }
+    
+    .swagger-ui .model-deprecated-warning {
+        color: #fbbf24 !important;
+    }
+    
+    .swagger-ui .prop-type {
+        color: #60a5fa !important;
+        font-weight: 500 !important;
+    }
+    
+    .swagger-ui .prop-format {
+        color: #9ca3af !important;
+    }
+    
+    .swagger-ui .property-row .prop-name {
+        color: #f3f4f6 !important;
+        font-weight: 600 !important;
+    }
+    
+    .swagger-ui .property-row .prop-type {
+        color: #60a5fa !important;
+    }
+    
+    /* Button styling */
+    .swagger-ui .btn {
+        border-radius: 0.375rem !important;
+        font-weight: 500 !important;
+        padding: 8px 16px !important;
+        border: none !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+    }
+    
+    .swagger-ui .btn.try-out__btn {
+        background: #3b82f6 !important;
+        color: white !important;
+    }
+    
+    .swagger-ui .btn.try-out__btn:hover {
+        background: #2563eb !important;
+    }
+    
+    .swagger-ui .btn.execute {
+        background: #22c55e !important;
+        color: white !important;
+    }
+    
+    .swagger-ui .btn.execute:hover {
+        background: #16a34a !important;
+    }
+    
+    .swagger-ui .btn.cancel {
+        background: #6b7280 !important;
+        color: white !important;
+    }
+    
+    .swagger-ui .btn.cancel:hover {
+        background: #4b5563 !important;
+    }
+    
+    /* Input styling */
+    .swagger-ui input[type=text], 
+    .swagger-ui input[type=password], 
+    .swagger-ui input[type=search], 
+    .swagger-ui input[type=email], 
+    .swagger-ui input[type=url], 
+    .swagger-ui textarea,
+    .swagger-ui select {
+        background: #374151 !important;
+        border: 1px solid #4b5563 !important;
+        color: #f3f4f6 !important;
+        border-radius: 0.375rem !important;
+        padding: 8px 12px !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .swagger-ui input[type=text]:focus, 
+    .swagger-ui input[type=password]:focus, 
+    .swagger-ui input[type=search]:focus, 
+    .swagger-ui input[type=email]:focus, 
+    .swagger-ui input[type=url]:focus, 
+    .swagger-ui textarea:focus,
+    .swagger-ui select:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+        outline: none !important;
+    }
+    
+    /* Code/Pre styling */
+    .swagger-ui pre {
+        background: #111827 !important;
+        border: 1px solid #4b5563 !important;
+        color: #f3f4f6 !important;
+        border-radius: 0.375rem !important;
+        padding: 1rem !important;
+        font-family: 'Ubuntu Mono', monospace !important;
+        overflow-x: auto !important;
+    }
+    
+    .swagger-ui .highlight-code {
+        background: #111827 !important;
+        color: #f3f4f6 !important;
+    }
+    
+    .swagger-ui .microlight {
+        color: #d1d5db !important;
+    }
+    .swagger-ui .curl-command {
+        background: #111827 !important;
+        border: 1px solid #4b5563 !important;
+        color: #f3f4f6 !important;
+        border-radius: 0.375rem !important;
+        padding: 1rem !important;
+        font-family: 'Ubuntu Mono', monospace !important;
+    }
+    
+    /* Table styling */
+    .swagger-ui table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border-radius: 0.375rem !important;
+        overflow: hidden !important;
+        border: 1px solid #4b5563 !important;
+    }
+    
+    .swagger-ui table thead tr {
+        background: #374151 !important;
+    }
+    
+    .swagger-ui table thead tr th {
+        color: #f3f4f6 !important;
+        font-weight: 600 !important;
+        padding: 12px 15px !important;
+        text-align: left !important;
+        border-bottom: 1px solid #4b5563 !important;
+    }
+    
+    .swagger-ui table tbody tr td {
+        color: #d1d5db !important;
+        padding: 12px 15px !important;
+        border-bottom: 1px solid #4b5563 !important;
+    }
+    
+    .swagger-ui table tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+    
+    /* Misc fixes */
+    .swagger-ui .scheme-container {
+        background: #374151 !important;
+        box-shadow: none !important;
+        border: 1px solid #4b5563 !important;
+        border-radius: 0.375rem !important;
+        padding: 15px !important;
+        margin: 15px 0 !important;
+    }
+    
+    .swagger-ui .loading-container {
+        color: #d1d5db !important;
+    }
+    
+    .swagger-ui .errors-wrapper {
+        background: rgba(239, 68, 68, 0.1) !important;
+        border: 1px solid #ef4444 !important;
+        border-radius: 0.375rem !important;
+        color: #fca5a5 !important;
+    }
+    
+    /* Scrollbar styling for webkit browsers */
+    .swagger-ui ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .swagger-ui ::-webkit-scrollbar-track {
+        background: #374151;
+        border-radius: 4px;
+    }
+    
+    .swagger-ui ::-webkit-scrollbar-thumb {
+        background: #6b7280;
+        border-radius: 4px;
+    }
+    
+    .swagger-ui ::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+</style>
+
+<script>
+    window.onload = function() {
+        const specFormat = '{{ spec_format }}';
+        const specUrl = specFormat === 'yaml' ? '/openapi.yaml' : '/openapi.json';
+        const ui = SwaggerUIBundle({
+            url: specUrl,
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+            plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+            layout: "StandaloneLayout",
+            tryItOutEnabled: true,
+            docExpansion: "list",
+            defaultModelsExpandDepth: 1,
+            defaultModelExpandDepth: 1,
+            displayOperationId: false,
+            showExtensions: true,
+            showCommonExtensions: true,
+            useUnsafeMarkdown: false,
+            syntaxHighlight: { activated: true, theme: "agate" }
+        });
+    };
+</script>
+{% endblock %}

@@ -1,5 +1,8 @@
 import os
 from datetime import datetime, timedelta
+from pathlib import Path
+from functools import lru_cache
+from hashlib import md5
 
 from sqlite import SQLite
 from flask import Flask, flash, render_template, request, redirect, session, Response, jsonify, abort
@@ -592,7 +595,7 @@ def post_data():
 @app.route("/api")
 @app.route("/api/")
 def api():
-    return render_template("api.html", dat=loginData())
+    return render_template("swagger_improved.html", dat=loginData())
 
 
 # Terms and Privacy Policy Page
@@ -605,6 +608,82 @@ def terms():
 @app.route("/feedback")
 def feedbackroute():
     return render_template("info.html", feedback=True, dat=loginData())
+
+
+# Swagger Documentation Routes
+@lru_cache(maxsize=1)
+def _load_yaml_text():
+    """Load raw YAML text (cached)."""
+    p = Path('swagger')/ 'swagger.yaml'
+    return p.read_text(encoding='utf-8')
+
+
+@lru_cache(maxsize=1)
+def _load_yaml_dict():
+    import yaml
+    return yaml.safe_load(_load_yaml_text())
+
+
+@lru_cache(maxsize=1)
+def _load_json_dict():
+    """Return JSON spec dict; prefer swagger.json if present else derive from YAML."""
+    import json
+    json_path = Path('swagger') / 'swagger.json'
+    if json_path.exists():
+        with json_path.open('r', encoding='utf-8') as f:
+            return json.load(f)
+    # Fallback to YAML-derived version
+    return _load_yaml_dict()
+
+
+def _etag(content: str) -> str:
+    return md5(content.encode('utf-8')).hexdigest()
+
+
+def _json_response(data: dict):
+    import json
+    body = json.dumps(data, ensure_ascii=False)
+    resp = Response(body, mimetype='application/json; charset=utf-8')
+    resp.set_etag(_etag(body))
+    return resp
+
+
+def _text_response(text: str, mime: str):
+    resp = Response(text, mimetype=mime)
+    resp.set_etag(_etag(text))
+    return resp
+
+
+@app.route("/openapi.json")
+@app.route("/swagger.json")  # backward compatibility
+def swagger_json():
+    """Serve the OpenAPI JSON spec (primary: /openapi.json)."""
+    try:
+        return _json_response(_load_json_dict())
+    except FileNotFoundError:
+        return jsonify({"error": "OpenAPI specification not found"}), 404
+
+
+@app.route("/openapi.yaml")
+@app.route("/swagger.yaml")  # backward compatibility
+def swagger_yaml():
+    """Serve the OpenAPI YAML spec (primary: /openapi.yaml)."""
+    try:
+        return _text_response(_load_yaml_text(), 'application/yaml')
+    except FileNotFoundError:
+        return jsonify({"error": "OpenAPI YAML specification not found"}), 404
+
+
+@app.route("/docs")
+def swagger_ui():
+    """Serve the Swagger UI documentation page.
+    Optional query param ?spec=yaml will load YAML instead of JSON.
+    """
+    spec_format = request.args.get('spec', 'json')
+    # Only allow json|yaml
+    if spec_format not in ('json', 'yaml'):
+        spec_format = 'json'
+    return render_template("swagger.html", dat=loginData(), spec_format=spec_format)
 
 
 if __name__ == "__main__":
