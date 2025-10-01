@@ -149,16 +149,17 @@ def index():
         if remove_time:
             if remove_time == 'never':
                 remove_time = None
+            elif remove_time=='custom' and custom_delete:
+                try:
+                    hours = int(custom_delete)
+                    remove_time = (datetime.now() + timedelta(hours=hours)).strftime('%d-%m-%Y %H:%M:%S')
+                except ValueError:
+                    flash("Invalid custom delete time.")
+                    return redirect("/")
             else:
                 remove_time = (time[remove_time] + datetime.now()).strftime('%d-%m-%Y %H:%M:%S')
 
-        if custom_delete:
-            try:
-                hours = int(custom_delete)
-                remove_time = (datetime.now() + timedelta(hours=hours)).strftime('%d-%m-%Y %H:%M:%S')
-            except ValueError:
-                flash("Invalid custom delete time.")
-                return redirect("/")
+            
             
         cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
         if not passwd:
@@ -617,4 +618,4 @@ def feedbackroute():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
