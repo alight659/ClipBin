@@ -88,6 +88,7 @@ def index():
         unlist = request.form.get("clip_disp")
         custom_alias = request.form.get("clip_alias")
         remove_time = request.form.get('clip_delete')
+        custom_delete = request.form.get('clip_custom_delete') 
         file = request.files["clip_file"]
 
         if custom_alias:
@@ -151,6 +152,14 @@ def index():
             else:
                 remove_time = (time[remove_time] + datetime.now()).strftime('%d-%m-%Y %H:%M:%S')
 
+        if custom_delete:
+            try:
+                hours = int(custom_delete)
+                remove_time = (datetime.now() + timedelta(hours=hours)).strftime('%d-%m-%Y %H:%M:%S')
+            except ValueError:
+                flash("Invalid custom delete time.")
+                return redirect("/")
+            
         cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
         if not passwd:
             db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time, delete_time) VALUES (?, ?, ?, ?, ?, ?, ?)", str(
