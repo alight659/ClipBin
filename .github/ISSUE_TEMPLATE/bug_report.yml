@@ -27,17 +27,6 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: version
-    attributes:
-      label: Version
-      description: What version of our software are you running?
-      options:
-        - 1.0.2 (Default)
-        - 1.0.1
-        - 1.0.0
-    validations:
-      required: true
-  - type: dropdown
     id: browsers
     attributes:
       label: What browsers are you seeing the problem on?
@@ -47,6 +36,7 @@ body:
         - Chrome
         - Safari
         - Microsoft Edge
+        - Other
   - type: textarea
     id: logs
     attributes:
