@@ -26,6 +26,9 @@ EXPOSE 5000
 
 # Set environment variables
 ENV FLASK_APP=app.py
+ENV FLASK_HOST=0.0.0.0
+ENV FLASK_PORT=5000
+ENV FLASK_DEBUG=False
 ENV PYTHONUNBUFFERED=1
 
 # Run the application
