@@ -43,10 +43,26 @@ Share Code or Text Instantly
                       <option value="month">1 Month</option>
                       <option value="half">6 Months</option>
                       <option value="year">1 Year</option>
+                      <option value="custom">Custom</option>
                     </select>
-                    <label class="leading-7 text-sm text-gray-400" for="clip_custom_delete">Or enter custom delete time (hours):</label>
-                    <input type="number" id="clip_custom_delete" name="clip_custom_delete" min="1" placeholder="e.g., 1 for 1 hour" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                  <label
+                    id="clip_custom_delete_label"
+                    for="clip_custom_delete"
+                    class="leading-7 text-sm text-gray-400 hidden "
+                    style="display:none;"
+                  >Or enter custom delete time (hours):</label>
 
+                  <input
+                    id="clip_custom_delete"
+                    name="clip_custom_delete"
+                    type="number"
+                    min="1"
+                    
+                    placeholder="e.g., 1 for 1 hour"
+                    class=" w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out "
+                    style="display:none;"
+                  >
+                    
                     <div class="flex text-center mt-1">
                       <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? (Login)</label>
                       <label class="inline-flex items-center cursor-pointer">
