@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+
 {% block title %}
     {% if terms %}
     Terms & Privacy
@@ -8,37 +9,122 @@
 {% endblock %}
 
 {% block body %}
-<section class="text-gray-400 bg-gray-900 body-font">
-    <div class="container px-5 py-24 mx-auto">
-        <div class="flex flex-col w-full mb-12">
-            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">ClipBin</h1>
-            <p class="leading-relaxed text-base">
-                The Simplest way of sharing code or anything that is text.
-            </p>
-            {% if terms %}
-            <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 mt-5 text-white">Terms & Privacy</h1>
-            <p class="leading-relaxed text-white">
-                The developer maybe referred as I, we, our. ClipBin maybe referred by name, or simply 'this'.
-            </p>
-            <ul class="list-disc list-inside text-l">
-                <li><b>By using this service you agree to not use this for any illegal purpose.</b></li>
-                <li>This is an open source service for which the source code can be found on GitHub. Navigate to <a href="https://github.com/Alight659/ClipBin" class="hover:bg-gray-700 underline">https://github.com/Alight659/ClipBin</a></li>
-                <li>You are free to self-host this in whatever way you want. The code is released under <a href="https://github.com/Alight659/ClipBin/blob/main/LICENSE" class="underline" target="_blank">MIT License</a>.</li>
-                <li>We always try to maintain your privacy by not tracking your ip. However basic logs maybe saved.</li>
-                <li>Protecting your data is our priority. That is why we implemented End-to-End Encryption(E2EE).</li>
-                <li>E2EE gets activated automatically when you protect your text with a password.</li>
-                <li>This essentially means that even we cannot see what you saved. For non passwd case, yes we can see what you saved.</li>
-                <li>The API is open. You are free to for any purpose except for illegal.</li>
-                <li>For any Queries related to Terms and Privacy; please mail at <a href="mailto:tnp@clipb.in" class="underline">tnp@clipb.in</a></li>
-            </ul>
-            {% endif %}
-            {% if feedback %}
-            <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 mt-5 text-white">Feedback</h1>
-            <p class="leading-relaxed text-base">
-                Feedbacks are welcomed. Please share your experience with us at <a href="mailto:feedback@clipb.in" class="underline">feedback@clip.in</a>
-            </p>
-            {% endif %}
-        </div>
+    <!-- Info Section -->
+    <div class="flex-1 bg-white dark:bg-dark-800">
+        <section class="py-12 md:py-20 px-4 md:px-6">
+            <div class="container mx-auto max-w-4xl">
+                <!-- Header -->
+                <div class="text-center mb-8 md:mb-12 fade-in">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-black dark:text-white">
+                        {% if terms %}
+                        Terms & Privacy
+                        {% elif feedback %}
+                        Feedback
+                        {% else %}
+                        ClipBin
+                        {% endif %}
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
+                        The simplest way of sharing code or anything that is text.
+                    </p>
+                </div>
+
+                {% if terms %}
+                <!-- Terms & Privacy Content -->
+                <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-6 md:p-8 space-y-6">
+                    <div class="mb-6">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">
+                            The developer maybe referred as I, we, our. ClipBin maybe referred by name, or simply 'this'.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-exclamation-triangle text-red-500 mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                <strong>By using this service you agree to not use this for any illegal purpose.</strong>
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fab fa-github text-black dark:text-white mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                This is an open source service for which the source code can be found on GitHub. Navigate to 
+                                <a href="https://github.com/Alight659/ClipBin" class="text-black dark:text-white underline hover:bg-gray-200 dark:hover:bg-gray-700 px-1 rounded transition-colors">https://github.com/Alight659/ClipBin</a>
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-balance-scale text-black dark:text-white mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                You are free to self-host this in whatever way you want. The code is released under 
+                                <a href="https://github.com/Alight659/ClipBin/blob/main/LICENSE" class="text-black dark:text-white underline hover:bg-gray-200 dark:hover:bg-gray-700 px-1 rounded transition-colors" target="_blank">MIT License</a>.
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-user-shield text-black dark:text-white mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                We always try to maintain your privacy by not tracking your IP. However basic logs maybe saved.
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-shield-alt text-black dark:text-white mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                Protecting your data is our priority. That is why we implemented End-to-End Encryption (E2EE).
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-lock text-black dark:text-white mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                E2EE gets activated automatically when you protect your text with a password.
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-eye-slash text-black dark:text-white mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                This essentially means that even we cannot see what you saved. For non-password protected clips, yes we can see what you saved.
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-code text-black dark:text-white mt-1"></i>
+                            <p class="text-gray-700 dark:text-gray-300">
+                                The API is open. You are free to use it for any purpose except for illegal activities.
+                            </p>
+                        </div>
+
+                        <div class="flex items-start space-x-3 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                            <i class="fas fa-envelope text-blue-600 dark:text-blue-400 mt-1"></i>
+                            <p class="text-blue-800 dark:text-blue-300">
+                                For any queries related to Terms and Privacy, please mail at 
+                                <a href="mailto:tnp@clipb.in" class="underline hover:bg-blue-200 dark:hover:bg-blue-800 px-1 rounded transition-colors">tnp@clipb.in</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if feedback %}
+                <!-- Feedback Content -->
+                <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-6 md:p-8">
+                    <h2 class="text-2xl font-bold mb-4 text-black dark:text-white flex items-center">
+                        <i class="fas fa-comments mr-3 text-black dark:text-white"></i>
+                        Share Your Experience
+                    </h2>
+                    <div class="flex items-start space-x-3 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
+                        <i class="fas fa-heart text-green-600 dark:text-green-400 mt-1"></i>
+                        <p class="text-green-800 dark:text-green-300">
+                            Feedbacks are welcomed. Please share your experience with us at 
+                            <a href="mailto:feedback@clipb.in" class="underline hover:bg-green-200 dark:hover:bg-green-800 px-1 rounded transition-colors">feedback@clipb.in</a>
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
     </div>
-</section>
 {% endblock %}

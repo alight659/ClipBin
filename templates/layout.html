@@ -11,112 +11,374 @@
         <!-- main stylesheet -->
         <link rel="stylesheet" href="/static/style.css">
         <link rel="stylesheet" href="/static/tailwind.css">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        colors: {
+                            'dark': {
+                                900: '#0f0f0f',
+                                800: '#1f1f1f',
+                                700: '#2f2f2f',
+                                600: '#3f3f3f',
+                                500: '#4f4f4f',
+                            }
+                        },
+                        fontFamily: {
+                            'mono': ['Ubuntu Mono', 'monospace'],
+                            'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        }
+                    }
+                }
+            }
+        </script>
 
-        <!-- scripts.js -->
-        <!-- HEHE: DOES NOT EXIST -->
-
-        <!-- google fonts -->
+        <!-- Enhanced Google Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
         <!-- font awesome -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css" integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous">
         <script src="https://kit.fontawesome.com/fe5f56cf4b.js" crossorigin="anonymous"></script>
 
-        <!-- highlight.js -->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/default.min.css">
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+        <!-- highlight.js with dark theme -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js/dist/highlightjs-line-numbers.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"/>
 
         <title>
             ClipBin: {% block title %}{% endblock %}
         </title>
     </head>
 
-    <body class="bg-gray-900">
-        <header class="text-gray-400 bg-gray-900 body-font">
-            <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
-              <a class="flex title-font font-medium items-center text-white mb-4 md:mb-0" href="/">
-                <span class="ml-3 text-xl">ClipBin</span>
-              </a>
-              <nav class="md:ml-auto md:mr-auto flex flex-wrap items-center text-base justify-center">
-                <a class="mr-5 hover:text-white" href="/">Home</a>
-                <a class="mr-5 hover:text-white" href="/clip">Search</a>
-                {% if dat %}
-                  {% if dat[0] == True %}
-                    <a class="mr-5 hover:text-white" href="/dashboard">Dashboard</a>
-                  {% endif %}
-                {% endif %}
-                <a href="/api" class="mr-5 hover:text-white">API</a>
-                <a class="mr-5 hover:text-white" href="/about">About</a>
-              </nav>
-              {% if dat %}
-                {% if dat[0] == True %}
-                  <div class="relative inline-block text-left group" tabindex="0">
-                    <button class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0" aria-haspopup="true" aria-expanded="false">
-                      {{ dat[1] }}
-                      <svg class="-mr-1 size-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-                      </svg>
-                    </button>
-                    <div class="invisible opacity-0 absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-500 rounded-md bg-gray-800 shadow-lg ring-1 ring-black/5 transition duration-200 ease-in-out group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                      <div class="py-1" role="none">
-                        <span class="block px-4 py-2 text-sm text-base">Signed in as <b>{{ dat[1] }}</b></span>
-                      </div>
-                      <div class="py-1" role="none">
-                        <a href="/dashboard" class="block px-4 py-2 text-sm text-base hover:text-white">Dashboard</a>
-                        <a href="/settings" class="block px-4 py-2 text-sm text-base hover:text-white">Settings</a>
-                      </div>
-                      <div class="py-1" role="none">
-                        <a href="/logout" class="block px-4 py-2 text-sm text-base hover:text-white">Logout</a>
-                      </div>
+    <body class="bg-white dark:bg-dark-800 font-sans antialiased min-h-screen flex flex-col">
+        <!-- Enhanced Header -->
+        <header class="bg-white dark:bg-dark-800 sticky top-0 z-50">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center">
+                    <!-- Logo (Left) -->
+                    <div class="flex-shrink-0">
+                        <a class="flex items-center space-x-3 group" href="/">
+                            <div class="w-8 h-8 bg-black dark:bg-white rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                                <i class="fas fa-clipboard text-white dark:text-black text-sm"></i>
+                            </div>
+                            <span class="text-xl font-bold text-black dark:text-white">ClipBin</span>
+                        </a>
                     </div>
-                  </div>
-                {% elif reg == True %}
-                  <a class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0" href="/register">Register</a>
-                {% else %}
-                  <a class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0" href="/login">Login</a>
-                {% endif %}
-              {% endif %}
+                    
+                    <!-- Navigation (Center-Right) -->
+                    <div class="flex-1 flex justify-center ml-14">
+                        <nav class="hidden md:flex items-center space-x-8">
+                            <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200 font-medium" href="/">Home</a>
+                            <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200 font-medium" href="/clip">Search</a>
+                            {% if dat %}
+                              {% if dat[0] == True %}
+                                <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200 font-medium" href="/dashboard">Dashboard</a>
+                              {% endif %}
+                            {% endif %}
+                            <a href="/api" class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200 font-medium">API</a>
+                            <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200 font-medium" href="/about">About</a>
+                        </nav>
+                    </div>
+                    
+                    <!-- Right Side: Theme Toggle + Auth (Desktop) -->
+                    <div class="hidden md:flex items-center space-x-4 flex-shrink-0">
+                        <!-- Theme Toggle Button -->
+                        <button 
+                            id="theme-toggle" 
+                            class="flex items-center justify-center w-10 h-10 hover:bg-gray-100 dark:hover:bg-dark-700/50 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white rounded-lg transition-all duration-200"
+                            title="Toggle theme"
+                        >
+                            <i class="fas fa-moon text-sm" id="theme-icon"></i>
+                        </button>
+                        
+                        <!-- User Menu / Auth Buttons -->
+                        {% if dat %}
+                          {% if dat[0] == True %}
+                            <!-- User Dropdown Menu -->
+                            <div class="relative group">
+                              <button class="flex items-center space-x-2 bg-gray-100 dark:bg-dark-700/80 hover:bg-gray-200 dark:hover:bg-dark-600/80 px-4 py-2 rounded-xl transition-all duration-200 border border-gray-200 dark:border-dark-600/50" aria-haspopup="true" aria-expanded="false">
+                                <div class="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center">
+                                  <span class="text-xs font-medium text-white dark:text-black">{{ dat[1][0]|upper }}</span>
+                                </div>
+                                <span class="text-gray-800 dark:text-gray-200 font-medium">{{ dat[1] }}</span>
+                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                  <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                </svg>
+                              </button>
+                              <div class="invisible opacity-0 absolute right-0 z-10 mt-2 w-56 origin-top-right bg-white dark:bg-dark-800/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-200 dark:border-dark-600/50 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                                <div class="py-2">
+                                  <div class="px-4 py-2 border-b border-gray-200 dark:border-dark-600/50">
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Signed in as</span>
+                                    <p class="text-black dark:text-white font-medium">{{ dat[1] }}</p>
+                                  </div>
+                                  <a href="/dashboard" class="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 transition-colors duration-150">
+                                    <i class="fas fa-tachometer-alt w-4 mr-3"></i>
+                                    Dashboard
+                                  </a>
+                                  <a href="/settings" class="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 transition-colors duration-150">
+                                    <i class="fas fa-cog w-4 mr-3"></i>
+                                    Settings
+                                  </a>
+                                  <div class="border-t border-gray-200 dark:border-dark-600/50 mt-2 pt-2">
+                                    <a href="/logout" class="flex items-center px-4 py-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150">
+                                      <i class="fas fa-sign-out-alt w-4 mr-3"></i>
+                                      Logout
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          {% elif reg == True %}
+                            <!-- Register Button -->
+                            <a class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black px-6 py-2 rounded-xl font-medium transition-all duration-200 transform hover:scale-105" href="/register">Register</a>
+                          {% else %}
+                            <!-- Login Button -->
+                            <a class="bg-gray-100 dark:bg-dark-700/80 hover:bg-gray-200 dark:hover:bg-dark-600/80 text-black dark:text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 border border-gray-200 dark:border-dark-600/50" href="/login">Login</a>
+                          {% endif %}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Mobile: Theme Toggle + Menu Button -->
+                    <div class="md:hidden flex items-center space-x-2">
+                        <!-- Mobile Theme Toggle -->
+                        <button 
+                            id="mobile-theme-toggle-header" 
+                            class="flex items-center justify-center w-10 h-10 hover:bg-gray-100 dark:hover:bg-dark-700/50 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white rounded-lg transition-all duration-200"
+                            title="Toggle theme"
+                        >
+                            <i class="fas fa-moon text-sm" id="mobile-theme-icon-header"></i>
+                        </button>
+                        
+                        <!-- Mobile Menu Button -->
+                        <button class="hover:bg-gray-100 dark:hover:bg-dark-700/50 text-black dark:text-white p-2 rounded-lg transition-all duration-200" onclick="toggleMobileMenu()" id="mobile-menu-button">
+                          <i class="fas fa-bars text-lg" id="menu-icon"></i>
+                          <i class="fas fa-times text-lg hidden" id="close-icon"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Mobile Navigation -->
+                <div id="mobile-menu" class="md:hidden hidden mt-4 pt-4 border-t border-gray-200 dark:border-dark-600/50">
+                    <nav class="flex flex-col space-y-2">
+                        <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200" href="/">Home</a>
+                        <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200" href="/clip">Search</a>
+                        {% if dat %}
+                          {% if dat[0] == True %}
+                            <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200" href="/dashboard">Dashboard</a>
+                            <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200" href="/settings">Settings</a>
+                          {% endif %}
+                        {% endif %}
+                        <a href="/api" class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200">API</a>
+                        <a class="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-700/50 px-3 py-2 rounded-lg transition-all duration-200" href="/about">About</a>
+                        
+                        <!-- Mobile Auth Buttons -->
+                        {% if dat %}
+                          {% if dat[0] == True %}
+                            <div class="border-t border-gray-200 dark:border-dark-600/50 pt-2 mt-2">
+                              <a href="/logout" class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded-lg transition-all duration-200 flex items-center">
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Logout
+                              </a>
+                            </div>
+                          {% elif reg == True %}
+                            <div class="border-t border-gray-200 dark:border-dark-600/50 pt-2 mt-2">
+                              <a class="bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 px-3 py-2 rounded-lg font-medium transition-all duration-200 block text-center" href="/register">Register</a>
+                            </div>
+                          {% else %}
+                            <div class="border-t border-gray-200 dark:border-dark-600/50 pt-2 mt-2">
+                              <a class="bg-gray-100 dark:bg-dark-700/80 hover:bg-gray-200 dark:hover:bg-dark-600/80 text-black dark:text-white px-3 py-2 rounded-lg font-medium transition-all duration-200 border border-gray-200 dark:border-dark-600/50 block text-center" href="/login">Login</a>
+                            </div>
+                          {% endif %}
+                        {% endif %}
+                    </nav>
+                </div>
             </div>
         </header>
+        <!-- Enhanced Flash Messages -->
         {% if get_flashed_messages() %}
-          <div class="container mx-auto">
-              <div class="flex flex-col text-center w-full">
-                  <p class="mx-auto leading-relaxed text-base text-white">{{ get_flashed_messages() | join(" ") }}</p>
+          <div class="container mx-auto px-6 py-4">
+              <div class="bg-gray-100 dark:bg-dark-700/30 border border-gray-300 dark:border-dark-600/50 rounded-xl p-4 backdrop-blur-sm">
+                  <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-gray-200 dark:bg-dark-600/30 rounded-full flex items-center justify-center">
+                          <i class="fas fa-info text-gray-600 dark:text-gray-300"></i>
+                      </div>
+                      <p class="text-gray-800 dark:text-gray-100 font-medium">{{ get_flashed_messages() | join(" ") }}</p>
+                  </div>
               </div>
           </div>
         {% endif %}
 
-        {% block body %}
-        
-        {% endblock %}
+        <!-- Main Content Area -->
+        <main class="flex-1">
+            {% block body %}
+            
+            {% endblock %}
+        </main>
 
-        <footer class="text-gray-400 bg-gray-900 body-font">
-            <div class="container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
-              <a class="flex title-font font-medium items-center md:justify-start justify-center text-white">
-                <span class="ml-3 text-xl">ClipBin</span>
-              </a>
-              <p class="text-sm text-gray-400 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-800 sm:py-2 sm:mt-0 mt-4">© 2025 Alight659 —
-                <a href="https://alight659.github.io" class="text-gray-500 ml-1" target="_blank" rel="noopener noreferrer">@alight659</a>
-                <span class="mr-1 ml-1">|</span> 
-                <a href="/terms" class="text-gray-500 ml-1" rel="noopener noreferrer">Terms and Privacy</a>
-                <span class="mr-1">|</span> 
-                <a href="/feedback" class="text-gray-500 ml-1Terms and Privacy" rel="noopener noreferrer">Feedback</a>
-              </p>
-              <span class="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
-                <a class="text-gray-400" href="https://github.com/alight659/ClipBin" target="_blank">
-                    <i class="fa-brands fa-github"></i>
-                </a>
-              </span>
+        <!-- Enhanced Footer -->
+        <footer class="bg-white dark:bg-dark-800 mt-auto">
+            <div class="container mx-auto px-6 py-8">
+                <!-- First Row - Main Content -->
+                <div class="flex flex-col md:flex-row items-start justify-between space-y-6 md:space-y-0 mb-6">
+                    <!-- Logo and Description -->
+                    <div class="flex flex-col space-y-4 md:max-w-md">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-black dark:bg-white rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clipboard text-white dark:text-black text-sm"></i>
+                            </div>
+                            <span class="text-xl font-bold text-black dark:text-white">ClipBin</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                            A simple, anonymous and secure text and code sharing platform. Share your clips instantly with privacy and ease.
+                        </p>
+                    </div>
+                    
+                    <!-- Quick Links -->
+                    <div class="flex flex-col space-y-4">
+                        <h3 class="text-black dark:text-white font-semibold text-sm uppercase tracking-wider">Quick Links</h3>
+                        <div class="flex flex-col space-y-2">
+                            <a href="/" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm">Home</a>
+                            <a href="/clip" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm">Search Clips</a>
+                            <a href="/api" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm">API Documentation</a>
+                            <a href="/about" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm">About Us</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Legal & Support -->
+                    <div class="flex flex-col space-y-4">
+                        <h3 class="text-black dark:text-white font-semibold text-sm uppercase tracking-wider">Support</h3>
+                        <div class="flex flex-col space-y-2">
+                            <a href="/terms" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm">Terms & Privacy</a>
+                            <a href="/feedback" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm">Feedback</a>
+                            <a href="https://github.com/alight659/ClipBin/issues" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm" target="_blank">Report Issues</a>
+                            <a href="https://github.com/alight659/ClipBin" class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 text-sm" target="_blank">Contribute</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Links -->
+                    <div class="flex flex-col space-y-4">
+                        <h3 class="text-black dark:text-white font-semibold text-sm uppercase tracking-wider">Connect</h3>
+                        <div class="flex space-x-3">
+                            <a class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 p-2 hover:bg-gray-100 dark:hover:bg-dark-700/20 rounded-lg" href="https://github.com/alight659/ClipBin" target="_blank" title="GitHub">
+                                <i class="fab fa-github text-lg"></i>
+                            </a>
+                            <a class="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200 p-2 hover:bg-gray-100 dark:hover:bg-dark-700/20 rounded-lg" href="https://alight659.github.io" target="_blank" title="Website">
+                                <i class="fas fa-globe text-lg"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Second Row - Copyright -->
+                <div class="border-t border-gray-200 dark:border-dark-600/30 pt-6">
+                    <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                        <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-500">
+                            <span>© 2025 ClipBin</span>
+                            <span class="hidden md:inline">•</span>
+                            <span>Made with ❤️ by <a href="https://alight659.github.io" class="text-black dark:text-white hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200" target="_blank">@alight659</a></span>
+                        </div>
+                        <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-500">
+                            <span>Privacy-focused</span>
+                            <span>•</span>
+                            <span>Open Source</span>
+                            <span>•</span>
+                            <span>No tracking</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </footer>
 
-        <!-- initialise highlight js -->
-        <script>hljs.initHighlightingOnLoad();</script>
-        <script>hljs.initLineNumbersOnLoad({singleLine: true});</script>
+        <!-- Enhanced JavaScript -->
+        <script>
+            // Initialize highlight.js
+            hljs.highlightAll();
+            hljs.initLineNumbersOnLoad({singleLine: true});
+            
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const mobileThemeToggleHeader = document.getElementById('mobile-theme-toggle-header');
+            const themeIcon = document.getElementById('theme-icon');
+            const mobileThemeIconHeader = document.getElementById('mobile-theme-icon-header');
+            const htmlElement = document.documentElement;
+            
+            // Check for saved theme preference or default to 'dark'
+            let currentTheme = localStorage.getItem('theme') || 'dark';
+            
+            // Apply the current theme
+            function applyTheme(theme) {
+                if (theme === 'light') {
+                    htmlElement.classList.remove('dark');
+                    if (themeIcon) themeIcon.className = 'fas fa-sun text-sm';
+                    if (mobileThemeIconHeader) mobileThemeIconHeader.className = 'fas fa-sun text-sm';
+                } else {
+                    htmlElement.classList.add('dark');
+                    if (themeIcon) themeIcon.className = 'fas fa-moon text-sm';
+                    if (mobileThemeIconHeader) mobileThemeIconHeader.className = 'fas fa-moon text-sm';
+                }
+            }
+            
+            // Toggle theme function
+            function toggleTheme() {
+                currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', currentTheme);
+                applyTheme(currentTheme);
+            }
+            
+            // Initialize theme
+            applyTheme(currentTheme);
+            
+            // Theme toggle event listeners
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            if (mobileThemeToggleHeader) {
+                mobileThemeToggleHeader.addEventListener('click', toggleTheme);
+            }
+            
+            // Mobile menu toggle
+            function toggleMobileMenu() {
+                const menu = document.getElementById('mobile-menu');
+                const menuIcon = document.getElementById('menu-icon');
+                const closeIcon = document.getElementById('close-icon');
+                
+                menu.classList.toggle('hidden');
+                menuIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+            }
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('mobile-menu');
+                const button = document.getElementById('mobile-menu-button');
+                const menuIcon = document.getElementById('menu-icon');
+                const closeIcon = document.getElementById('close-icon');
+                
+                if (!menu.contains(event.target) && !button.contains(event.target) && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                }
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        </script>
     </body>
 
 </html>

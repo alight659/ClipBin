@@ -5,66 +5,183 @@ Share Code or Text Instantly
 {% endblock %}
 
 {% block body %}
-    <section class="text-gray-400 bg-gray-900 body-font">
-        <div class="container px-5 py-24 mx-auto">
-          <div class="flex flex-col text-center w-full mb-10">
-            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">Create a Clip</h1>
-            <p class="lg:w-2/3 mx-auto leading-relaxed text-base">Dump your code or whatever you want.</p>
-          </div>
-          <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
-            <div class="relative sm:mb-0 flex-grow w-full">
-              <label for="clip_name" class="leading-7 text-sm text-gray-400">Enter Title</label>
-              <form action="/" method="post" enctype="multipart/form-data">
-                <input type="text" id="clip_name" name="clip_name" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Hello Title" autocapitalize="off" autocomplete="off" autofocus>
-                <label for="clip_text" class="leading-7 text-sm text-gray-400">Enter your Text</label>
-                <textarea id="clip_text" name="clip_text" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 h-32 transition-colors duration-200 ease-in-out rounded-md resize-none hover:resize-y ubuntu-mono-regular" placeholder="Something Interesting..." oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } "></textarea>
-                <div class="flex flex-col text-white text-center border-0 py-2 px-2">
-                  <p class="leading-7 text-sm text-gray-400"> --OR-- </p>
-                </div>
-                <label for="clip_file" class="leading-7 text-sm text-gray-400">Upload File?</label>
-                <div class="text-white bg-gray-800 bg-opacity-40 border-0 py-2 px-2 mb-1">
-                  <input type="file" name="clip_file" id="clip_file" class="flex text-white py-2 px-2 mb-2 focus:outline-none hover:bg-gray-800 hover:bg-opacity-80 rounded" accept=".txt,.md,.csv,.json,.xml,.html,.css,.js,.py,.java,.c,.cpp,.cs,.h,.php,.rb,.go,.sh,.bat,.pl,.r,.kt,.swift">
-                </div>
-
-                <div class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 roundedtext-lg">
-                  <h1 class="leading-7 text-white">Optionals</h1>
-                  <div class="relative">
-                    <label for="clip_alias" class="leading-7 text-sm text-gray-400">Custom URL Alias</label>
-                    <input type="text" id="clip_alias" name="clip_alias" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Custom-Alias (a-z A-Z 0-9 -_ only)" autocapitalize="off" autocomplete="off" maxlength="12" minlength="4">
-                    <label for="clip_passwd" class="leading-7 text-sm text-gray-400">Create a Password Protected Clip</label>
-                    <input type="text" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password" autocapitalize="off" autocomplete="off">
-                    <label class="leading-7 text-sm text-gray-400">Using Password also enables E2EE.</label><br>
-                    <label class="leading-7 text-sm text-gray-400" for="clip_delete">Remove After:</label>
-                    <select name="clip_delete" id="clip_delete" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                      <option value="never">Never</option>
-                      <option value="day">1 Day</option>
-                      <option value="week">1 Week</option>
-                      <option value="twoweek">2 Weeks</option>
-                      <option value="month">1 Month</option>
-                      <option value="half">6 Months</option>
-                      <option value="year">1 Year</option>
-                    </select>
-                    <div class="flex text-center mt-1">
-                      <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? (Login)</label>
-                      <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="clip_edit" id="clip_edit" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 8920dedcb8f64121adaffd541e2ec130after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span> 
-                      </label>
-                      <label for="clip_disp" class="leading-7 text-l text-gray-400">Set Unlisted? </label>
-                      <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="clip_disp" id="clip_disp" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span> 
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <br>
-                <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Save</button>
-              </form>
+    <!-- Hero Section -->
+    <div class="flex-1 bg-white dark:bg-dark-800">
+        <section class="py-12 md:py-20 px-4 md:px-6">
+            <div class="container mx-auto max-w-4xl">
+            <!-- Header -->
+            <div class="text-center mb-8 md:mb-12 fade-in">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-black dark:text-white">
+                    Create a Clip
+                </h1>
+                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
+                    Share your code, text, or files instantly. Simple, secure, and anonymous.
+                </p>
             </div>
-          </div>
-        </div>
-      </section>
+            <!-- Main Form -->
+            <form action="/" method="post" enctype="multipart/form-data" class="space-y-6">
+                <!-- Title Input -->
+                <div class="space-y-2">
+                        <label for="clip_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-heading mr-2 text-black dark:text-white"></i>
+                            Clip Title
+                        </label>
+                        <input 
+                            type="text" 
+                            id="clip_name" 
+                            name="clip_name" 
+                            class="w-full bg-white dark:bg-dark-700/50 border border-gray-300 dark:border-dark-600/50 rounded-xl px-4 py-3 text-black dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 focus:border-black dark:focus:border-white focus:ring-2 focus:ring-black/10 dark:focus:ring-white/20 focus:bg-white dark:focus:bg-dark-700/50 transition-all duration-200 custom-input" 
+                            placeholder="Enter a descriptive title..." 
+                            autocapitalize="off" 
+                            autocomplete="off" 
+                            autofocus
+                        >
+                    </div>
+
+                    <!-- Text Content -->
+                    <div class="space-y-2">
+                        <label for="clip_text" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-code mr-2 text-black dark:text-white"></i>
+                            Content
+                        </label>
+                        <textarea 
+                            id="clip_text" 
+                            name="clip_text" 
+                            class="w-full bg-white dark:bg-dark-700/50 border border-gray-300 dark:border-dark-600/50 rounded-xl px-4 py-3 text-black dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 focus:border-black dark:focus:border-white focus:ring-2 focus:ring-black/10 dark:focus:ring-white/20 focus:bg-white dark:focus:bg-dark-700/50 transition-all duration-200 font-mono text-sm min-h-[200px] resize-y custom-input" 
+                            placeholder="Paste your code, text, or any content here..."
+                            oninput="this.style.height = 'auto'; let min = 200; let max = 600; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; }"
+                        ></textarea>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="relative flex items-center justify-center py-4">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-dark-600/50"></div>
+                        </div>
+                        <div class="relative bg-dark-800 px-4">
+                            <span class="text-sm text-gray-500 font-medium">OR</span>
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="space-y-2">
+                        <label for="clip_file" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-upload mr-2 text-black dark:text-white"></i>
+                            Upload File
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="file" 
+                                name="clip_file" 
+                                id="clip_file" 
+                                class="w-full bg-white dark:bg-dark-700/50 border border-gray-300 dark:border-dark-600/50 rounded-xl px-4 py-3 text-black dark:text-gray-100 focus:bg-white dark:focus:bg-dark-700/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black dark:file:bg-white file:text-white dark:file:text-black file:hover:bg-gray-800 dark:file:hover:bg-gray-200 file:transition-colors file:duration-200 transition-all duration-200 custom-input"
+                                accept=".txt,.md,.csv,.json,.xml,.html,.css,.js,.py,.java,.c,.cpp,.cs,.h,.php,.rb,.go,.sh,.bat,.pl,.r,.kt,.swift"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Advanced Options -->
+                    <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-6 space-y-6">
+                        <h3 class="text-lg font-semibold text-black dark:text-white flex items-center">
+                            <i class="fas fa-cog mr-2 text-black dark:text-white"></i>
+                            Advanced Options
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Custom Alias -->
+                            <div class="space-y-2">
+                                <label for="clip_alias" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <i class="fas fa-link mr-2 text-black dark:text-white"></i>
+                                    Custom URL Alias
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="clip_alias" 
+                                    name="clip_alias" 
+                                    class="w-full bg-white dark:bg-dark-600/50 border border-gray-300 dark:border-dark-500/50 rounded-lg px-3 py-2 text-black dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black/20 dark:focus:ring-white/20 focus:bg-white dark:focus:bg-dark-600/50 transition-all duration-200 text-sm custom-input" 
+                                    placeholder="my-custom-alias" 
+                                    autocapitalize="off" 
+                                    autocomplete="off" 
+                                    maxlength="12" 
+                                    minlength="4"
+                                >
+                                <p class="text-xs text-gray-500">Only letters, numbers, hyphens, and underscores</p>
+                            </div>
+
+                            <!-- Password Protection -->
+                            <div class="space-y-2">
+                                <label for="clip_passwd" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <i class="fas fa-shield-alt mr-2 text-black dark:text-white"></i>
+                                    Password Protection
+                                </label>
+                                <input 
+                                    type="password" 
+                                    id="clip_passwd" 
+                                    name="clip_passwd" 
+                                    class="w-full bg-white dark:bg-dark-600/50 border border-gray-300 dark:border-dark-500/50 rounded-lg px-3 py-2 text-black dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black/20 dark:focus:ring-white/20 focus:bg-white dark:focus:bg-dark-600/50 transition-all duration-200 text-sm custom-input" 
+                                    placeholder="Enter password..." 
+                                    autocapitalize="off" 
+                                    autocomplete="off"
+                                >
+                                <p class="text-xs text-gray-500">Enables end-to-end encryption</p>
+                            </div>
+                        </div>
+
+                        <!-- Expiration -->
+                        <div class="space-y-2">
+                            <label for="clip_delete" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <i class="fas fa-clock mr-2 text-black dark:text-white"></i>
+                                Auto-Delete After
+                            </label>
+                            <select name="clip_delete" id="clip_delete" class="w-full bg-white dark:bg-dark-600/50 border border-gray-300 dark:border-dark-500/50 rounded-lg px-3 py-2 text-black dark:text-gray-100 focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black/20 dark:focus:ring-white/20 focus:bg-white dark:focus:bg-dark-600/50 transition-all duration-200 text-sm custom-input">
+                                <option value="never">Never</option>
+                                <option value="day">1 Day</option>
+                                <option value="week">1 Week</option>
+                                <option value="twoweek">2 Weeks</option>
+                                <option value="month">1 Month</option>
+                                <option value="half">6 Months</option>
+                                <option value="year">1 Year</option>
+                            </select>
+                        </div>
+
+                        <!-- Toggle Options -->
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label for="clip_edit" class="text-sm font-medium text-gray-700 dark:text-gray-300">Make Editable</label>
+                                    <p class="text-xs text-gray-500">Requires login</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="clip_edit" id="clip_edit" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-300 dark:bg-dark-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-black/20 dark:peer-focus:ring-white/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black dark:peer-checked:bg-white"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label for="clip_disp" class="text-sm font-medium text-gray-700 dark:text-gray-300">Set Unlisted</label>
+                                    <p class="text-xs text-gray-500">Hidden from search</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="clip_disp" id="clip_disp" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-300 dark:bg-dark-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-black/20 dark:peer-focus:ring-white/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black dark:peer-checked:bg-white"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center pt-4">
+                        <button 
+                            type="submit" 
+                            class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-semibold px-8 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                        >
+                            <i class="fas fa-save"></i>
+                            <span>Create Clip</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
 {% endblock %}

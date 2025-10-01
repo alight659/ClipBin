@@ -1,244 +1,502 @@
 {% extends "layout.html" %}
+
 {% block title %}
-    API Documentation
+API Documentation
 {% endblock %}
+
+{% block head %}
+<style>
+    /* Prevent line numbering in code blocks */
+    pre, code {
+        counter-reset: none !important;
+        counter-increment: none !important;
+    }
+    pre::before, code::before {
+        content: none !important;
+    }
+    pre {
+        line-height: 1.5 !important;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<section class="text-gray-400 bg-gray-900 body-font">
-    <div class="container px-5 py-24 mx-auto flex flex-col">
-        <div class="flex flex-col w-full mb-12">
-            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">API Information</h1>
-            <p class="leading-relaxed text-base">
-                This API allows users to retrieve and add data to ClipBin. It includes two primary functions: get_data (GET request) and post_data (POST request).
-            </p>
-            <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 mt-5 text-white">Endpoints</h1>
-            <div class="lg:w-2/3 overflow-auto">
-                    <h2 class="text-xl font-semibold mb-2 text-white">1. GET /get_data</h2>
-                    <p>Retrieve data from the database based on specific parameters.</p>
-                    <ul class="list-disc list-inside mb-4">
-                        <li><strong>Endpoint:</strong> /get_data</li>
-                        <li><strong>Method:</strong> GET</li>
-                        <li><strong>Description:</strong> Retrieves data from the database based on the provided parameters.</li>
-                    </ul>
-            
-                    <h3 class="text-lg font-semibold mb-2">Query Parameters</h3>
-                    <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
-                        <thead>
-                            <tr class="bg-gray-800">
-                                <th class="border border-gray-700 px-4 py-2">Parameter</th>
-                                <th class="border border-gray-700 px-4 py-2">Type</th>
-                                <th class="border border-gray-700 px-4 py-2">Required</th>
-                                <th class="border border-gray-700 px-4 py-2">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">id</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">Yes</td>
-                                <td class="border border-gray-700 px-4 py-2">The unique identifier for the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">name</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">The name associated with the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">pwd</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">The password for authorization.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">unlisted</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">Filter for unlisted data. Accepted values: true or false.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-            
-                    <h3 class="text-lg font-semibold mb-2">Responses</h3>
-                    <h4 class="text-md font-semibold mb-2">200 OK: Successfully retrieved data.</h4>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">[
-    {
-        "id": "URL Id",
-        "name": "Sample Name",
-        "text": "Sample Text",
-        "time": "Saving Time"
-    }
-]</code></pre>
-            
-                    <h4 class="text-md font-semibold mb-2">400 Bad Request: Missing or incorrect request parameters.</h4>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "Error": "Missing Parameters!"
-}</code></pre>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "Message": "To Search, enter Id not Name with unlisted!"
-}</code></pre>
-            
-                    <h4 class="text-md font-semibold mb-2">401 Unauthorized: Authentication failed (incorrect pwd).</h4>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "Error": "Incorrect Password"
-}</code></pre>
-            
-                    <h4 class="text-md font-semibold mb-2">404 Not Found: No data found.</h4>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "Error": "No Data"
-}</code></pre>
-            
-                    <h3 class="text-lg font-semibold mb-2">Example Request</h3>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded break-all"><code class="bash">GET /get_data?id=1&name=Sample&pwd=example_password&unlisted=false</code></pre>
-            
-                    <h3 class="text-lg font-semibold mb-2">Example Response</h3>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">[
-    {
-        "id": "URL Id",
-        "name": "Sample Name",
-        "text": "Sample Text",
-        "time": "Saving Time"
-    }
-]</code></pre>
-            
-                    <h2 class="text-xl font-semibold mb-2 text-white">2. POST /post_data</h2>
-                    <p>Add new data to the database.</p>
-                    <ul class="list-disc list-inside mb-4">
-                        <li><strong>Endpoint:</strong> /post_data</li>
-                        <li><strong>Method:</strong> POST</li>
-                        <li><strong>Description:</strong> Adds new data to the database with the provided details.</li>
-                    </ul>
-            
-                    <h3 class="text-lg font-semibold mb-2">Request Parameters</h3>
-                    <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
-                        <thead>
-                            <tr class="bg-gray-800">
-                                <th class="border border-gray-700 px-4 py-2">Parameter</th>
-                                <th class="border border-gray-700 px-4 py-2">Type</th>
-                                <th class="border border-gray-700 px-4 py-2">Required</th>
-                                <th class="border border-gray-700 px-4 py-2">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">name</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">Yes</td>
-                                <td class="border border-gray-700 px-4 py-2">The name associated with the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">text</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">Yes</td>
-                                <td class="border border-gray-700 px-4 py-2">The text content to be stored.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">pwd</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">The password for protecting the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">unlisted</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">Specify if the data should be unlisted. Accepted values: true or false.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">remove</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">Specify when the clip will be removed. Available options: 
-                                    <ul>
-                                        <li>day - for 1 day</li>
-                                        <li>week - for 1 week</li>
-                                        <li>twoweek - for 2 week</li>
-                                        <li>month - for 1 month</li>
-                                        <li>half - for 6 month</li>
-                                        <li>year - for 1 year</li>
-                                    </ul>
-                                    If any other option is provided, it will be treated as never.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-            
-                    <h4 class="text-md font-semibold mb-2">Body Example:</h4>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "name": "Sample Name",
+    <!-- API Documentation Section -->
+    <div class="flex-1 bg-white dark:bg-dark-800">
+        <section class="py-12 md:py-20 px-4 md:px-6">
+            <div class="container mx-auto max-w-6xl">
+                <!-- Header -->
+                <div class="text-center mb-8 md:mb-12 fade-in">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-black dark:text-white">
+                        API Documentation
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed px-4">
+                        This API allows users to retrieve and add data to ClipBin. It includes two primary functions: get_data (GET request) and post_data (POST request).
+                    </p>
+                </div>
+
+                <!-- Endpoints Section -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-black dark:text-white flex items-center mb-6">
+                        <i class="fas fa-plug mr-3 text-black dark:text-white"></i>
+                        API Endpoints
+                    </h2>
+                    
+                    <!-- GET Endpoint -->
+                    <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl overflow-hidden">
+                        <!-- Endpoint Header (Clickable) -->
+                        <div class="cursor-pointer" onclick="toggleEndpoint('get-endpoint')">
+                            <div class="flex items-center justify-between p-6 hover:bg-gray-50 dark:hover:bg-dark-600/50 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-3 py-1 rounded-lg text-sm font-mono font-semibold">GET</span>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-black dark:text-white">/get_data</h3>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Retrieve data from the database</p>
+                                    </div>
+                                </div>
+                                <i id="get-endpoint-icon" class="fas fa-chevron-down text-gray-400 transform transition-transform duration-200"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Endpoint Details (Collapsible) -->
+                        <div id="get-endpoint" class="hidden border-t border-gray-200 dark:border-dark-600/50">
+                            <div class="p-6 space-y-6">
+                                <!-- Description -->
+                                <div class="bg-gray-50 dark:bg-dark-600/30 rounded-lg p-4">
+                                    <p class="text-gray-700 dark:text-gray-300">
+                                        <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                                        Retrieve data from the database based on specific parameters.
+                                    </p>
+                                </div>
+
+                                <!-- Query Parameters -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-black dark:text-white flex items-center">
+                                        <i class="fas fa-list mr-2"></i>
+                                        Query Parameters
+                                    </h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse border border-gray-300 dark:border-dark-500 rounded-lg overflow-hidden">
+                                            <thead>
+                                                <tr class="bg-gray-100 dark:bg-dark-600">
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Parameter</th>
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Type</th>
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Required</th>
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-gray-700 dark:text-gray-300">
+                                                <tr class="bg-white dark:bg-dark-700/50">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">id</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-2 py-1 rounded text-xs">Yes</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">The unique identifier for the data.</td>
+                                                </tr>
+                                                <tr class="bg-gray-50 dark:bg-dark-600/30">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">name</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded text-xs">No</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">The name associated with the data.</td>
+                                                </tr>
+                                                <tr class="bg-white dark:bg-dark-700/50">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">pwd</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded text-xs">No</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">The password for authorization.</td>
+                                                </tr>
+                                                <tr class="bg-gray-50 dark:bg-dark-600/30">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">unlisted</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded text-xs">No</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">Filter for unlisted data. Accepted values: true or false.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Responses Section -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-black dark:text-white flex items-center">
+                                        <i class="fas fa-server mr-2"></i>
+                                        Responses
+                                    </h4>
+                                    <div class="space-y-3">
+                                        <div class="border border-green-200 dark:border-green-800 rounded-lg overflow-hidden">
+                                            <div class="bg-green-50 dark:bg-green-900/30 px-4 py-2">
+                                                <h5 class="font-semibold text-green-700 dark:text-green-300 flex items-center text-sm">
+                                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                                    200 OK - Successfully retrieved data
+                                                </h5>
+                                            </div>
+                                            <div class="p-3">
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">JSON Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-green-600 dark:text-green-400 font-mono">[
+  {
+    "id": "URL Id",
+    "name": "Sample Name", 
     "text": "Sample Text",
-    "pwd": "example_password",
-    "unlisted": "false",
-    "remove": "half"
+    "time": "Saving Time"
+  }
+]</code></pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="border border-red-200 dark:border-red-800 rounded-lg overflow-hidden">
+                                            <div class="bg-red-50 dark:bg-red-900/30 px-4 py-2">
+                                                <h5 class="font-semibold text-red-700 dark:text-red-300 flex items-center text-sm">
+                                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                                    400 Bad Request - Missing or incorrect parameters
+                                                </h5>
+                                            </div>
+                                            <div class="p-3 space-y-2">
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-3">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Error Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-red-600 dark:text-red-400 font-mono">{
+  "Error": "Missing Parameters!"
 }</code></pre>
-            
-                    <h3 class="text-lg font-semibold mb-2">Responses</h3>
-                    <h4 class="text-md font-semibold mb-2">201 Created: Successfully added data.</h4>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "id": "url_id", "Message": "Successfully added!"
+                                                </div>
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Error Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-red-600 dark:text-red-400 font-mono">{
+  "Message": "To Search, enter Id not Name with unlisted!"
 }</code></pre>
-            
-                    <h4 class="text-md font-semibold mb-2">400 Bad Request: Missing parameters or failed to add data.</h4>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "Error": "Missing Parameters!"
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border border-yellow-200 dark:border-yellow-800 rounded-lg overflow-hidden">
+                                            <div class="bg-yellow-50 dark:bg-yellow-900/30 px-4 py-2">
+                                                <h5 class="font-semibold text-yellow-700 dark:text-yellow-300 flex items-center text-sm">
+                                                    <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                                                    401 Unauthorized - Authentication failed
+                                                </h5>
+                                            </div>
+                                            <div class="p-3">
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Error Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-yellow-600 dark:text-yellow-400 font-mono">{
+  "Error": "Incorrect Password"
 }</code></pre>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "Error": "Couldn't add. Something went wrong."
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+                                            <div class="bg-gray-50 dark:bg-gray-700/30 px-4 py-2">
+                                                <h5 class="font-semibold text-gray-700 dark:text-gray-300 flex items-center text-sm">
+                                                    <span class="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                                                    404 Not Found - No data found
+                                                </h5>
+                                            </div>
+                                            <div class="p-3">
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Error Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-gray-600 dark:text-gray-400 font-mono">{
+  "Error": "No Data"
 }</code></pre>
-            
-                    <h3 class="text-lg font-semibold mb-2">Example Request</h3>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="bash">POST /post_data
-            
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Example Request -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-black dark:text-white flex items-center">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Example Request
+                                    </h4>
+                                    <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                        <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                            <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">HTTP Request</span>
+                                        </div>
+                                        <pre class="p-4 text-sm overflow-x-auto whitespace-pre-wrap"><code class="text-blue-700 dark:text-blue-300 font-mono block w-full">GET /get_data?id=1&name=Sample&pwd=example_password&unlisted=false</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- POST Endpoint -->
+                    <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl overflow-hidden">
+                        <!-- Endpoint Header (Clickable) -->
+                        <div class="cursor-pointer" onclick="toggleEndpoint('post-endpoint')">
+                            <div class="flex items-center justify-between p-6 hover:bg-gray-50 dark:hover:bg-dark-600/50 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-lg text-sm font-mono font-semibold">POST</span>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-black dark:text-white">/post_data</h3>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Add new data to the database</p>
+                                    </div>
+                                </div>
+                                <i id="post-endpoint-icon" class="fas fa-chevron-down text-gray-400 transform transition-transform duration-200"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Endpoint Details (Collapsible) -->
+                        <div id="post-endpoint" class="hidden border-t border-gray-200 dark:border-dark-600/50">
+                            <div class="p-6 space-y-6">
+                                <!-- Description -->
+                                <div class="bg-gray-50 dark:bg-dark-600/30 rounded-lg p-4">
+                                    <p class="text-gray-700 dark:text-gray-300">
+                                        <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                                        Add new data to the database with the provided details.
+                                    </p>
+                                </div>
+
+                                <!-- Request Parameters -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-black dark:text-white flex items-center">
+                                        <i class="fas fa-cogs mr-2"></i>
+                                        Request Parameters
+                                    </h4>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full border-collapse border border-gray-300 dark:border-dark-500 rounded-lg overflow-hidden">
+                                            <thead>
+                                                <tr class="bg-gray-100 dark:bg-dark-600">
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Parameter</th>
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Type</th>
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Required</th>
+                                                    <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-gray-700 dark:text-gray-300">
+                                                <tr class="bg-white dark:bg-dark-700/50">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">name</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-2 py-1 rounded text-xs">Yes</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">The name associated with the data.</td>
+                                                </tr>
+                                                <tr class="bg-gray-50 dark:bg-dark-600/30">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">text</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-2 py-1 rounded text-xs">Yes</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">The text content to be stored.</td>
+                                                </tr>
+                                                <tr class="bg-white dark:bg-dark-700/50">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">pwd</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded text-xs">No</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">The password for protecting the data.</td>
+                                                </tr>
+                                                <tr class="bg-gray-50 dark:bg-dark-600/30">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">unlisted</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded text-xs">No</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">Specify if the data should be unlisted. Accepted values: true or false.</td>
+                                                </tr>
+                                                <tr class="bg-white dark:bg-dark-700/50">
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">remove</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">string</td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded text-xs">No</span>
+                                                    </td>
+                                                    <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">
+                                                        Specify when the clip will be removed. Available options:
+                                                        <ul class="list-disc list-inside mt-2 text-xs">
+                                                            <li>day - for 1 day</li>
+                                                            <li>week - for 1 week</li>
+                                                            <li>twoweek - for 2 weeks</li>
+                                                            <li>month - for 1 month</li>
+                                                            <li>half - for 6 months</li>
+                                                            <li>year - for 1 year</li>
+                                                        </ul>
+                                                        <p class="text-xs mt-1">If any other option is provided, it will be treated as never.</p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Responses Section -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-black dark:text-white flex items-center">
+                                        <i class="fas fa-server mr-2"></i>
+                                        Responses
+                                    </h4>
+                                    <div class="space-y-3">
+                                        <div class="border border-green-200 dark:border-green-800 rounded-lg overflow-hidden">
+                                            <div class="bg-green-50 dark:bg-green-900/30 px-4 py-2">
+                                                <h5 class="font-semibold text-green-700 dark:text-green-300 flex items-center text-sm">
+                                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                                    201 Created - Successfully added data
+                                                </h5>
+                                            </div>
+                                            <div class="p-3">
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Success Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-green-600 dark:text-green-400 font-mono">{
+  "id": "url_id", 
+  "Message": "Successfully added!"
+}</code></pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="border border-red-200 dark:border-red-800 rounded-lg overflow-hidden">
+                                            <div class="bg-red-50 dark:bg-red-900/30 px-4 py-2">
+                                                <h5 class="font-semibold text-red-700 dark:text-red-300 flex items-center text-sm">
+                                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                                    400 Bad Request - Missing parameters or failed to add data
+                                                </h5>
+                                            </div>
+                                            <div class="p-3 space-y-2">
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-3">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Error Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-red-600 dark:text-red-400 font-mono">{
+  "Error": "Missing Parameters!"
+}</code></pre>
+                                                </div>
+                                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                                    <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Error Response</span>
+                                                    </div>
+                                                    <pre class="p-4 text-sm overflow-x-auto"><code class="text-red-600 dark:text-red-400 font-mono">{
+  "Error": "Couldn't add. Something went wrong."
+}</code></pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Example Request -->
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-black dark:text-white flex items-center">
+                                        <i class="fas fa-arrow-right mr-2"></i>
+                                        Example Request
+                                    </h4>
+                                    <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                        <div class="bg-gray-100 dark:bg-gray-700 px-3 py-2 border-b border-gray-200 dark:border-gray-600">
+                                            <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">HTTP Request</span>
+                                        </div>
+                                        <pre class="p-4 text-sm overflow-x-auto whitespace-pre-wrap"><code class="text-blue-700 dark:text-blue-300 font-mono block w-full">POST /post_data
+
 Body:
-            
 {
-    "name": "Sample Name",
-    "text": "Sample Text",
-    "pwd": "example_password",
-    "unlisted": "false",
-    "remove": "half"
+  "name": "Sample Name",
+  "text": "Sample Text",
+  "pwd": "example_password", 
+  "unlisted": "false",
+  "remove": "half"
 }</code></pre>
-            
-                    <h3 class="text-lg font-semibold mb-2">Example Response</h3>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
-    "id": "clip_id", "Message": "Successfully added!"
-}</code></pre>
-            
-                    <h2 class="text-xl font-semibold mb-2">Error Codes</h2>
-                    <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
-                        <thead>
-                            <tr class="bg-gray-800">
-                                <th class="border border-gray-700 px-4 py-2">Status Code</th>
-                                <th class="border border-gray-700 px-4 py-2">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">200</td>
-                                <td class="border border-gray-700 px-4 py-2">OK – Request succeeded.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">201</td>
-                                <td class="border border-gray-700 px-4 py-2">Created – Resource successfully created.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">400</td>
-                                <td class="border border-gray-700 px-4 py-2">Bad Request – Request was invalid.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">401</td>
-                                <td class="border border-gray-700 px-4 py-2">Unauthorized – Authentication failed.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">404</td>
-                                <td class="border border-gray-700 px-4 py-2">Not Found – Resource not found.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-            
-                    <h2 class="text-xl font-semibold mb-2">Authentication</h2>
-                    <p>(pwd) is required for retrieving protected data and optional for adding data.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Codes and Authentication Section -->
+                <div class="grid md:grid-cols-2 gap-6 mt-8">
+                    <!-- Error Codes -->
+                    <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-4 text-black dark:text-white flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-3 text-black dark:text-white"></i>
+                            Error Codes
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse border border-gray-300 dark:border-dark-500 rounded-lg overflow-hidden">
+                                <thead>
+                                    <tr class="bg-gray-100 dark:bg-dark-600">
+                                        <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Status Code</th>
+                                        <th class="border border-gray-300 dark:border-dark-500 px-4 py-3 text-left text-black dark:text-white font-semibold">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-700 dark:text-gray-300">
+                                    <tr class="bg-white dark:bg-dark-700/50">
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">200</td>
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">OK – Request succeeded.</td>
+                                    </tr>
+                                    <tr class="bg-gray-50 dark:bg-dark-600/30">
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">201</td>
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">Created – Resource successfully created.</td>
+                                    </tr>
+                                    <tr class="bg-white dark:bg-dark-700/50">
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">400</td>
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">Bad Request – Request was invalid.</td>
+                                    </tr>
+                                    <tr class="bg-gray-50 dark:bg-dark-600/30">
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">401</td>
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">Unauthorized – Authentication failed.</td>
+                                    </tr>
+                                    <tr class="bg-white dark:bg-dark-700/50">
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2 font-mono">404</td>
+                                        <td class="border border-gray-300 dark:border-dark-500 px-4 py-2">Not Found – Resource not found.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Authentication -->
+                    <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-4 text-black dark:text-white flex items-center">
+                            <i class="fas fa-key mr-3 text-black dark:text-white"></i>
+                            Authentication
+                        </h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">
+                            The <code class="bg-gray-100 dark:bg-dark-600 px-2 py-1 rounded text-sm">pwd</code> parameter is required for retrieving protected data and optional for adding data.
+                        </p>
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700/30 border border-gray-200 dark:border-gray-600 rounded-lg">
+                            <p class="text-gray-700 dark:text-gray-300 text-sm">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                When a clip is password protected, you must provide the correct password to access its content.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     </div>
-</section>
+
+    <!-- JavaScript for dropdown functionality -->
+    <script>
+        function toggleEndpoint(endpointId) {
+            const element = document.getElementById(endpointId);
+            const icon = document.getElementById(endpointId + '-icon');
+            
+            if (element.classList.contains('hidden')) {
+                element.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                element.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+    </script>
 {% endblock %}

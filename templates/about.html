@@ -1,28 +1,71 @@
 {% extends "layout.html" %}
+
 {% block title %}
-    About
+About
 {% endblock %}
+
 {% block body %}
-<section class="text-gray-400 bg-gray-900 body-font">
-    <div class="container px-5 py-24 mx-auto">
-        <div class="flex flex-col w-full mb-12">
-            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">ClipBin</h1>
-            <p class="leading-relaxed text-base">
-                The Simplest way of sharing code or anything that is text.
-            </p>
-            <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 mt-5 text-white">Features</h1>
-            <ul class="list-disc list-inside text-l">
-                <li>Dark mode</li>
-                <li>Anonymous</li>
-                <li>Password Protected Clips</li>
-                <li>Full CRUD Support</li>
-                <li>Login/Sign-Up Features</li>
-                <li>Dashboard Features</li>
-                <li>Open API</li>
-                <li>Custom URL Alias</li>
-                <li>Temporary Time Based Clips</li>
-            </ul>
-        </div>
+    <!-- About Section -->
+    <div class="flex-1 bg-white dark:bg-dark-800">
+        <section class="py-12 md:py-20 px-4 md:px-6">
+            <div class="container mx-auto max-w-4xl">
+                <!-- Header -->
+                <div class="text-center mb-8 md:mb-12 fade-in">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-black dark:text-white">
+                        About ClipBin
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
+                        The simplest way of sharing code or anything that is text.
+                    </p>
+                </div>
+
+                <!-- Features Section -->
+                <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-6 md:p-8 space-y-6">
+                    <h2 class="text-2xl md:text-3xl font-bold text-black dark:text-white flex items-center mb-6">
+                        <i class="fas fa-star mr-3 text-black dark:text-white"></i>
+                        Features
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-moon text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Dark mode</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-user-secret text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Anonymous</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-shield-alt text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Password Protected Clips</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-edit text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Full CRUD Support</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-sign-in-alt text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Login/Sign-Up Features</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-tachometer-alt text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Dashboard Features</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-code text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Open API</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg">
+                            <i class="fas fa-link text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Custom URL Alias</span>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-dark-600/50 rounded-lg col-span-full">
+                            <i class="fas fa-clock text-black dark:text-white"></i>
+                            <span class="text-gray-700 dark:text-gray-300">Temporary Time Based Clips</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
-</section>
 {% endblock %}

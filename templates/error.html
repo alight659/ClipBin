@@ -1,13 +1,52 @@
 {% extends "layout.html" %}
+
 {% block title %}
 Error
 {% endblock %}
+
 {% block body %}
-    <section class="text-gray-400 bg-gray-900 body-font">
-        <div class="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
-            <div class="text-center lg:w-2/3 w-full">
-                <p class="title-font sm:text-4xl text-3xl mb-4 font-medium text-white"> {{ code }} </p>
+    <!-- Error Section -->
+    <div class="flex-1 bg-white dark:bg-dark-800">
+        <section class="py-12 md:py-20 px-4 md:px-6">
+            <div class="container mx-auto max-w-4xl flex items-center justify-center">
+                <div class="text-center w-full">
+                    <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-8 md:p-12">
+                        <div class="mb-6">
+                            <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-black dark:text-white">
+                            {{ code }}
+                        </h1>
+                        <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8">
+                            {% if code == "404" %}
+                            The page or clip you're looking for doesn't exist.
+                            {% elif code == "403" %}
+                            You don't have permission to access this resource.
+                            {% elif code == "500" %}
+                            Something went wrong on our end. Please try again later.
+                            {% else %}
+                            An error occurred while processing your request.
+                            {% endif %}
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a 
+                                href="/" 
+                                class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-semibold px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                            >
+                                <i class="fas fa-home"></i>
+                                <span>Go Home</span>
+                            </a>
+                            <button 
+                                onclick="history.back()" 
+                                class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-black dark:text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 flex items-center justify-center space-x-2"
+                            >
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Go Back</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 {% endblock %}

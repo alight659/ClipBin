@@ -1,7 +1,18 @@
+/* Enhanced Black & White Theme Styles */
 body {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #0f0f0f 0%, #000000 100%);
+    color: #e5e7eb;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: all 0.3s ease;
+}
+
+/* Light theme styles */
+html:not(.dark) body {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    color: #000000;
 }
 
 .ubuntu-mono-regular {
@@ -10,22 +21,93 @@ body {
     font-style: normal;
 }
 
-footer {
+/* Enhanced background patterns */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    margin-top: auto;
-    text-align: center;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 25% 25%, #1e3a8a 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, #1d4ed8 0%, transparent 50%);
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: -1;
 }
 
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3a3a3a;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4a4a4a;
+}
+
+/* Enhanced code highlighting */
 .hljs-ln-numbers {
     text-align: center;
-    color: #444444;
-    border-right: 1px dotted #444444;
+    color: #6b7280;
+    border-right: 1px solid #374151;
     vertical-align: top;
-    padding-right: 5px !important;
+    padding-right: 8px !important;
+    background: #1f2937;
+    user-select: none;
 }
 
 .hljs-ln-code {
-    padding-left: 10px !important;
+    padding-left: 12px !important;
+    background: #111827;
+}
+
+/* Glassmorphism effects */
+.glass {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom input styles */
+.custom-input {
+    background: rgba(31, 41, 55, 0.5);
+    border: 1px solid rgba(75, 85, 99, 0.5);
+    transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 
