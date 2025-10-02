@@ -221,3 +221,95 @@ class TestSQLite:
         # Verify all records were inserted
         result = test_db.execute("SELECT COUNT(*) as count FROM test_table")
         assert result[0]['count'] == 5
+
+    def test_cleanup_all_tables_method(self, test_db):
+        """Test the cleanup_all_tables method."""
+        # Create test table and data
+        test_db.execute("""
+            CREATE TABLE cleanup_test (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL
+            )
+        """)
+        
+        # Insert test data
+        test_db.execute("INSERT INTO cleanup_test (name) VALUES (?)", "test1")
+        test_db.execute("INSERT INTO cleanup_test (name) VALUES (?)", "test2")
+        
+        # Verify data exists
+        data = test_db.execute("SELECT * FROM cleanup_test")
+        assert len(data) == 2
+        
+        # Test cleanup method
+        result = test_db.cleanup_all_tables()
+        assert result is True
+        
+        # Verify data is gone
+        data = test_db.execute("SELECT * FROM cleanup_test")
+        assert len(data) == 0
+        
+        # Verify sqlite_sequence is cleaned
+        sequences = test_db.execute("SELECT * FROM sqlite_sequence")
+        assert len(sequences) == 0
+
+    def test_get_table_names_method(self, test_db):
+        """Test the get_table_names method."""
+        # Initially should have the tables created in conftest
+        initial_tables = test_db.get_table_names()
+        assert isinstance(initial_tables, list)
+        
+        # Create additional test table
+        test_db.execute("""
+            CREATE TABLE table_names_test (
+                id INTEGER PRIMARY KEY,
+                data TEXT
+            )
+        """)
+        
+        # Get table names
+        tables = test_db.get_table_names()
+        assert isinstance(tables, list)
+        assert "table_names_test" in tables
+        assert len(tables) > len(initial_tables)
+
+    def test_cleanup_with_foreign_keys(self, test_db):
+        """Test cleanup works properly with foreign key constraints."""
+        # Create tables with foreign key relationships
+        test_db.execute("""
+            CREATE TABLE parent_table (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL
+            )
+        """)
+        
+        test_db.execute("""
+            CREATE TABLE child_table (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                parent_id INTEGER,
+                data TEXT,
+                FOREIGN KEY(parent_id) REFERENCES parent_table(id) ON DELETE CASCADE
+            )
+        """)
+        
+        # Insert related data
+        test_db.execute("INSERT INTO parent_table (name) VALUES (?)", "parent1")
+        parent_result = test_db.execute("SELECT id FROM parent_table WHERE name = ?", "parent1")
+        parent_id = parent_result[0]['id']
+        
+        test_db.execute("INSERT INTO child_table (parent_id, data) VALUES (?, ?)", parent_id, "child_data")
+        
+        # Verify data exists
+        parents = test_db.execute("SELECT * FROM parent_table")
+        children = test_db.execute("SELECT * FROM child_table")
+        assert len(parents) == 1
+        assert len(children) == 1
+        
+        # Test cleanup
+        result = test_db.cleanup_all_tables()
+        assert result is True
+        
+        # Verify all data is gone
+        parents = test_db.execute("SELECT * FROM parent_table")
+        children = test_db.execute("SELECT * FROM child_table")
+        assert len(parents) == 0
+        assert len(children) == 0
