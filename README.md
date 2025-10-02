@@ -58,6 +58,34 @@ To enable debugging mode, edit app.py
 ```python
   app.run(debug=True)
 ```
+
+## Run with docker
+
+Clone the project
+
+```bash
+  git clone https://github.com/alight659/ClipBin
+```
+
+Go to the project directory
+
+```bash
+  cd ClipBin
+```
+
+Build it
+
+```bash
+  docker build -t clipbin .
+```
+
+Run with volume for the database
+
+```bash
+  docker run -p 5000:5000 -v clipbin-db:/app clipbin
+```
+
+
 ## Support
 
 For support, email at [aanis@clipb.in](mailto:aanis@clipb.in)
