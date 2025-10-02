@@ -1,7 +1,7 @@
 body {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh; 
 }
 
 .ubuntu-mono-regular {
@@ -27,8 +27,6 @@ footer {
 .hljs-ln-code {
     padding-left: 10px !important;
 }
-
-
 @media (min-width: 640px) {
     table {
       display: inline-table !important;
