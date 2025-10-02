@@ -19,7 +19,6 @@ class MockData:
                 'id': 1,
                 'username': 'testuser1',
                 'password_hash': generate_password_hash('password123'),
-                'email': 'test1@example.com',
                 'created_at': datetime.now()
             },
             {
