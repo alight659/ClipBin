@@ -15,6 +15,47 @@ html:not(.dark) body {
     color: #000000;
 }
 
+/* Ultra-wide screen optimizations */
+@media (min-width: 1920px) {
+    .container {
+        max-width: 1600px;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+}
+
+@media (min-width: 2560px) {
+    .container {
+        max-width: 2000px;
+        padding-left: 4rem;
+        padding-right: 4rem;
+    }
+}
+
+/* Full height content optimization */
+html, body {
+    height: 100%;
+}
+
+.min-h-full {
+    min-height: 100%;
+}
+
+/* Ensure main content takes full height */
+main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* Fix for content centering on large screens */
+.flex-center-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px); /* Account for header/footer */
+}
+
 .ubuntu-mono-regular {
     font-family: "Ubuntu Mono", monospace;
     font-weight: 400;
@@ -108,6 +149,46 @@ body::before {
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dashboard optimizations for large screens */
+@media (min-width: 1280px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        max-width: none;
+    }
+}
+
+@media (min-width: 1920px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.95rem;
+    }
+    
+    .stats-card {
+        padding: 2rem;
+    }
+}
+
+/* Hover effects for better UX on large screens */
+@media (hover: hover) {
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .group:hover .group-hover\:scale-105 {
+        transform: scale(1.05);
+    }
 }
 
 

@@ -3,48 +3,368 @@
   Dashboard
 {% endblock %}
 
-
 {% block body %}
-<section class="text-gray-400 bg-gray-900 body-font">
-  <div class="container px-5 py-24 mx-auto">
-    <div class="flex flex-col text-center w-full mb-12">
-      <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">Welcome {{ dat[1] }}</h1>
-      <p class="lg:w-2/3 mx-auto leading-relaxed text-base text-l">Here are the clips you created.</p>
-    </div>
-    <div class="lg:w-2/3 w-full mx-auto overflow-auto">
+<div class="flex-1 bg-white dark:bg-dark-800 flex flex-col min-h-full">
+  <section class="flex-1 py-8 md:py-12 lg:py-16 px-4 md:px-6 lg:px-8 xl:px-12">
+    <div class="container mx-auto max-w-[1400px] 2xl:max-w-[1600px] h-full flex flex-col justify-start">
+      <!-- Header -->
+      <div class="text-center mb-8 md:mb-12 fade-in">
+        <h1 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 md:mb-6 text-black dark:text-white">
+          Welcome back, {{ dat[1] }}!
+        </h1>
+        <p class="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+          Manage your clips, track performance, and organize your content all in one place.
+        </p>
+      </div>
       {% if data %}
-        <table class="table-auto w-full text-left whitespace-no-wrap">
-        <thead>
-            <tr>
-            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800 rounded-tl rounded-bl">Name</th>
-            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">Clip Id</th>
-            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">Created at</th>
-            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">Editable?</th>
-            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800">Unlisted?</th>
-            <th class="px-4 py-3 title-font tracking-wider font-medium text-white text-sm bg-gray-800"></th>
-            <th class="w-10 title-font tracking-wider font-medium text-white text-sm bg-gray-800 rounded-tr rounded-br"></th>
-            </tr>
-        </thead>
-        <tbody>
-          {% for d in data %}
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 md:gap-6 mb-8 md:mb-12">
+          <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-4 md:p-6 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Total Clips</p>
+                <p class="text-2xl md:text-3xl font-bold text-black dark:text-white">{{ data|length }}</p>
+              </div>
+              <div class="bg-black dark:bg-white rounded-full p-2 md:p-3">
+                <i class="fas fa-clipboard text-white dark:text-black text-lg md:text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-4 md:p-6 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Editable Clips</p>
+                <p class="text-2xl md:text-3xl font-bold text-black dark:text-white">
+                  {% set editable_count = data | selectattr("is_editable", "equalto", True) | list | length %}
+                  {{ editable_count }}
+                </p>
+              </div>
+              <div class="bg-blue-500 rounded-full p-2 md:p-3">
+                <i class="fas fa-edit text-white text-lg md:text-xl"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-4 md:p-6 hover:shadow-lg transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Private Clips</p>
+                <p class="text-2xl md:text-3xl font-bold text-black dark:text-white">
+                  {% set private_count = data | selectattr("is_unlisted", "equalto", True) | list | length %}
+                  {{ private_count }}
+                </p>
+              </div>
+              <div class="bg-purple-500 rounded-full p-2 md:p-3">
+                <i class="fas fa-eye-slash text-white text-lg md:text-xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional stats for larger screens -->
+          <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-4 md:p-6 hover:shadow-lg transition-shadow duration-200 hidden xl:block">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Public Clips</p>
+                <p class="text-2xl md:text-3xl font-bold text-black dark:text-white">
+                  {% set public_count = data | selectattr("is_unlisted", "equalto", False) | list | length %}
+                  {{ public_count }}
+                </p>
+              </div>
+              <div class="bg-green-500 rounded-full p-2 md:p-3">
+                <i class="fas fa-eye text-white text-lg md:text-xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-4 md:p-6 hover:shadow-lg transition-shadow duration-200 hidden 2xl:block">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">Protected Clips</p>
+                <p class="text-2xl md:text-3xl font-bold text-black dark:text-white">
+                  {% set protected_count = data | selectattr("has_password", "equalto", True) | list | length %}
+                  {{ protected_count if protected_count else 0 }}
+                </p>
+              </div>
+              <div class="bg-yellow-500 rounded-full p-2 md:p-3">
+                <i class="fas fa-lock text-white text-lg md:text-xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-4 md:p-6 hover:shadow-lg transition-shadow duration-200 hidden 2xl:block">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs md:text-sm font-medium text-gray-500 dark:text-gray-400">This Month</p>
+                <p class="text-2xl md:text-3xl font-bold text-black dark:text-white">
+                  {% set current_month = moment().format('YYYY-MM') if moment else '2024-10' %}
+                  {% set month_count = data | selectattr("clip_time", "match", ".*2024-10.*") | list | length %}
+                  {{ month_count if month_count else data|length }}
+                </p>
+              </div>
+              <div class="bg-indigo-500 rounded-full p-2 md:p-3">
+                <i class="fas fa-calendar text-white text-lg md:text-xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clips Table -->
+        <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl overflow-hidden">
+          <div class="p-4 md:p-6 border-b border-gray-200 dark:border-dark-600/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 class="text-lg md:text-xl font-semibold text-black dark:text-white flex items-center">
+              <i class="fas fa-list mr-2 md:mr-3 text-black dark:text-white"></i>
+              Your Clips ({{ data|length }})
+            </h2>
+            
+            <!-- Quick Actions for large screens -->
+            <div class="hidden lg:flex items-center space-x-3">
+              <button class="bg-gray-100 dark:bg-dark-600/50 hover:bg-gray-200 dark:hover:bg-dark-600 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                <i class="fas fa-sort text-xs"></i>
+                <span>Sort by Date</span>
+              </button>
+              <a href="/" class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black px-4 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center space-x-2">
+                <i class="fas fa-plus text-xs"></i>
+                <span>New Clip</span>
+              </a>
+            </div>
+          </div>
+          
+          <!-- Desktop Table View -->
+          <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full table-auto">
+              <thead class="bg-gray-50 dark:bg-dark-800/50">
                 <tr>
-                <td class="px-4 py-3">{{ d["clip_name"] }}</td>
-                <td class="px-4 py-3">{{ d["clip_url"] }}</td>
-                <td class="px-4 py-3">{{ d["clip_time"] }} UTC</td>
-                <td class="px-4 py-3">{{ d["is_editable"] | stat }}</td>
-                <td class="px-4 py-3">{{ d["is_unlisted"] | stat }}</td>
-                <td class="px-4 py-3"><a class="text-white border-2 py-2 px-4 focus:outline-none roundedtext-lg" href="/{{ d["clip_url"] }}">Go</a></td>
-                <td class="px-4 py-3"><a class="text-white border-2 py-2 px-4 focus:outline-none roundedtext-lg" href="/delete/{{ d["clip_url"] }}">Delete</a></td>
+                  <th class="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4">Name</th>
+                  <th class="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/5">Clip ID</th>
+                  <th class="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/5">Created</th>
+                  <th class="px-4 xl:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4">Status</th>
+                  <th class="px-4 xl:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/5">Actions</th>
                 </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 dark:divide-dark-600/50">
+                {% for d in data %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-dark-700/50 transition-colors duration-200 group">
+                  <td class="px-4 xl:px-6 py-3 md:py-4">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 w-8 h-8 bg-gray-100 dark:bg-dark-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-gray-500 dark:text-gray-400 text-sm"></i>
+                      </div>
+                      <div class="ml-3 min-w-0 flex-1">
+                        <div class="text-sm font-medium text-black dark:text-white truncate" title="{{ d['clip_name'] }}">{{ d["clip_name"] }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 lg:hidden">{{ d["clip_time"] }} UTC</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 xl:px-6 py-3 md:py-4">
+                    <code class="bg-gray-100 dark:bg-dark-600/50 px-2 py-1 rounded text-xs font-mono text-gray-700 dark:text-gray-300">{{ d["clip_url"] }}</code>
+                  </td>
+                  <td class="px-4 xl:px-6 py-3 md:py-4 text-sm text-gray-500 dark:text-gray-400 hidden lg:table-cell">
+                    {{ d["clip_time"] }} UTC
+                  </td>
+                  <td class="px-4 xl:px-6 py-3 md:py-4">
+                    <div class="flex flex-wrap gap-1">
+                      {% if d["is_editable"] %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                          <i class="fas fa-edit mr-1 text-xs"></i>
+                          <span class="hidden xl:inline">Editable</span>
+                          <span class="xl:hidden">Edit</span>
+                        </span>
+                      {% endif %}
+                      {% if d["is_unlisted"] %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
+                          <i class="fas fa-eye-slash mr-1 text-xs"></i>
+                          <span class="hidden xl:inline">Private</span>
+                          <span class="xl:hidden">Priv</span>
+                        </span>
+                      {% endif %}
+                      {% if not d["is_unlisted"] %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                          <i class="fas fa-eye mr-1 text-xs"></i>
+                          <span class="hidden xl:inline">Public</span>
+                          <span class="xl:hidden">Pub</span>
+                        </span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td class="px-4 xl:px-6 py-3 md:py-4 text-right">
+                    <div class="flex items-center justify-end space-x-1 xl:space-x-2">
+                      <a 
+                        href="/{{ d['clip_url'] }}" 
+                        class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-medium px-2 xl:px-3 py-1.5 rounded-lg transition-all duration-200 text-xs xl:text-sm flex items-center space-x-1 group-hover:scale-105 transform"
+                        title="View clip"
+                      >
+                        <i class="fas fa-external-link-alt text-xs"></i>
+                        <span class="hidden xl:inline">View</span>
+                      </a>
+                      <button 
+                        class="delete-btn bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-700 dark:text-red-300 font-medium px-2 xl:px-3 py-1.5 rounded-lg transition-all duration-200 text-xs xl:text-sm flex items-center space-x-1 group-hover:scale-105 transform"
+                        data-clip-url="{{ d['clip_url'] }}"
+                        data-clip-name="{{ d['clip_name'] }}"
+                        title="Delete clip"
+                      >
+                        <i class="fas fa-trash text-xs"></i>
+                        <span class="hidden xl:inline">Delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mobile Card View -->
+          <div class="lg:hidden divide-y divide-gray-200 dark:divide-dark-600/50">
+            {% for d in data %}
+            <div class="p-4 md:p-6 hover:bg-gray-50 dark:hover:bg-dark-700/30 transition-colors duration-200">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center flex-1 min-w-0">
+                  <div class="flex-shrink-0 w-10 h-10 bg-gray-100 dark:bg-dark-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-file-alt text-gray-500 dark:text-gray-400"></i>
+                  </div>
+                  <div class="ml-3 min-w-0 flex-1">
+                    <h3 class="text-sm font-medium text-black dark:text-white truncate">{{ d["clip_name"] }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ d["clip_time"] }} UTC</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <code class="bg-gray-100 dark:bg-dark-600/50 px-2 py-1 rounded text-xs font-mono text-gray-700 dark:text-gray-300 block break-all">{{ d["clip_url"] }}</code>
+              </div>
+              
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex flex-wrap gap-1">
+                  {% if d["is_editable"] %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                      <i class="fas fa-edit mr-1"></i>
+                      Editable
+                    </span>
+                  {% endif %}
+                  {% if d["is_unlisted"] %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
+                      <i class="fas fa-eye-slash mr-1"></i>
+                      Private
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                      <i class="fas fa-eye mr-1"></i>
+                      Public
+                    </span>
+                  {% endif %}
+                </div>
+                
+                <div class="flex space-x-2 flex-shrink-0">
+                  <a 
+                    href="/{{ d['clip_url'] }}" 
+                    class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-medium px-3 py-1.5 rounded-lg transition-all duration-200 text-sm flex items-center space-x-1"
+                  >
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                    <span>View</span>
+                  </a>
+                  <button 
+                    class="delete-btn bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-700 dark:text-red-300 font-medium px-3 py-1.5 rounded-lg transition-all duration-200 text-sm flex items-center space-x-1"
+                    data-clip-url="{{ d['clip_url'] }}"
+                    data-clip-name="{{ d['clip_name'] }}"
+                  >
+                    <i class="fas fa-trash text-xs"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
             {% endfor %}
-        </tbody>
-        </table>
+          </div>
+        </div>
       {% else %}
-        <div class="flex flex-col text-center w-full mb-12">
-          <h1 class="sm:text-l text-l font-medium title-font mb-4 text-white">Nothing Here... <a href="/" class="underline decoration-dotted">Start Creating?</a></h1>
+        <!-- Empty State -->
+        <div class="text-center py-12 md:py-16">
+          <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl p-8 md:p-12 max-w-2xl mx-auto">
+            <div class="w-16 h-16 bg-gray-100 dark:bg-dark-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-clipboard text-2xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl md:text-2xl font-medium text-black dark:text-white mb-4">No clips yet</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
+              You haven't created any clips yet. Start sharing your code, text, or files by creating your first clip.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <a 
+                href="/" 
+                class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-semibold px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center justify-center space-x-2"
+              >
+                <i class="fas fa-plus"></i>
+                <span>Create Your First Clip</span>
+              </a>
+              <a 
+                href="/api" 
+                class="bg-gray-100 dark:bg-dark-600/50 hover:bg-gray-200 dark:hover:bg-dark-600 text-gray-700 dark:text-gray-300 font-medium px-6 py-3 rounded-xl transition-all duration-200 inline-flex items-center justify-center space-x-2"
+              >
+                <i class="fas fa-code"></i>
+                <span>API Docs</span>
+              </a>
+            </div>
+          </div>
         </div>
       {% endif %}
+    </div>
+  </section>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-dark-800 rounded-xl max-w-md w-full p-6 transform transition-all">
+    <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
+      <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i>
+    </div>
+    <h3 class="text-lg font-medium text-black dark:text-white text-center mb-2">Delete Clip</h3>
+    <p class="text-gray-600 dark:text-gray-400 text-center mb-6">
+      Are you sure you want to delete "<span id="clipNameToDelete" class="font-medium"></span>"? This action cannot be undone.
+    </p>
+    <div class="flex space-x-3">
+      <button 
+        onclick="closeDeleteModal()" 
+        class="flex-1 bg-gray-100 dark:bg-dark-700 hover:bg-gray-200 dark:hover:bg-dark-600 text-black dark:text-white font-medium py-2 px-4 rounded-lg transition-all duration-200"
+      >
+        Cancel
+      </button>
+      <a 
+        id="confirmDeleteLink" 
+        href="#" 
+        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 text-center"
+      >
+        Delete
+      </a>
+    </div>
   </div>
-  </div>
-</section>
+</div>
+
+<script>
+  function confirmDelete(clipUrl, clipName) {
+    document.getElementById('clipNameToDelete').textContent = clipName;
+    document.getElementById('confirmDeleteLink').href = '/delete/' + clipUrl;
+    document.getElementById('deleteModal').classList.remove('hidden');
+  }
+  
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+  }
+  
+  // Event delegation for delete buttons
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.delete-btn')) {
+      const btn = e.target.closest('.delete-btn');
+      const clipUrl = btn.getAttribute('data-clip-url');
+      const clipName = btn.getAttribute('data-clip-name');
+      confirmDelete(clipUrl, clipName);
+    }
+  });
+  
+  // Close modal when clicking outside
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeDeleteModal();
+    }
+  });
+</script>
 {% endblock %}

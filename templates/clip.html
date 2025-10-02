@@ -11,67 +11,222 @@
 
     {% if passwd %}
 
-    <section class="text-gray-400 bg-gray-900 body-font">
-        <div class="container px-5 py-24 mx-auto">
-            {% if error %}
-            <div class="flex flex-col text-center w-full mb-12">
-                <p class="lg:w-2/3 mx-auto leading-relaxed text-base">{{ error }}</p>
-            </div>
-            {% endif %}
-            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
-                <div class="relative sm:mb-0 flex-grow w-full">
-                    <label for="clip_passwd" class="leading-7 text-l text-gray-400">Enter Password</label>
-                    <form action="/{{ url_id }}" method="post">
-                        <input type="password" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" autocapitalize="off" autocomplete="off" autofocus>
-                        <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Go</button>
-                    </form>
+    <div class="flex-1 bg-white dark:bg-dark-800 flex flex-col min-h-full">
+        <section class="flex-1 py-12 md:py-20 px-4 md:px-6 lg:px-8 xl:px-12 flex items-center">
+            <div class="container mx-auto max-w-2xl xl:max-w-3xl 2xl:max-w-4xl w-full">
+                {% if error %}
+                <div class="text-center mb-8">
+                    <p class="text-red-600 dark:text-red-400 leading-relaxed">{{ error }}</p>
                 </div>
+                {% endif %}
+                
+                <div class="text-center mb-8 fade-in">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-4 text-black dark:text-white">
+                        <i class="fas fa-shield-alt mr-3 text-black dark:text-white"></i>
+                        Password Protected Clip
+                    </h1>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto leading-relaxed">
+                        This clip is password protected. Enter the password to view its contents.
+                    </p>
+                </div>
+                
+                <form action="/{{ url_id }}" method="post" class="space-y-6">
+                    <div class="space-y-2">
+                        <label for="clip_passwd" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-key mr-2 text-black dark:text-white"></i>
+                            Password
+                        </label>
+                        <input 
+                            type="password" 
+                            id="clip_passwd" 
+                            name="clip_passwd" 
+                            class="w-full bg-white dark:bg-dark-700/50 border border-gray-300 dark:border-dark-600/50 rounded-xl px-4 py-3 text-black dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 focus:border-black dark:focus:border-white focus:ring-2 focus:ring-black/10 dark:focus:ring-white/20 focus:bg-white dark:focus:bg-dark-700/50 transition-all duration-200 custom-input" 
+                            placeholder="Enter the password..." 
+                            autocapitalize="off" 
+                            autocomplete="off" 
+                            autofocus
+                        >
+                    </div>
+                    
+                    <div class="flex justify-center pt-4">
+                        <button 
+                            type="submit" 
+                            class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-semibold px-8 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                        >
+                            <i class="fas fa-unlock"></i>
+                            <span>Unlock Clip</span>
+                        </button>
+                    </div>
+                </form>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
     {% else %}
 
-    <section class="text-gray-400 bg-gray-900 body-font">
-        <div class="container px-5 py-24 mx-auto">
-            <div class="flex flex-col text-center w-full mb-12">
-                <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">{{ name }}</h1>
-                <p class="leading-7 text-l text-white-400">ID: {{ url_id }} <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(window.location.href);alert('URL Copied!');">Copy URL</button> </p>
-            </div>
-            <div class="flex flex-col text-center w-full text-wrap">
-                <p class="leading-7 text-l text-white-400 w-auto text-wrap items-center">
-                    <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/download/{{ url_id }}">Download as {{ ext }}</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/">Create Another</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/{{ url_id }}/raw">View Raw</a>
-                </p>
+    <div class="flex-1 bg-white dark:bg-dark-800 flex flex-col min-h-full">
+        <section class="flex-1 py-12 md:py-20 px-4 md:px-6 lg:px-8 xl:px-12">
+            <div class="container mx-auto max-w-6xl xl:max-w-7xl 2xl:max-w-[1400px]">
+                <!-- Header -->
+                <div class="text-center mb-8 fade-in">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-4 text-black dark:text-white">{{ name }}</h1>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+                        <p class="text-gray-600 dark:text-gray-400">
+                            <span class="font-medium">ID:</span> 
+                            <code class="bg-gray-100 dark:bg-dark-700/50 px-2 py-1 rounded text-sm font-mono">{{ url_id }}</code>
+                        </p>
+                        <button 
+                            class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-medium px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 text-sm" 
+                            onclick="navigator.clipboard.writeText(window.location.href);
+                                const copyBtn = this;
+                                const originalContent = copyBtn.innerHTML;
+                                copyBtn.innerHTML = '<i class=&quot;fas fa-check mr-2&quot;></i>Copied!';
+                                copyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                                copyBtn.classList.remove('bg-black', 'hover:bg-gray-800', 'dark:bg-white', 'dark:hover:bg-gray-200');
+                                setTimeout(() => {
+                                    copyBtn.innerHTML = originalContent;
+                                    copyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                                    copyBtn.classList.add('bg-black', 'hover:bg-gray-800', 'dark:bg-white', 'dark:hover:bg-gray-200');
+                                }, 2000);"
+                        >
+                            <i class="fas fa-copy"></i>
+                            <span>Copy URL</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap justify-center gap-3 mb-8">
+                    <a 
+                        class="bg-white dark:bg-dark-700/80 hover:bg-gray-50 dark:hover:bg-dark-600/80 text-black dark:text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 border border-gray-200 dark:border-dark-600/50 flex items-center space-x-2 text-sm" 
+                        href="/download/{{ url_id }}"
+                    >
+                        <i class="fas fa-download"></i>
+                        <span>Download as {{ ext }}</span>
+                    </a>
+                    <a 
+                        class="bg-white dark:bg-dark-700/80 hover:bg-gray-50 dark:hover:bg-dark-600/80 text-black dark:text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 border border-gray-200 dark:border-dark-600/50 flex items-center space-x-2 text-sm" 
+                        href="/"
+                    >
+                        <i class="fas fa-plus"></i>
+                        <span>Create Another</span>
+                    </a>
+                    <a 
+                        class="bg-white dark:bg-dark-700/80 hover:bg-gray-50 dark:hover:bg-dark-600/80 text-black dark:text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 border border-gray-200 dark:border-dark-600/50 flex items-center space-x-2 text-sm" 
+                        href="/{{ url_id }}/raw"
+                    >
+                        <i class="fas fa-eye"></i>
+                        <span>View Raw</span>
+                    </a>
+                </div>
+
                 {% if edit and dat[0] == False %}
-                <br>
-                <p class="leading-7 text-l text-white-400 mt-2">This Clip can be editted by the Owner.</p>
+                <div class="text-center mb-6">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-lg p-4 inline-block">
+                        <p class="text-blue-700 dark:text-blue-300 text-sm flex items-center">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            This clip can be edited by the owner
+                        </p>
+                    </div>
+                </div>
                 {% endif %}
-            </div>
-            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
-                <div class="relative sm:mb-0 flex-grow w-full">
+                <!-- Content Section -->
+                <div class="bg-white dark:bg-dark-700/30 border border-gray-200 dark:border-dark-600/50 rounded-xl overflow-hidden">
                     {% if edit and dat[0] == True %}
-                    <form action="/update/{{ url_id }}" method="post">
-                        <textarea name="clip_text" id="clip_text" class="w-full mt-4 bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap" rows="4" oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } ">{{ text }}</textarea>
-                        <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
-                    </form>
+                    <!-- Edit Mode -->
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-black dark:text-white flex items-center">
+                                <i class="fas fa-edit mr-2 text-black dark:text-white"></i>
+                                Edit Mode
+                            </h3>
+                        </div>
+                        <form action="/update/{{ url_id }}" method="post" class="space-y-4">
+                            <textarea 
+                                name="clip_text" 
+                                id="clip_text" 
+                                class="w-full bg-white dark:bg-dark-700/50 border border-gray-300 dark:border-dark-600/50 rounded-xl px-4 py-3 text-black dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 focus:border-black dark:focus:border-white focus:ring-2 focus:ring-black/10 dark:focus:ring-white/20 focus:bg-white dark:focus:bg-dark-700/50 transition-all duration-200 font-mono text-sm min-h-[300px] resize-y custom-input" 
+                                oninput="this.style.height = 'auto'; let min = 300; let max = 600; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; }"
+                            >{{ text }}</textarea>
+                            <div class="flex justify-end">
+                                <button 
+                                    type="submit" 
+                                    class="bg-black dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black font-semibold px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                                >
+                                    <i class="fas fa-save"></i>
+                                    <span>Update Clip</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                     {% else %}
-                        <pre>
-                        <code name="clip_text" class="w-full bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap">{{ text }}</code>
-                        </pre>
+                    <!-- Display Mode -->
+                    <div class="relative">
+                        <div class="absolute top-4 right-4 z-10">
+                            <button 
+                                class="bg-white/80 dark:bg-dark-800/80 hover:bg-white dark:hover:bg-dark-800 text-black dark:text-white font-medium px-3 py-2 rounded-lg transition-all duration-200 border border-gray-200 dark:border-dark-600/50 flex items-center space-x-2 text-xs backdrop-blur-sm" 
+                                onclick="navigator.clipboard.writeText(document.querySelector('#clip-content').textContent);
+                                    const clipBtn = this;
+                                    const originalClipText = clipBtn.innerHTML;
+                                    clipBtn.innerHTML = '<i class=&quot;fas fa-check mr-1&quot;></i>Copied!';
+                                    clipBtn.classList.add('bg-green-100', 'dark:bg-green-900/30', 'text-green-700', 'dark:text-green-300');
+                                    setTimeout(() => {
+                                        clipBtn.innerHTML = originalClipText;
+                                        clipBtn.classList.remove('bg-green-100', 'dark:bg-green-900/30', 'text-green-700', 'dark:text-green-300');
+                                    }, 2000);"
+                            >
+                                <i class="fas fa-copy"></i>
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                        <pre id="clip-content" class="w-full bg-gray-50 dark:bg-dark-800/50 p-6 text-black dark:text-gray-100 font-mono text-sm leading-relaxed overflow-x-auto"><code class="hljs">{{ text }}</code></pre>
+                    </div>
                     {% endif %}
-                    </pre>
+                </div>
+                <!-- Metadata -->
+                <div class="mt-8 bg-gray-50 dark:bg-dark-700/20 border border-gray-200 dark:border-dark-600/50 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-black dark:text-white mb-4 flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-black dark:text-white"></i>
+                        Clip Information
+                    </h3>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                        <div class="flex flex-col">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium mb-1">Created</span>
+                            <span class="text-black dark:text-white">{{ time }} UTC</span>
+                        </div>
+                        {% if edit and update %}
+                        <div class="flex flex-col">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium mb-1">Last Updated</span>
+                            <span class="text-black dark:text-white">{{ update }} UTC</span>
+                        </div>
+                        {% endif %}
+                        {% if time_left %}
+                        <div class="flex flex-col">
+                            <span class="text-gray-500 dark:text-gray-400 font-medium mb-1">Expires In</span>
+                            <span class="text-orange-600 dark:text-orange-400 font-medium">{{ time_left }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            <div class="flex flex-col text-center w-full mb-12">
-                <p class="leading-7 text-l text-white-400"> Created: {{ time }} UTC</p>
-                {% if edit and update %}
-                <p class="leading-7 text-l text-white-400"> Updated: {{ update }} UTC</p>
-                {% endif %}
-                {% if time_left %}
-                <p class="leading-7 text-l text-white-400"> Time Left until Expiration: {{ time_left }}</p>
-                {% endif %}
-            </div>
-        </div>
-    </section>
+        </section>
+    </div>
     {% endif %}
+
+    <script>
+        // Initialize syntax highlighting if hljs is available
+        if (typeof hljs !== 'undefined') {
+            document.addEventListener('DOMContentLoaded', function() {
+                // Highlight all code blocks
+                document.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+                
+                // Initialize line numbers if available
+                if (typeof hljs.initLineNumbersOnLoad === 'function') {
+                    hljs.initLineNumbersOnLoad();
+                }
+            });
+        }
+    </script>
 {% endblock %}
