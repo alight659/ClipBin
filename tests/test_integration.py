@@ -20,7 +20,6 @@ class TestCompleteWorkflow:
         user_data = {
             'username': 'integrationuser',
             'password': 'securepassword123',
-            'email': 'integration@test.com'
         }
         
         # Register user
