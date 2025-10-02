@@ -18,9 +18,6 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY . .
 
-# Create directory for SQLite database (if needed)
-RUN mkdir -p /app/data
-
 # Expose port 5000 (Flask default)
 EXPOSE 5000
 
@@ -30,6 +27,9 @@ ENV FLASK_HOST=0.0.0.0
 ENV FLASK_PORT=5000
 ENV FLASK_DEBUG=False
 ENV PYTHONUNBUFFERED=1
+
+# Volume for persistent database storage
+VOLUME ["/app"]
 
 # Run the application
 CMD ["python3", "app.py"]
