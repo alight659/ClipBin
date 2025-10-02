@@ -1,0 +1,448 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ClipBin\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Auto Generated <noreply@example.com>\n"
+"Language-Team: Portuguese (Brazil)\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Home"
+msgstr "Início"
+
+msgid "Search"
+msgstr "Pesquisar"
+
+msgid "Dashboard"
+msgstr "Painel"
+
+msgid "API"
+msgstr "API"
+
+msgid "About"
+msgstr "Sobre"
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Signed in as"
+msgstr "Conectado como"
+
+msgid "Logout"
+msgstr "Sair"
+
+msgid "Register"
+msgstr "Registrar"
+
+msgid "Login"
+msgstr "Entrar"
+
+msgid "Terms and Privacy"
+msgstr "Termos e Privacidade"
+
+msgid "Feedback"
+msgstr "Feedback"
+
+msgid "Share Code or Text Instantly"
+msgstr "Compartilhe código ou texto instantaneamente"
+
+msgid "Create a Clip"
+msgstr "Criar um clip"
+
+msgid "Dump your code or whatever you want."
+msgstr "Compartilhe seu código ou qualquer texto."
+
+msgid "Enter title"
+msgstr "Informe o título"
+
+msgid "Hello Title"
+msgstr "Olá título"
+
+msgid "Enter your text"
+msgstr "Digite seu texto"
+
+msgid "Something interesting..."
+msgstr "Algo interessante..."
+
+msgid "--OR--"
+msgstr "--OU--"
+
+msgid "Upload file?"
+msgstr "Enviar arquivo?"
+
+msgid "Optional settings"
+msgstr "Opções adicionais"
+
+msgid "Custom alias (a-z A-Z 0-9 -_ only)"
+msgstr "Alias personalizado (a-z A-Z 0-9 -_ apenas)"
+
+msgid "Create a password protected clip"
+msgstr "Criar um clip protegido por senha"
+
+msgid "Enter password"
+msgstr "Digite a senha"
+
+msgid "Using a password also enables E2EE."
+msgstr "Usar uma senha também ativa a criptografia de ponta a ponta."
+
+msgid "Remove after:"
+msgstr "Remover após:"
+
+msgid "Never"
+msgstr "Nunca"
+
+msgid "1 day"
+msgstr "1 dia"
+
+msgid "1 week"
+msgstr "1 semana"
+
+msgid "2 weeks"
+msgstr "2 semanas"
+
+msgid "1 month"
+msgstr "1 mês"
+
+msgid "6 months"
+msgstr "6 meses"
+
+msgid "1 year"
+msgstr "1 ano"
+
+msgid "Custom"
+msgstr "Personalizado"
+
+msgid "Or enter custom delete time (hours):"
+msgstr "Ou informe o tempo de exclusão personalizado (horas):"
+
+msgid "e.g., 1 for 1 hour"
+msgstr "ex.: 1 para 1 hora"
+
+msgid "Make editable? (requires login)"
+msgstr "Permitir edição? (requer login)"
+
+msgid "Set unlisted?"
+msgstr "Definir como não listado?"
+
+msgid "Save"
+msgstr "Salvar"
+
+msgid "Password protected clip"
+msgstr "Clip protegido por senha"
+
+msgid "Submit"
+msgstr "Enviar"
+
+msgid "ID: %(identifier)s"
+msgstr "ID: %(identifier)s"
+
+msgid "URL copied!"
+msgstr "URL copiada!"
+
+msgid "Copy URL"
+msgstr "Copiar URL"
+
+msgid "Download as %(extension)s"
+msgstr "Baixar como %(extension)s"
+
+msgid "Create another"
+msgstr "Criar outro"
+
+msgid "View raw"
+msgstr "Ver bruto"
+
+msgid "This clip can be edited by the owner."
+msgstr "Este clip pode ser editado pelo proprietário."
+
+msgid "Update"
+msgstr "Atualizar"
+
+msgid "Created: %(timestamp)s UTC"
+msgstr "Criado: %(timestamp)s UTC"
+
+msgid "Updated: %(timestamp)s UTC"
+msgstr "Atualizado: %(timestamp)s UTC"
+
+msgid "Time left until expiration: %(time_left)s"
+msgstr "Tempo restante até expirar: %(time_left)s"
+
+msgid "Search a clip"
+msgstr "Pesquisar um clip"
+
+msgid "Enter clip name or URL ID"
+msgstr "Informe o nome do clip ou o ID da URL"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Clip ID"
+msgstr "ID do clip"
+
+msgid "Created at"
+msgstr "Criado em"
+
+msgid "Open"
+msgstr "Abrir"
+
+msgid "Welcome %(username)s"
+msgstr "Bem-vindo, %(username)s"
+
+msgid "Here are the clips you created."
+msgstr "Aqui estão os clips que você criou."
+
+msgid "Editable?"
+msgstr "Editável?"
+
+msgid "Unlisted?"
+msgstr "Não listado?"
+
+msgid "Delete"
+msgstr "Excluir"
+
+msgid "Nothing here..."
+msgstr "Nada por aqui..."
+
+msgid "Start creating?"
+msgstr "Começar a criar?"
+
+msgid "Settings"
+msgstr "Configurações"
+
+msgid "Change password"
+msgstr "Alterar senha"
+
+msgid "Current password"
+msgstr "Senha atual"
+
+msgid "New password"
+msgstr "Nova senha"
+
+msgid "Confirm password"
+msgstr "Confirmar senha"
+
+msgid "Data export"
+msgstr "Exportação de dados"
+
+msgid "Data export currently does not support encrypted clips. Only unencrypted clips will be included."
+msgstr "A exportação de dados não suporta clips criptografados. Apenas clips sem senha serão incluídos."
+
+msgid "Select export format:"
+msgstr "Selecione o formato de exportação:"
+
+msgid "JSON"
+msgstr "JSON"
+
+msgid "CSV"
+msgstr "CSV"
+
+msgid "Text"
+msgstr "Texto"
+
+msgid "Export"
+msgstr "Exportar"
+
+msgid "Dive right into the simplest way of sharing code."
+msgstr "Mergulhe na forma mais simples de compartilhar código."
+
+msgid "Success!"
+msgstr "Sucesso!"
+
+msgid "Username"
+msgstr "Nome de usuário"
+
+msgid "Password"
+msgstr "Senha"
+
+msgid "Don't have an account? Register here."
+msgstr "Não tem uma conta? Registre-se aqui."
+
+msgid "The simplest way of sharing code or anything that is text."
+msgstr "A forma mais simples de compartilhar código ou qualquer texto."
+
+msgid "Features"
+msgstr "Recursos"
+
+msgid "Dark mode"
+msgstr "Modo escuro"
+
+msgid "Anonymous"
+msgstr "Anônimo"
+
+msgid "Password protected clips"
+msgstr "Clips protegidos por senha"
+
+msgid "Full CRUD support"
+msgstr "Suporte completo a CRUD"
+
+msgid "Login/Sign-up features"
+msgstr "Recursos de login/cadastro"
+
+msgid "Dashboard features"
+msgstr "Recursos do painel"
+
+msgid "Open API"
+msgstr "API aberta"
+
+msgid "Custom URL alias"
+msgstr "Alias de URL personalizado"
+
+msgid "Temporary time-based clips"
+msgstr "Clips temporários"
+
+msgid "Error"
+msgstr "Erro"
+
+msgid "API documentation"
+msgstr "Documentação da API"
+
+msgid "API information"
+msgstr "Informações da API"
+
+msgid "This API allows users to retrieve and add data to ClipBin. It includes two primary functions: get_data (GET request) and post_data (POST request)."
+msgstr "Esta API permite recuperar e adicionar dados ao ClipBin. Ela inclui duas funções principais: get_data (requisição GET) e post_data (requisição POST)."
+
+msgid "Endpoints"
+msgstr "Endpoints"
+
+msgid "1. GET /get_data"
+msgstr "1. GET /get_data"
+
+msgid "Retrieve data from the database based on specific parameters."
+msgstr "Recupere dados do banco com base em parâmetros específicos."
+
+msgid "Endpoint:"
+msgstr "Endpoint:"
+
+msgid "Method:"
+msgstr "Método:"
+
+msgid "Description:"
+msgstr "Descrição:"
+
+msgid "Query parameters"
+msgstr "Parâmetros de consulta"
+
+msgid "Parameter"
+msgstr "Parâmetro"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Required"
+msgstr "Obrigatório"
+
+msgid "Description"
+msgstr "Descrição"
+
+msgid "string"
+msgstr "texto"
+
+msgid "Yes"
+msgstr "Sim"
+
+msgid "No"
+msgstr "Não"
+
+msgid "The unique identifier for the data."
+msgstr "O identificador único do dado."
+
+msgid "The name associated with the data."
+msgstr "O nome associado ao dado."
+
+msgid "The password for authorization."
+msgstr "A senha para autorização."
+
+msgid "Filter for unlisted data. Accepted values: true or false."
+msgstr "Filtro para dados não listados. Valores aceitos: true ou false."
+
+msgid "Responses"
+msgstr "Respostas"
+
+msgid "200 OK: Successfully retrieved data."
+msgstr "200 OK: Dados recuperados com sucesso."
+
+msgid "400 Bad Request: Missing or incorrect request parameters."
+msgstr "400 Requisição inválida: parâmetros ausentes ou incorretos."
+
+msgid "401 Unauthorized: Authentication failed (incorrect pwd)."
+msgstr "401 Não autorizado: falha na autenticação (senha incorreta)."
+
+msgid "404 Not Found: No data found."
+msgstr "404 Não encontrado: nenhum dado localizado."
+
+msgid "Example request"
+msgstr "Exemplo de requisição"
+
+msgid "2. POST /post_data"
+msgstr "2. POST /post_data"
+
+msgid "Add new data to the database."
+msgstr "Adiciona novos dados ao banco."
+
+msgid "Adds new data to the database with the provided details."
+msgstr "Adiciona novos dados ao banco com os detalhes fornecidos."
+
+msgid "Request parameters"
+msgstr "Parâmetros da requisição"
+
+msgid "The text content to be stored."
+msgstr "O conteúdo de texto a ser armazenado."
+
+msgid "The password for protecting the data."
+msgstr "A senha para proteger o dado."
+
+msgid "Specify if the data should be unlisted. Accepted values: true or false."
+msgstr "Informe se o dado deve ser não listado. Valores aceitos: true ou false."
+
+msgid "Specify when the clip will be removed. Available options:"
+msgstr "Informe quando o clip será removido. Opções disponíveis:"
+
+msgid "day - for 1 day"
+msgstr "day - por 1 dia"
+
+msgid "week - for 1 week"
+msgstr "week - por 1 semana"
+
+msgid "twoweek - for 2 week"
+msgstr "twoweek - por 2 semanas"
+
+msgid "month - for 1 month"
+msgstr "month - por 1 mês"
+
+msgid "half - for 6 month"
+msgstr "half - por 6 meses"
+
+msgid "year - for 1 year"
+msgstr "year - por 1 ano"
+
+msgid "If any other option is provided, it will be treated as never."
+msgstr "Se outra opção for informada, será considerada como nunca."
+
+msgid "Body Example:"
+msgstr "Exemplo de corpo:"
+
+msgid "201 Created: Successfully added data."
+msgstr "201 Criado: dados adicionados com sucesso."
+
+msgid "400 Bad Request: Missing parameters or failed to add data."
+msgstr "400 Requisição inválida: parâmetros ausentes ou falha ao adicionar dados."
+
+msgid "Example response"
+msgstr "Exemplo de resposta"
+
+msgid "Feedback is welcome. Please share your experience with us at"
+msgstr "Feedback é bem-vindo. Compartilhe sua experiência conosco em"
+
+msgid "The developer may be referred to as I, we, or our. ClipBin may be referred to by name, or simply 'this'."
+msgstr "O desenvolvedor pode ser referido como eu, nós ou nosso. ClipBin pode ser referido pelo nome ou simplesmente como 'este'."
+
+msgid "The API is open. You are free to use it for any lawful purpose."
+msgstr "A API é aberta. Você pode usá-la para qualquer finalidade legal."
+
+msgid "For any queries related to terms and privacy, please email"
+msgstr "Para dúvidas sobre termos e privacidade, envie um e-mail para"
