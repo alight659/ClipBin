@@ -9,20 +9,25 @@ from io import BytesIO
 @pytest.fixture
 def client():
     """Create a test client for the Flask application."""
-    # Create a temporary file for the test database
-    db_fd, app.config['DATABASE'] = tempfile.mkstemp()
     app.config['TESTING'] = True
     app.config['WTF_CSRF_ENABLED'] = False
     app.config['SECRET_KEY'] = 'test_secret_key'
+    
+    # Clean up any existing test data in the right order to avoid FK constraints
+    from app import db
+    try:
+        # Delete in order that respects foreign key constraints
+        db.execute("DELETE FROM clipRef WHERE userid IN (SELECT id FROM users WHERE username LIKE 'test%' OR username LIKE 'integration%')")
+        db.execute("DELETE FROM clips WHERE id NOT IN (SELECT clipid FROM clipRef)")
+        db.execute("DELETE FROM users WHERE username LIKE 'test%' OR username LIKE 'integration%'")
+    except:
+        pass  # Tables might not exist yet
     
     with app.test_client() as client:
         with app.app_context():
             # Initialize test database
             init_test_db()
         yield client
-    
-    os.close(db_fd)
-    os.unlink(app.config['DATABASE'])
 
 
 @pytest.fixture

@@ -159,7 +159,8 @@ class TestErrorHandlingWorkflow:
         """Test handling of invalid form submissions."""
         # Empty clip submission
         response = client.post('/', data={})
-        assert response.status_code == 200  # Should stay on same page
+        # Should redirect with flash message for empty form
+        assert response.status_code == 302
         
         # Invalid registration data
         invalid_user_data = {
