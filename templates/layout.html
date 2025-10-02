@@ -7,10 +7,9 @@
         <meta name="viewport" content="initial-scale=1, width=device-width">
         <meta name="description" content="A simple, anonymous and secure text and code sharing platform. Create or search public or private “bins” — no sign-up required, privacy-focused, fast, minimal-UI.">
         <meta name="keywords" content="clipbin">
-
-        <!-- main stylesheet -->
-        <link rel="stylesheet" href="/static/style.css">
+<!-- main stylesheet -->␊
         <link rel="stylesheet" href="/static/tailwind.css">
+        <link rel="stylesheet" href="/static/style.css">
 
         <!-- scripts.js -->
         <!-- HEHE: DOES NOT EXIST -->
@@ -34,8 +33,7 @@
             ClipBin: {% block title %}{% endblock %}
         </title>
     </head>
-
-    <body class="bg-gray-900">
+ <body class="bg-gray-900" data-theme="dark">
         <header class="text-gray-400 bg-gray-900 body-font">
             <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
               <a class="flex title-font font-medium items-center text-white mb-4 md:mb-0" href="/">
@@ -52,6 +50,10 @@
                 <a href="/api" class="mr-5 hover:text-white">API</a>
                 <a class="mr-5 hover:text-white" href="/about">About</a>
               </nav>
+              <button id="theme-toggle" type="button" class="ml-0 md:ml-4 inline-flex items-center justify-center rounded-full bg-gray-800 p-2 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" aria-label="Toggle dark mode" title="Toggle dark mode" aria-pressed="true">
+                <span class="sr-only">Toggle dark or light mode</span>
+                <i id="theme-toggle-icon" class="fa-solid fa-moon"></i>
+              </button>
               {% if dat %}
                 {% if dat[0] == True %}
                   <div class="relative inline-block text-left group" tabindex="0">
@@ -82,16 +84,7 @@
               {% endif %}
             </div>
         </header>
-        {% if get_flashed_messages() %}
-          <div class="container mx-auto">
-              <div class="flex flex-col text-center w-full">
-                  <p class="mx-auto leading-relaxed text-base text-white">{{ get_flashed_messages() | join(" ") }}</p>
-              </div>
-          </div>
-        {% endif %}
-
-        {% block body %}
-        
+@@ -95,48 +99,103 @@
         {% endblock %}
 
         <footer class="text-gray-400 bg-gray-900 body-font">
@@ -117,23 +110,78 @@
         <!-- initialise highlight js -->
         <script>hljs.initHighlightingOnLoad();</script>
         <script>hljs.initLineNumbersOnLoad({singleLine: true});</script>
-        <script>
+ <script>
           document.addEventListener("DOMContentLoaded", () => {
-           const select = document.getElementById("clip_delete");
+            const select = document.getElementById("clip_delete");
             const label = document.getElementById("clip_custom_delete_label");
             const input = document.getElementById("clip_custom_delete");
 
-            select.addEventListener("change", () => {
-              if (select.value === "custom") {
-                label.style.display = "block";
-                input.style.display = "block";
-                input.setAttribute("required", "");
-              } else {
-                input.removeAttribute("required");
-                label.style.display = "none";
-                input.style.display = "none";
+            if (select && label && input) {
+              select.addEventListener("change", () => {
+                if (select.value === "custom") {
+                  label.style.display = "block";
+                  input.style.display = "block";
+                  input.setAttribute("required", "");
+                } else {
+                  input.removeAttribute("required");
+                  label.style.display = "none";
+                  input.style.display = "none";
+                }
+              });
+            }
+
+            const themeToggle = document.getElementById("theme-toggle");
+            const themeToggleIcon = document.getElementById("theme-toggle-icon");
+            const body = document.body;
+            const storageKey = "clipbin-theme";
+            const prefersDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+            const updateButtonState = (theme) => {
+              const isDark = theme === "dark";
+              themeToggle?.setAttribute("aria-pressed", String(isDark));
+              themeToggle?.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+              themeToggle?.setAttribute("title", isDark ? "Switch to light mode" : "Switch to dark mode");
+              if (themeToggleIcon) {
+                themeToggleIcon.classList.remove("fa-moon", "fa-sun");
+                themeToggleIcon.classList.add(isDark ? "fa-moon" : "fa-sun");
               }
+            };
+
+            const applyTheme = (theme) => {
+              const chosenTheme = theme === "light" ? "light" : "dark";
+              body.dataset.theme = chosenTheme;
+              if (chosenTheme === "light") {
+                body.classList.add("light");
+              } else {
+                body.classList.remove("light");
+              }
+              updateButtonState(chosenTheme);
+            };
+
+            const storedTheme = localStorage.getItem(storageKey);
+            const initialTheme = storedTheme ? storedTheme : prefersDark && prefersDark.matches ? "dark" : "light";
+            applyTheme(initialTheme);
+
+            themeToggle?.addEventListener("click", () => {
+              const isCurrentlyDark = body.dataset.theme === "dark";
+              const newTheme = isCurrentlyDark ? "light" : "dark";
+              applyTheme(newTheme);
+              localStorage.setItem(storageKey, newTheme);
             });
+
+            const systemThemeChangeHandler = (event) => {
+              if (!localStorage.getItem(storageKey)) {
+                applyTheme(event.matches ? "dark" : "light");
+              }
+            };
+
+            if (prefersDark) {
+              if (typeof prefersDark.addEventListener === "function") {
+                prefersDark.addEventListener("change", systemThemeChangeHandler);
+              } else if (typeof prefersDark.addListener === "function") {
+                prefersDark.addListener(systemThemeChangeHandler);
+              }
+            }
           });
         </script>
 

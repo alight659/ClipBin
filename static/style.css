@@ -4,6 +4,121 @@ body {
     height: 100vh;
 }
 
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.light {
+    color-scheme: light;
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+body.light header.text-gray-400,
+body.light footer.text-gray-400 {
+    background-color: #ffffff;
+    color: #374151;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+body.light footer a {
+    color: #4b5563;
+}
+
+body.light .bg-gray-900 {
+    background-color: rgba(249, 250, 251, var(--tw-bg-opacity, 1));
+    color: #1f2937;
+}
+
+body.light .bg-gray-800 {
+    background-color: rgba(243, 244, 246, var(--tw-bg-opacity, 1));
+    color: #111827;
+}
+
+body.light .bg-gray-700 {
+    background-color: rgba(229, 231, 235, var(--tw-bg-opacity, 1));
+    color: #111827;
+}
+
+body.light .bg-gray-600 {
+    background-color: rgba(209, 213, 219, var(--tw-bg-opacity, 1));
+    color: #111827;
+}
+
+body.light .text-white,
+body.light .text-gray-100 {
+    color: #111827 !important;
+}
+
+body.light .text-gray-400 {
+    color: #374151 !important;
+}
+
+body.light .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+body.light .hover\:text-white:hover {
+    color: #111827 !important;
+}
+
+body.light .hover\:bg-gray-700:hover,
+body.light .hover\:bg-gray-800:hover {
+    background-color: rgba(229, 231, 235, var(--tw-bg-opacity, 1)) !important;
+    color: #111827 !important;
+}
+
+body.light .border-gray-700,
+body.light .border-gray-600,
+body.light .sm\:border-gray-800 {
+    border-color: #d1d5db !important;
+}
+
+body.light ::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+body.light input,
+body.light textarea,
+body.light select {
+    color: #111827;
+}
+
+body.light pre,
+body.light code,
+body.light .hljs {
+    background-color: rgba(249, 250, 251, 1) !important;
+    color: #1f2937 !important;
+}
+
+body.light .hljs-keyword,
+body.light .hljs-selector-tag,
+body.light .hljs-literal {
+    color: #2563eb !important;
+}
+
+body.light .hljs-string,
+body.light .hljs-title,
+body.light .hljs-name {
+    color: #0f766e !important;
+}
+
+body.light .hljs-number,
+body.light .hljs-attr,
+body.light .hljs-attribute {
+    color: #d97706 !important;
+}
+
+#theme-toggle {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.light #theme-toggle {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
 .ubuntu-mono-regular {
     font-family: "Ubuntu Mono", monospace;
     font-weight: 400;
@@ -33,16 +148,3 @@ footer {
     table {
       display: inline-table !important;
     }
-
-    thead tr:not(:first-child) {
-      display: none;
-    }
-  }
-
-  td:not(:last-child) {
-    border-bottom: 0;
-  }
-
-  th:not(:last-child) {
-    border-bottom: 2px solid rgba(0, 0, 0, .1);
-  }
