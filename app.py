@@ -605,7 +605,10 @@ def post_data():
 @app.route("/api")
 @app.route("/api/")
 def api():
-    return render_template("swagger_improved.html", dat=loginData())
+    spec_format = request.args.get('spec', 'json')
+    if spec_format not in ('json', 'yaml'):
+        spec_format = 'json'
+    return render_template("swagger.html", spec_format=spec_format)
 
 
 # Terms and Privacy Policy Page
@@ -693,7 +696,7 @@ def swagger_ui():
     # Only allow json|yaml
     if spec_format not in ('json', 'yaml'):
         spec_format = 'json'
-    return render_template("swagger.html", dat=loginData(), spec_format=spec_format)
+    return render_template("swagger.html", spec_format=spec_format)
 
 
 if __name__ == "__main__":

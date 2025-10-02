@@ -2,16 +2,18 @@
   "openapi": "3.0.3",
   "info": {
     "title": "ClipBin API",
-    "description": "ClipBin is a text sharing platform similar to Pastebin. This API allows you to create, retrieve, and manage text clips programmatically.\n\n## Features\n- Create text clips with optional password protection\n- Set expiration times for automatic deletion\n- Make clips editable or unlisted (private)\n- Search for public clips\n- User authentication and management\n\n## Authentication\nSome endpoints require user authentication via session cookies. For API access, you can use the web interface to login and maintain session state.\n\n## Rate Limiting\nCurrently no rate limiting is implemented, but this may be added in future versions.\n",
-    "version": "1.0.0",
+    "description": "# ClipBin REST API Documentation\n\nClipBin API provides a simple and secure way to programmatically interact with the ClipBin text sharing platform.\n\n## \ud83d\ude80 API Features\n\n- **Retrieve Clips**: Get clips by ID or search by name\n- **Create Clips**: Upload text clips with optional password protection\n- **No Authentication Required**: All API endpoints are public and don't require API keys\n\n## \ud83d\udcdd Available Endpoints\n\n- `GET /api/get_data` - Retrieve clips with various search options\n- `POST /api/post_data` - Create new text clips\n- `GET /api` - Get API information and status\n\n## \ud83d\udd10 Security\n\n- No API keys required - all endpoints are public\n- Password-protected clips require the password parameter to access content\n- All data is validated and sanitized\n\n## \ud83d\udcca Content Limits\n\n- **Maximum clip size**: 1.5MB per clip\n- **Supported formats**: All text formats\n- **Expiration options**: day, week, 2 weeks, month, 6 months, year, or never\n",
+    "version": "2.0.0",
     "contact": {
-      "name": "ClipBin",
-      "url": "https://github.com/alight659/ClipBin"
+      "name": "ClipBin Development Team",
+      "url": "https://github.com/yashksaini-coder/ClipBin",
+      "email": "support@clipbin.dev"
     },
     "license": {
-      "name": "MIT",
-      "url": "https://opensource.org/licenses/MIT"
-    }
+      "name": "MIT License",
+      "url": "https://github.com/yashksaini-coder/ClipBin/blob/main/LICENSE"
+    },
+    "termsOfService": "https://clipbin.dev/terms"
   },
   "servers": [
     {
@@ -19,81 +21,95 @@
       "description": "Local development server"
     },
     {
-      "url": "https://your-domain.com",
-      "description": "Production server"
+      "url": "https://api.clipbin.dev",
+      "description": "Production API server"
+    },
+    {
+      "url": "https://staging-api.clipbin.dev",
+      "description": "Staging environment"
     }
   ],
   "tags": [
     {
-      "name": "clips",
-      "description": "Operations related to text clips"
+      "name": "Clip Retrieval",
+      "description": "Operations for retrieving and searching clips"
     },
     {
-      "name": "api",
-      "description": "Programmatic API endpoints"
+      "name": "Clip Management",
+      "description": "Operations for creating and managing clips"
     },
     {
-      "name": "auth",
-      "description": "Authentication endpoints"
-    },
-    {
-      "name": "user",
-      "description": "User management endpoints"
+      "name": "API Information",
+      "description": "General API information and status"
     }
   ],
   "paths": {
     "/api/get_data": {
       "get": {
         "tags": [
-          "api"
+          "Clip Retrieval"
         ],
-        "summary": "Retrieve clip data",
-        "description": "Retrieve one or more clips by ID or name. Supports searching both public and unlisted clips.\nFor password-protected clips, include the password in the request.\n",
+        "summary": "Retrieve clips",
+        "description": "Retrieve text clips by ID, name, or alias. Supports searching public clips or accessing unlisted clips with specific IDs.\n\n**Search Options:**\n- **By ID**: Use `id` parameter to get a specific clip\n- **By Name**: Use `name` parameter to search clips by name (supports partial matching)\n- **By Alias**: Use `alias` parameter to get a clip by its custom alias\n- **No Parameters**: Returns an empty array (no error)\n\n**Privacy Options:**\n- Use `unlisted=true` with an ID to access unlisted (private) clips\n- Password-protected clips require the `pwd` parameter\n",
         "parameters": [
           {
             "name": "id",
             "in": "query",
-            "description": "Clip ID (exact match or pattern with %)",
+            "description": "Clip ID or alias to retrieve",
+            "required": false,
             "schema": {
-              "type": "string"
-            },
-            "example": "abc123"
+              "type": "string",
+              "example": "abc123"
+            }
           },
           {
             "name": "name",
             "in": "query",
-            "description": "Clip name (pattern matching with %)",
+            "description": "Search clips by name (partial matching supported)",
+            "required": false,
             "schema": {
-              "type": "string"
-            },
-            "example": "my-script"
+              "type": "string",
+              "example": "my code snippet"
+            }
+          },
+          {
+            "name": "alias",
+            "in": "query",
+            "description": "Custom alias to retrieve a specific clip",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "my-alias"
+            }
           },
           {
             "name": "pwd",
             "in": "query",
             "description": "Password for password-protected clips",
+            "required": false,
             "schema": {
-              "type": "string"
-            },
-            "example": "secretpassword"
+              "type": "string",
+              "example": "secretpassword"
+            }
           },
           {
             "name": "unlisted",
             "in": "query",
-            "description": "Set to 'true' to search unlisted clips (requires exact ID)",
+            "description": "Set to 'true' to search unlisted clips (requires ID)",
+            "required": false,
             "schema": {
               "type": "string",
               "enum": [
                 "true",
                 "false"
-              ]
-            },
-            "example": "true"
+              ],
+              "example": "true"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Successful retrieval of clip data",
+            "description": "Clips retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -108,28 +124,15 @@
                     "value": [
                       {
                         "id": "abc123",
-                        "name": "My Python Script",
-                        "text": "print('Hello World')",
-                        "time": "02-10-2025 @ 14:30:15"
+                        "name": "My Code Snippet",
+                        "text": "console.log('Hello World');",
+                        "time": "01-10-2024 @ 14:30:25"
                       }
                     ]
                   },
-                  "multiple_clips": {
-                    "summary": "Multiple clips response",
-                    "value": [
-                      {
-                        "id": "abc123",
-                        "name": "Python Script",
-                        "text": "print('Hello')",
-                        "time": "02-10-2025 @ 14:30:15"
-                      },
-                      {
-                        "id": "def456",
-                        "name": "JavaScript Code",
-                        "text": "console.log('Hello')",
-                        "time": "02-10-2025 @ 15:45:22"
-                      }
-                    ]
+                  "empty_response": {
+                    "summary": "No clips found",
+                    "value": []
                   }
                 }
               }
@@ -162,7 +165,7 @@
             }
           },
           "404": {
-            "description": "No clips found",
+            "description": "No clips found matching criteria",
             "content": {
               "application/json": {
                 "schema": {
@@ -178,42 +181,74 @@
       }
     },
     "/api/post_data": {
+      "get": {
+        "tags": [
+          "Clip Management"
+        ],
+        "summary": "Get API info for clip creation",
+        "description": "Returns information about the clip creation endpoint",
+        "responses": {
+          "200": {
+            "description": "API endpoint information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "POST data to this endpoint to create clips"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
-          "api"
+          "Clip Management"
         ],
         "summary": "Create a new clip",
-        "description": "Create a new text clip with optional password protection, expiration, and privacy settings.\nThe clip will be assigned a unique 7-character ID automatically.\n",
+        "description": "Create a new text clip with optional settings for privacy, expiration, and password protection.\n\n**Features:**\n- Password protection with encryption\n- Custom expiration times\n- Unlisted (private) clips\n- Custom aliases\n\n**Expiration Options:**\n- `day` - 24 hours\n- `week` - 7 days  \n- `twoweek` - 14 days\n- `month` - 30 days\n- `half` - 6 months\n- `year` - 365 days\n- `never` - No expiration\n",
         "requestBody": {
           "required": true,
           "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClipRequest"
+              },
+              "examples": {
+                "basic_clip": {
+                  "summary": "Basic public clip",
+                  "value": {
+                    "name": "Hello World Example",
+                    "content": "console.log('Hello World');"
+                  }
+                },
+                "protected_clip": {
+                  "summary": "Password-protected clip",
+                  "value": {
+                    "name": "Secret Code",
+                    "content": "const secret = 'hidden';",
+                    "pwd": "mypassword",
+                    "unlisted": "true",
+                    "remove": "week"
+                  }
+                }
+              }
+            },
             "application/x-www-form-urlencoded": {
               "schema": {
                 "$ref": "#/components/schemas/CreateClipRequest"
               },
               "examples": {
-                "simple_clip": {
-                  "summary": "Simple public clip",
+                "form_submission": {
+                  "summary": "Form-based submission",
                   "value": {
-                    "name": "My Code Snippet",
-                    "text": "console.log('Hello World');"
-                  }
-                },
-                "password_protected": {
-                  "summary": "Password-protected clip",
-                  "value": {
-                    "name": "Secret Code",
-                    "text": "API_KEY=secret123",
-                    "pwd": "mypassword"
-                  }
-                },
-                "unlisted_with_expiry": {
-                  "summary": "Private clip with expiration",
-                  "value": {
-                    "name": "Temporary Notes",
-                    "text": "These are my temporary notes",
-                    "unlisted": "true",
-                    "remove": "week"
+                    "name": "My Script",
+                    "text": "print('Hello World')"
                   }
                 }
               }
@@ -229,14 +264,14 @@
                   "$ref": "#/components/schemas/CreateClipResponse"
                 },
                 "example": {
-                  "id": "abc123g",
+                  "id": "abc123",
                   "Message": "Successfully added!"
                 }
               }
             }
           },
           "400": {
-            "description": "Missing required parameters or invalid data",
+            "description": "Invalid request data",
             "content": {
               "application/json": {
                 "schema": {
@@ -262,721 +297,49 @@
         }
       }
     },
-    "/": {
-      "get": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Home page - Create new clip",
-        "description": "Display the main page for creating new clips",
-        "responses": {
-          "200": {
-            "description": "Home page rendered successfully",
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Create new clip via web form",
-        "description": "Create a new clip using the web interface form",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/WebCreateClipRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "302": {
-            "description": "Redirect to the created clip"
-          },
-          "400": {
-            "description": "Validation error"
-          }
-        }
-      }
-    },
-    "/{clip_url_id}": {
-      "get": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "View a clip",
-        "description": "Display a specific clip by its URL ID",
-        "parameters": [
-          {
-            "name": "clip_url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            },
-            "example": "abc123g"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Clip displayed successfully",
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Clip not found or expired"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Access password-protected clip",
-        "description": "Submit password to access a password-protected clip",
-        "parameters": [
-          {
-            "name": "clip_url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "clip_passwd": {
-                    "type": "string",
-                    "description": "Password for the clip"
-                  }
-                },
-                "required": [
-                  "clip_passwd"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Clip accessed successfully"
-          },
-          "401": {
-            "description": "Incorrect password"
-          }
-        }
-      }
-    },
-    "/{clip_url_id}/raw": {
-      "get": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Get raw clip content",
-        "description": "Retrieve the raw text content of a clip without HTML formatting.\nFor password-protected clips, use POST method with password.\n",
-        "parameters": [
-          {
-            "name": "clip_url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            },
-            "example": "abc123g"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Raw clip content",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "print('Hello World')"
-              }
-            }
-          },
-          "404": {
-            "description": "Clip not found or expired",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "That was not found on this server."
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Get raw content of password-protected clip",
-        "description": "Submit password to access raw content of a password-protected clip",
-        "parameters": [
-          {
-            "name": "clip_url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "passwd": {
-                    "type": "string",
-                    "description": "Password for the clip"
-                  }
-                },
-                "required": [
-                  "passwd"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Raw clip content",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Incorrect password",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Incorrect Password!"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/clip": {
-      "get": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Search clips page",
-        "description": "Display the search page for finding clips",
-        "responses": {
-          "200": {
-            "description": "Search page rendered"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Search for clips",
-        "description": "Search for public clips by name or ID",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "clip_info": {
-                    "type": "string",
-                    "description": "Search term for clip name or ID"
-                  }
-                },
-                "required": [
-                  "clip_info"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Search results displayed"
-          }
-        }
-      }
-    },
-    "/download/{url_id}": {
-      "get": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "Download clip as file",
-        "description": "Download the clip content as a text file",
-        "parameters": [
-          {
-            "name": "url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "File download",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "headers": {
-              "Content-Disposition": {
-                "description": "Attachment with filename",
-                "schema": {
-                  "type": "string",
-                  "example": "attachment; filename=my-clip.txt"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Clip not found"
-          }
-        }
-      }
-    },
-    "/login": {
-      "get": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Login page",
-        "description": "Display the login form",
-        "responses": {
-          "200": {
-            "description": "Login page rendered"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Authenticate user",
-        "description": "Log in a user with username and password",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "uname": {
-                    "type": "string",
-                    "description": "Username"
-                  },
-                  "passwd": {
-                    "type": "string",
-                    "description": "Password"
-                  }
-                },
-                "required": [
-                  "uname",
-                  "passwd"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "302": {
-            "description": "Successful login, redirect to home"
-          },
-          "400": {
-            "description": "Invalid credentials"
-          }
-        }
-      }
-    },
-    "/register": {
-      "get": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Registration page",
-        "description": "Display the user registration form",
-        "responses": {
-          "200": {
-            "description": "Registration page rendered"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Register new user",
-        "description": "Create a new user account",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "uname": {
-                    "type": "string",
-                    "description": "Desired username"
-                  },
-                  "passwd": {
-                    "type": "string",
-                    "description": "Password"
-                  },
-                  "passwdconf": {
-                    "type": "string",
-                    "description": "Password confirmation"
-                  }
-                },
-                "required": [
-                  "uname",
-                  "passwd",
-                  "passwdconf"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "302": {
-            "description": "Successful registration, redirect to login"
-          },
-          "400": {
-            "description": "Registration error"
-          }
-        }
-      }
-    },
-    "/logout": {
-      "get": {
-        "tags": [
-          "auth"
-        ],
-        "summary": "Logout user",
-        "description": "Log out the current user and clear session",
-        "responses": {
-          "302": {
-            "description": "Logged out, redirect to home"
-          }
-        }
-      }
-    },
-    "/dashboard": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "User dashboard",
-        "description": "Display user's created clips (requires authentication)",
-        "responses": {
-          "200": {
-            "description": "Dashboard rendered with user's clips"
-          },
-          "302": {
-            "description": "Not authenticated, redirect to login"
-          }
-        }
-      }
-    },
-    "/settings": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "User settings page",
-        "description": "Display user settings form (requires authentication)",
-        "responses": {
-          "200": {
-            "description": "Settings page rendered"
-          },
-          "302": {
-            "description": "Not authenticated, redirect to login"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Update user password",
-        "description": "Change user's password (requires authentication)",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "old_passwd": {
-                    "type": "string",
-                    "description": "Current password"
-                  },
-                  "new_passwd": {
-                    "type": "string",
-                    "description": "New password"
-                  },
-                  "conf_passwd": {
-                    "type": "string",
-                    "description": "New password confirmation"
-                  }
-                },
-                "required": [
-                  "old_passwd",
-                  "new_passwd",
-                  "conf_passwd"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Password updated successfully"
-          },
-          "400": {
-            "description": "Invalid password or validation error"
-          }
-        }
-      }
-    },
-    "/settings/export": {
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Export user data",
-        "description": "Export user's clips in various formats (requires authentication)",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "export_ext": {
-                    "type": "string",
-                    "enum": [
-                      "json",
-                      "csv",
-                      "text"
-                    ],
-                    "description": "Export format"
-                  }
-                },
-                "required": [
-                  "export_ext"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Data exported successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/csv": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "headers": {
-              "Content-Disposition": {
-                "description": "Attachment with filename",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No data to export"
-          }
-        }
-      }
-    },
-    "/update/{url_id}": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Edit clip page",
-        "description": "Display edit form for an editable clip (requires authentication and ownership)",
-        "parameters": [
-          {
-            "name": "url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Edit form rendered"
-          },
-          "403": {
-            "description": "Not authorized to edit this clip"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Update clip content",
-        "description": "Update the content of an editable clip (requires authentication and ownership)",
-        "parameters": [
-          {
-            "name": "url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "clip_text": {
-                    "type": "string",
-                    "description": "Updated clip content"
-                  }
-                },
-                "required": [
-                  "clip_text"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "302": {
-            "description": "Clip updated, redirect to clip view"
-          },
-          "403": {
-            "description": "Not authorized to edit this clip"
-          }
-        }
-      }
-    },
-    "/delete/{url_id}": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "summary": "Delete clip",
-        "description": "Delete a clip (requires authentication and ownership)",
-        "parameters": [
-          {
-            "name": "url_id",
-            "in": "path",
-            "required": true,
-            "description": "The unique identifier for the clip",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "302": {
-            "description": "Clip deleted, redirect to dashboard"
-          },
-          "403": {
-            "description": "Not authorized to delete this clip"
-          }
-        }
-      }
-    },
-    "/about": {
-      "get": {
-        "tags": [
-          "clips"
-        ],
-        "summary": "About page",
-        "description": "Display information about ClipBin",
-        "responses": {
-          "200": {
-            "description": "About page rendered"
-          }
-        }
-      }
-    },
     "/api": {
       "get": {
         "tags": [
-          "api"
+          "API Information"
         ],
-        "summary": "API documentation page",
-        "description": "Display API documentation and usage examples",
+        "summary": "Get API information",
+        "description": "Returns general information about the ClipBin API including available endpoints and usage examples",
         "responses": {
           "200": {
-            "description": "API documentation page rendered"
+            "description": "API information page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "example": "<!DOCTYPE html><html>...</html>"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "ClipBin API"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "2.0.0"
+                    },
+                    "endpoints": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "/api/get_data",
+                        "/api/post_data"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -1023,9 +386,14 @@
             "description": "Title for the clip",
             "example": "My Code Snippet"
           },
+          "content": {
+            "type": "string",
+            "description": "Content of the clip (for JSON requests)",
+            "example": "console.log('Hello World');"
+          },
           "text": {
             "type": "string",
-            "description": "Content of the clip",
+            "description": "Content of the clip (for form requests)",
             "example": "console.log('Hello World');"
           },
           "pwd": {
@@ -1050,63 +418,28 @@
               "twoweek",
               "month",
               "half",
-              "year"
+              "year",
+              "never"
             ],
             "description": "Auto-delete after specified time period",
             "example": "week"
           }
         },
         "required": [
-          "name",
-          "text"
-        ]
-      },
-      "WebCreateClipRequest": {
-        "type": "object",
-        "properties": {
-          "clip_name": {
-            "type": "string",
-            "description": "Title for the clip"
+          "name"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "content"
+            ]
           },
-          "clip_text": {
-            "type": "string",
-            "description": "Content of the clip"
-          },
-          "clip_passwd": {
-            "type": "string",
-            "description": "Optional password to protect the clip"
-          },
-          "clip_edit": {
-            "type": "string",
-            "description": "Make clip editable by owner"
-          },
-          "clip_disp": {
-            "type": "string",
-            "description": "Make clip unlisted (private)"
-          },
-          "clip_alias": {
-            "type": "string",
-            "description": "Custom alias for clip URL (4-12 chars, alphanumeric, -, _)"
-          },
-          "clip_delete": {
-            "type": "string",
-            "enum": [
-              "never",
-              "day",
-              "week",
-              "twoweek",
-              "month",
-              "half",
-              "year"
-            ],
-            "description": "Auto-delete time"
-          },
-          "clip_file": {
-            "type": "string",
-            "format": "binary",
-            "description": "Upload file instead of text"
+          {
+            "required": [
+              "text"
+            ]
           }
-        }
+        ]
       },
       "CreateClipResponse": {
         "type": "object",
@@ -1140,19 +473,6 @@
           "Error"
         ]
       }
-    },
-    "securitySchemes": {
-      "SessionAuth": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "session",
-        "description": "Session-based authentication using Flask sessions"
-      }
     }
-  },
-  "security": [
-    {
-      "SessionAuth": []
-    }
-  ]
+  }
 }

@@ -4,42 +4,30 @@ info:
   description: |
     # ClipBin REST API Documentation
     
-    ClipBin is a secure, fast, and user-friendly text sharing platform. This comprehensive API allows you to create, retrieve, and manage text clips programmatically.
+    ClipBin API provides a simple and secure way to programmatically interact with the ClipBin text sharing platform.
     
-    ## 🚀 Key Features
+    ## 🚀 API Features
     
-    - **Create & Share**: Upload text clips with optional password protection
-    - **Expiration Control**: Set automatic deletion times (day, week, month, year)
-    - **Privacy Options**: Make clips unlisted (private) or publicly searchable
-    - **Search & Discovery**: Find public clips by name or ID with powerful search
-    - **User Management**: Account creation, authentication, and clip ownership
-    - **Data Export**: Export your clips in JSON, CSV, or text formats
-    - **Security First**: End-to-end encryption for password-protected clips
+    - **Retrieve Clips**: Get clips by ID or search by name
+    - **Create Clips**: Upload text clips with optional password protection
+    - **No Authentication Required**: All API endpoints are public and don't require API keys
     
-    ## 🔐 Authentication
+    ## 📝 Available Endpoints
     
-    ClipBin uses session-based authentication for user-specific operations. Public endpoints like clip creation and retrieval work without authentication.
+    - `GET /api/get_data` - Retrieve clips with various search options
+    - `POST /api/post_data` - Create new text clips
+    - `GET /api` - Get API information and status
     
-    For authenticated operations:
-    1. Login through the web interface at `/login`
-    2. Maintain session cookies for subsequent API requests
-    3. Access user-specific endpoints like dashboard and settings
+    ## 🔐 Security
     
-    ## 📊 Rate Limiting
+    - No API keys required - all endpoints are public
+    - Password-protected clips require the password parameter to access content
+    - All data is validated and sanitized
     
-    Currently, no rate limiting is enforced, but this may be added in future versions for production deployments.
-    
-    ## 🛡️ Security
-    
-    - All passwords are hashed using secure algorithms (scrypt)
-    - Protected clips use AES-GCM encryption with PBKDF2 key derivation
-    - Input validation prevents XSS and injection attacks
-    - HTTPS is recommended for production deployments
-    
-    ## 📝 Content Limits
+    ## 📊 Content Limits
     
     - **Maximum clip size**: 1.5MB per clip
-    - **Supported formats**: All text formats with syntax highlighting for 30+ languages
+    - **Supported formats**: All text formats
     - **Expiration options**: day, week, 2 weeks, month, 6 months, year, or never
   version: 2.0.0
   contact:
@@ -48,7 +36,7 @@ info:
     email: support@clipbin.dev
   license:
     name: MIT License
-    url: https://opensource.org/licenses/MIT
+    url: https://github.com/yashksaini-coder/ClipBin/blob/main/LICENSE
   termsOfService: https://clipbin.dev/terms
 
 servers:
@@ -60,62 +48,71 @@ servers:
     description: Staging environment
 
 tags:
-  - name: clips
-    description: |
-      Clip management operations including creation, retrieval, searching, and raw access.
-      Clips are the core content units in ClipBin.
-  - name: api
-    description: |
-      Legacy API endpoints for backward compatibility. These endpoints maintain the original
-      API format for existing integrations.
-  - name: auth
-    description: |
-      Authentication and session management endpoints for user login, logout, and registration.
-  - name: user
-    description: |
-      User account management including dashboard access, settings, and data export.
-  - name: admin
-    description: |
-      Administrative endpoints for system management and monitoring.
+  - name: Clip Retrieval
+    description: Operations for retrieving and searching clips
+  - name: Clip Management
+    description: Operations for creating and managing clips
+  - name: API Information
+    description: General API information and status
 
 paths:
   /api/get_data:
     get:
       tags:
-        - api
-      summary: Retrieve clip data
+        - Clip Retrieval
+      summary: Retrieve clips
       description: |
-        Retrieve one or more clips by ID or name. Supports searching both public and unlisted clips.
-        For password-protected clips, include the password in the request.
+        Retrieve text clips by ID, name, or alias. Supports searching public clips or accessing unlisted clips with specific IDs.
+        
+        **Search Options:**
+        - **By ID**: Use `id` parameter to get a specific clip
+        - **By Name**: Use `name` parameter to search clips by name (supports partial matching)
+        - **By Alias**: Use `alias` parameter to get a clip by its custom alias
+        - **No Parameters**: Returns an empty array (no error)
+        
+        **Privacy Options:**
+        - Use `unlisted=true` with an ID to access unlisted (private) clips
+        - Password-protected clips require the `pwd` parameter
       parameters:
         - name: id
           in: query
-          description: Clip ID (exact match or pattern with %)
+          description: Clip ID or alias to retrieve
+          required: false
           schema:
             type: string
-          example: "abc123"
+            example: "abc123"
         - name: name
           in: query
-          description: Clip name (pattern matching with %)
+          description: Search clips by name (partial matching supported)
+          required: false
           schema:
             type: string
-          example: "my-script"
+            example: "my code snippet"
+        - name: alias
+          in: query
+          description: Custom alias to retrieve a specific clip
+          required: false
+          schema:
+            type: string
+            example: "my-alias"
         - name: pwd
           in: query
           description: Password for password-protected clips
+          required: false
           schema:
             type: string
-          example: "secretpassword"
+            example: "secretpassword"
         - name: unlisted
           in: query
-          description: Set to 'true' to search unlisted clips (requires exact ID)
+          description: Set to 'true' to search unlisted clips (requires ID)
+          required: false
           schema:
             type: string
             enum: ['true', 'false']
-          example: "true"
+            example: "true"
       responses:
         '200':
-          description: Successful retrieval of clip data
+          description: Clips retrieved successfully
           content:
             application/json:
               schema:
@@ -127,20 +124,12 @@ paths:
                   summary: Single clip response
                   value:
                     - id: "abc123"
-                      name: "My Python Script"
-                      text: "print('Hello World')"
-                      time: "02-10-2025 @ 14:30:15"
-                multiple_clips:
-                  summary: Multiple clips response
-                  value:
-                    - id: "abc123"
-                      name: "Python Script"
-                      text: "print('Hello')"
-                      time: "02-10-2025 @ 14:30:15"
-                    - id: "def456"
-                      name: "JavaScript Code"
-                      text: "console.log('Hello')"
-                      time: "02-10-2025 @ 15:45:22"
+                      name: "My Code Snippet"
+                      text: "console.log('Hello World');"
+                      time: "01-10-2024 @ 14:30:25"
+                empty_response:
+                  summary: No clips found
+                  value: []
         '400':
           description: Missing required parameters
           content:
@@ -158,7 +147,7 @@ paths:
               example:
                 Error: "Incorrect Password"
         '404':
-          description: No clips found
+          description: No clips found matching criteria
           content:
             application/json:
               schema:
@@ -167,38 +156,73 @@ paths:
                 Error: "No Data"
 
   /api/post_data:
+    get:
+      tags:
+        - Clip Management
+      summary: Get API info for clip creation
+      description: Returns information about the clip creation endpoint
+      responses:
+        '200':
+          description: API endpoint information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "POST data to this endpoint to create clips"
+    
     post:
       tags:
-        - api
+        - Clip Management
       summary: Create a new clip
       description: |
-        Create a new text clip with optional password protection, expiration, and privacy settings.
-        The clip will be assigned a unique 7-character ID automatically.
+        Create a new text clip with optional settings for privacy, expiration, and password protection.
+        
+        **Features:**
+        - Password protection with encryption
+        - Custom expiration times
+        - Unlisted (private) clips
+        - Custom aliases
+        
+        **Expiration Options:**
+        - `day` - 24 hours
+        - `week` - 7 days  
+        - `twoweek` - 14 days
+        - `month` - 30 days
+        - `half` - 6 months
+        - `year` - 365 days
+        - `never` - No expiration
       requestBody:
         required: true
         content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClipRequest'
+            examples:
+              basic_clip:
+                summary: Basic public clip
+                value:
+                  name: "Hello World Example"
+                  content: "console.log('Hello World');"
+              protected_clip:
+                summary: Password-protected clip
+                value:
+                  name: "Secret Code"
+                  content: "const secret = 'hidden';"
+                  pwd: "mypassword"
+                  unlisted: "true"
+                  remove: "week"
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/CreateClipRequest'
             examples:
-              simple_clip:
-                summary: Simple public clip
+              form_submission:
+                summary: Form-based submission
                 value:
-                  name: "My Code Snippet"
-                  text: "console.log('Hello World');"
-              password_protected:
-                summary: Password-protected clip
-                value:
-                  name: "Secret Code"
-                  text: "API_KEY=secret123"
-                  pwd: "mypassword"
-              unlisted_with_expiry:
-                summary: Private clip with expiration
-                value:
-                  name: "Temporary Notes"
-                  text: "These are my temporary notes"
-                  unlisted: "true"
-                  remove: "week"
+                  name: "My Script"
+                  text: "print('Hello World')"
       responses:
         '201':
           description: Clip created successfully
@@ -207,10 +231,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateClipResponse'
               example:
-                id: "abc123g"
+                id: "abc123"
                 Message: "Successfully added!"
         '400':
-          description: Missing required parameters or invalid data
+          description: Invalid request data
           content:
             application/json:
               schema:
@@ -225,484 +249,35 @@ paths:
                   value:
                     Error: "Couldn't add. Something went wrong."
 
-  /:
-    get:
-      tags:
-        - clips
-      summary: Home page - Create new clip
-      description: Display the main page for creating new clips
-      responses:
-        '200':
-          description: Home page rendered successfully
-          content:
-            text/html:
-              schema:
-                type: string
-    post:
-      tags:
-        - clips
-      summary: Create new clip via web form
-      description: Create a new clip using the web interface form
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/WebCreateClipRequest'
-      responses:
-        '302':
-          description: Redirect to the created clip
-        '400':
-          description: Validation error
-
-  /{clip_url_id}:
-    get:
-      tags:
-        - clips
-      summary: View a clip
-      description: Display a specific clip by its URL ID
-      parameters:
-        - name: clip_url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-          example: "abc123g"
-      responses:
-        '200':
-          description: Clip displayed successfully
-          content:
-            text/html:
-              schema:
-                type: string
-        '404':
-          description: Clip not found or expired
-    post:
-      tags:
-        - clips
-      summary: Access password-protected clip
-      description: Submit password to access a password-protected clip
-      parameters:
-        - name: clip_url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                clip_passwd:
-                  type: string
-                  description: Password for the clip
-              required:
-                - clip_passwd
-      responses:
-        '200':
-          description: Clip accessed successfully
-        '401':
-          description: Incorrect password
-
-  /{clip_url_id}/raw:
-    get:
-      tags:
-        - clips
-      summary: Get raw clip content
-      description: |
-        Retrieve the raw text content of a clip without HTML formatting.
-        For password-protected clips, use POST method with password.
-      parameters:
-        - name: clip_url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-          example: "abc123g"
-      responses:
-        '200':
-          description: Raw clip content
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: "print('Hello World')"
-        '404':
-          description: Clip not found or expired
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: "That was not found on this server."
-    post:
-      tags:
-        - clips
-      summary: Get raw content of password-protected clip
-      description: Submit password to access raw content of a password-protected clip
-      parameters:
-        - name: clip_url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                passwd:
-                  type: string
-                  description: Password for the clip
-              required:
-                - passwd
-      responses:
-        '200':
-          description: Raw clip content
-          content:
-            text/plain:
-              schema:
-                type: string
-        '401':
-          description: Incorrect password
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: "Incorrect Password!"
-
-  /clip:
-    get:
-      tags:
-        - clips
-      summary: Search clips page
-      description: Display the search page for finding clips
-      responses:
-        '200':
-          description: Search page rendered
-    post:
-      tags:
-        - clips
-      summary: Search for clips
-      description: Search for public clips by name or ID
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                clip_info:
-                  type: string
-                  description: Search term for clip name or ID
-              required:
-                - clip_info
-      responses:
-        '200':
-          description: Search results displayed
-
-  /download/{url_id}:
-    get:
-      tags:
-        - clips
-      summary: Download clip as file
-      description: Download the clip content as a text file
-      parameters:
-        - name: url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-      responses:
-        '200':
-          description: File download
-          content:
-            text/plain:
-              schema:
-                type: string
-          headers:
-            Content-Disposition:
-              description: Attachment with filename
-              schema:
-                type: string
-                example: "attachment; filename=my-clip.txt"
-        '404':
-          description: Clip not found
-
-  /login:
-    get:
-      tags:
-        - auth
-      summary: Login page
-      description: Display the login form
-      responses:
-        '200':
-          description: Login page rendered
-    post:
-      tags:
-        - auth
-      summary: Authenticate user
-      description: Log in a user with username and password
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                uname:
-                  type: string
-                  description: Username
-                passwd:
-                  type: string
-                  description: Password
-              required:
-                - uname
-                - passwd
-      responses:
-        '302':
-          description: Successful login, redirect to home
-        '400':
-          description: Invalid credentials
-
-  /register:
-    get:
-      tags:
-        - auth
-      summary: Registration page
-      description: Display the user registration form
-      responses:
-        '200':
-          description: Registration page rendered
-    post:
-      tags:
-        - auth
-      summary: Register new user
-      description: Create a new user account
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                uname:
-                  type: string
-                  description: Desired username
-                passwd:
-                  type: string
-                  description: Password
-                passwdconf:
-                  type: string
-                  description: Password confirmation
-              required:
-                - uname
-                - passwd
-                - passwdconf
-      responses:
-        '302':
-          description: Successful registration, redirect to login
-        '400':
-          description: Registration error
-
-  /logout:
-    get:
-      tags:
-        - auth
-      summary: Logout user
-      description: Log out the current user and clear session
-      responses:
-        '302':
-          description: Logged out, redirect to home
-
-  /dashboard:
-    get:
-      tags:
-        - user
-      summary: User dashboard
-      description: Display user's created clips (requires authentication)
-      responses:
-        '200':
-          description: Dashboard rendered with user's clips
-        '302':
-          description: Not authenticated, redirect to login
-
-  /settings:
-    get:
-      tags:
-        - user
-      summary: User settings page
-      description: Display user settings form (requires authentication)
-      responses:
-        '200':
-          description: Settings page rendered
-        '302':
-          description: Not authenticated, redirect to login
-    post:
-      tags:
-        - user
-      summary: Update user password
-      description: Change user's password (requires authentication)
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                old_passwd:
-                  type: string
-                  description: Current password
-                new_passwd:
-                  type: string
-                  description: New password
-                conf_passwd:
-                  type: string
-                  description: New password confirmation
-              required:
-                - old_passwd
-                - new_passwd
-                - conf_passwd
-      responses:
-        '200':
-          description: Password updated successfully
-        '400':
-          description: Invalid password or validation error
-
-  /settings/export:
-    post:
-      tags:
-        - user
-      summary: Export user data
-      description: Export user's clips in various formats (requires authentication)
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                export_ext:
-                  type: string
-                  enum: ['json', 'csv', 'text']
-                  description: Export format
-              required:
-                - export_ext
-      responses:
-        '200':
-          description: Data exported successfully
-          content:
-            application/json:
-              schema:
-                type: string
-            text/csv:
-              schema:
-                type: string
-            text/plain:
-              schema:
-                type: string
-          headers:
-            Content-Disposition:
-              description: Attachment with filename
-              schema:
-                type: string
-        '404':
-          description: No data to export
-
-  /update/{url_id}:
-    get:
-      tags:
-        - user
-      summary: Edit clip page
-      description: Display edit form for an editable clip (requires authentication and ownership)
-      parameters:
-        - name: url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Edit form rendered
-        '403':
-          description: Not authorized to edit this clip
-    post:
-      tags:
-        - user
-      summary: Update clip content
-      description: Update the content of an editable clip (requires authentication and ownership)
-      parameters:
-        - name: url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                clip_text:
-                  type: string
-                  description: Updated clip content
-              required:
-                - clip_text
-      responses:
-        '302':
-          description: Clip updated, redirect to clip view
-        '403':
-          description: Not authorized to edit this clip
-
-  /delete/{url_id}:
-    get:
-      tags:
-        - user
-      summary: Delete clip
-      description: Delete a clip (requires authentication and ownership)
-      parameters:
-        - name: url_id
-          in: path
-          required: true
-          description: The unique identifier for the clip
-          schema:
-            type: string
-      responses:
-        '302':
-          description: Clip deleted, redirect to dashboard
-        '403':
-          description: Not authorized to delete this clip
-
-  /about:
-    get:
-      tags:
-        - clips
-      summary: About page
-      description: Display information about ClipBin
-      responses:
-        '200':
-          description: About page rendered
-
   /api:
     get:
       tags:
-        - api
-      summary: API documentation page
-      description: Display API documentation and usage examples
+        - API Information
+      summary: Get API information
+      description: Returns general information about the ClipBin API including available endpoints and usage examples
       responses:
         '200':
-          description: API documentation page rendered
+          description: API information page
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "<!DOCTYPE html><html>...</html>"
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: "ClipBin API"
+                  version:
+                    type: string
+                    example: "2.0.0"
+                  endpoints:
+                    type: array
+                    items:
+                      type: string
+                    example: ["/api/get_data", "/api/post_data"]
 
 components:
   schemas:
@@ -738,9 +313,13 @@ components:
           type: string
           description: Title for the clip
           example: "My Code Snippet"
+        content:
+          type: string
+          description: Content of the clip (for JSON requests)
+          example: "console.log('Hello World');"
         text:
           type: string
-          description: Content of the clip
+          description: Content of the clip (for form requests)
           example: "console.log('Hello World');"
         pwd:
           type: string
@@ -753,42 +332,14 @@ components:
           example: "false"
         remove:
           type: string
-          enum: ['day', 'week', 'twoweek', 'month', 'half', 'year']
+          enum: ['day', 'week', 'twoweek', 'month', 'half', 'year', 'never']
           description: Auto-delete after specified time period
           example: "week"
       required:
         - name
-        - text
-
-    WebCreateClipRequest:
-      type: object
-      properties:
-        clip_name:
-          type: string
-          description: Title for the clip
-        clip_text:
-          type: string
-          description: Content of the clip
-        clip_passwd:
-          type: string
-          description: Optional password to protect the clip
-        clip_edit:
-          type: string
-          description: Make clip editable by owner
-        clip_disp:
-          type: string
-          description: Make clip unlisted (private)
-        clip_alias:
-          type: string
-          description: Custom alias for clip URL (4-12 chars, alphanumeric, -, _)
-        clip_delete:
-          type: string
-          enum: ['never', 'day', 'week', 'twoweek', 'month', 'half', 'year']
-          description: Auto-delete time
-        clip_file:
-          type: string
-          format: binary
-          description: Upload file instead of text
+      anyOf:
+        - required: ["content"]
+        - required: ["text"]
 
     CreateClipResponse:
       type: object
@@ -814,13 +365,3 @@ components:
           example: "Missing Parameters!"
       required:
         - Error
-
-  securitySchemes:
-    SessionAuth:
-      type: apiKey
-      in: cookie
-      name: session
-      description: Session-based authentication using Flask sessions
-
-security:
-  - SessionAuth: []
