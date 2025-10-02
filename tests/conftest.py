@@ -6,6 +6,61 @@ from sqlite import SQLite
 from io import BytesIO
 
 
+def cleanup_database(database_instance):
+    """
+    Completely clean up the database, including all tables and sqlite_sequence.
+    This ensures a fresh state for each test.
+    """
+    try:
+        # Use the new cleanup method if available
+        if hasattr(database_instance, 'cleanup_all_tables'):
+            success = database_instance.cleanup_all_tables()
+            if success:
+                return
+        
+        # Fallback to manual cleanup if the method doesn't exist or fails
+        # Disable foreign key constraints temporarily for cleanup
+        database_instance.execute("PRAGMA foreign_keys = OFF")
+        
+        # Get all table names
+        tables_result = database_instance.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+        )
+        
+        if tables_result:
+            tables = [row['name'] for row in tables_result]
+            
+            # Delete all data from tables
+            for table in tables:
+                database_instance.execute(f"DELETE FROM {table}")
+            
+            # Reset the sqlite_sequence table to reset autoincrement counters
+            database_instance.execute("DELETE FROM sqlite_sequence")
+        
+        # Re-enable foreign key constraints
+        database_instance.execute("PRAGMA foreign_keys = ON")
+        
+    except Exception as e:
+        # If cleanup fails, log the error but continue
+        import logging
+        logging.warning(f"Database cleanup warning: {e}")
+
+
+@pytest.fixture(autouse=True)
+def cleanup_before_and_after_test():
+    """
+    Automatically clean up the database before and after each test.
+    This fixture runs automatically for all tests.
+    """
+    # Clean up before test
+    cleanup_database(db)
+    
+    yield
+    
+    # Clean up after test
+    cleanup_database(db)
+
+
 @pytest.fixture
 def client():
     """Create a test client for the Flask application."""
@@ -13,26 +68,22 @@ def client():
     app.config['WTF_CSRF_ENABLED'] = False
     app.config['SECRET_KEY'] = 'test_secret_key'
     
-    # Clean up any existing test data in the right order to avoid FK constraints
-    from app import db
-    try:
-        # Delete in order that respects foreign key constraints
-        db.execute("DELETE FROM clipRef WHERE userid IN (SELECT id FROM users WHERE username LIKE 'test%' OR username LIKE 'integration%')")
-        db.execute("DELETE FROM clips WHERE id NOT IN (SELECT clipid FROM clipRef)")
-        db.execute("DELETE FROM users WHERE username LIKE 'test%' OR username LIKE 'integration%'")
-    except:
-        pass  # Tables might not exist yet
+    # Ensure clean database state
+    cleanup_database(db)
     
     with app.test_client() as client:
         with app.app_context():
             # Initialize test database
             init_test_db()
         yield client
+    
+    # Final cleanup after client is done
+    cleanup_database(db)
 
 
 @pytest.fixture
 def test_db():
-    """Create a test database instance."""
+    """Create a test database instance with proper cleanup."""
     db_fd, db_path = tempfile.mkstemp()
     test_sqlite = SQLite(db_path)
     
@@ -41,8 +92,18 @@ def test_db():
     
     yield test_sqlite
     
-    os.close(db_fd)
-    os.unlink(db_path)
+    # Clean up the test database completely
+    try:
+        cleanup_database(test_sqlite)
+    except:
+        pass  # Database might already be cleaned up
+    
+    # Close and remove the temporary database file
+    try:
+        os.close(db_fd)
+        os.unlink(db_path)
+    except:
+        pass  # File might already be removed
 
 
 def init_test_db():
