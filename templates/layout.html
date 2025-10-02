@@ -117,6 +117,26 @@
         <!-- initialise highlight js -->
         <script>hljs.initHighlightingOnLoad();</script>
         <script>hljs.initLineNumbersOnLoad({singleLine: true});</script>
+        <script>
+          document.addEventListener("DOMContentLoaded", () => {
+           const select = document.getElementById("clip_delete");
+            const label = document.getElementById("clip_custom_delete_label");
+            const input = document.getElementById("clip_custom_delete");
+
+            select.addEventListener("change", () => {
+              if (select.value === "custom") {
+                label.style.display = "block";
+                input.style.display = "block";
+                input.setAttribute("required", "");
+              } else {
+                input.removeAttribute("required");
+                label.style.display = "none";
+                input.style.display = "none";
+              }
+            });
+          });
+        </script>
+
     </body>
 
 </html>
