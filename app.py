@@ -421,6 +421,7 @@ def download(url_id):
 
     if passwd and request.method != "POST":
         return render_template("passwd.html", url_id=url_id)
+    # This is the new, corrected code
     elif request.method == "POST":
         clip_passwd = request.form.get("clip_passwd")
 
@@ -428,6 +429,9 @@ def download(url_id):
             return Response(
                 text, mimetype="text/plain", headers={"Content-disposition": f"attachment; filename={name}"}
             )
+            # FIX: Decrypt the content before sending it in the response.
+            decrypted_text = decrypt(data[0]["clip_text"], clip_passwd).decode('utf-8')
+            return Response(decrypted_text, mimetype='text/plain',headers={'Content-disposition': f'attachment; filename={name}'})
         else:
             return render_template("passwd.html", error="Incorrect Password!", url_id=url_id)
 
