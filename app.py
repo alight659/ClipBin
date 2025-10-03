@@ -23,7 +23,9 @@ api = Api(
     doc='/docs/',  # Swagger UI will be available at /docs/
     contact='aanis@clipb.in',
     license='MIT',
-    license_url='https://github.com/alight659/ClipBin/blob/main/LICENSE'
+    license_url='https://github.com/alight659/ClipBin/blob/main/LICENSE',
+    prefix='/api/v1',  # Use /api/v1 prefix to avoid conflicts with /api route
+    catch_all_404s=False  # Don't catch 404s to allow custom routes
 )
 
 
@@ -76,7 +78,7 @@ error_model = api.model('Error', {
 })
 
 # Create namespace for clips
-clips_ns = api.namespace('api', description='Clip operations')
+clips_ns = api.namespace('clips', description='Clip operations')
 
 # Set Login Data
 def loginData():
@@ -86,7 +88,7 @@ def loginData():
         if int(session["user_id"]):
             login=True
             name = session["uname"]
-    except KeyError:
+    except (KeyError, RuntimeError):
         login=False
     return [login, name]
 
@@ -674,4 +676,4 @@ def feedbackroute():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
