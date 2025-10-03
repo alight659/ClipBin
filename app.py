@@ -430,8 +430,10 @@ def download(url_id):
                 text, mimetype="text/plain", headers={"Content-disposition": f"attachment; filename={name}"}
             )
             # FIX: Decrypt the content before sending it in the response.
-            decrypted_text = decrypt(data[0]["clip_text"], clip_passwd).decode('utf-8')
-            return Response(decrypted_text, mimetype='text/plain',headers={'Content-disposition': f'attachment; filename={name}'})
+            decrypted_text = decrypt(data[0]["clip_text"], clip_passwd).decode("utf-8")
+            return Response(
+                decrypted_text, mimetype="text/plain", headers={"Content-disposition": f"attachment; filename={name}"}
+            )
         else:
             return render_template("passwd.html", error="Incorrect Password!", url_id=url_id)
 
