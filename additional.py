@@ -3,6 +3,10 @@ import os
 import csv
 import json
 import base64
+import time
+import pyotp
+import hashlib
+import hmac
 from uuid import uuid4
 from functools import wraps
 from io import StringIO, BytesIO
@@ -118,3 +122,22 @@ def jsonfy(data):
     json_bytes.seek(0)
 
     return json_bytes
+
+def totp_generator(user_id, username):
+    # Use an environment salt so it's deterministic but not predictable
+    salt = os.environ.get("TOTP_SALT", "clipbin_salt_2025").encode("utf-8")
+    message = f"{user_id}:{username}".encode("utf-8")
+
+    # Create a strong deterministic digest
+    digest = hmac.new(salt, message, hashlib.sha256).digest()
+
+    # Encode as base32 and normalize length (Google Authenticator prefers 16–32 chars)
+    totp_secret = base64.b32encode(digest).decode("utf-8").replace("=", "")
+    totp_secret = totp_secret[:32]   # truncate/pad to 32 chars for safety
+
+    # Generate provisioning URI for QR code
+    uri = pyotp.TOTP(totp_secret).provisioning_uri(
+        name=username,
+        issuer_name="Clipbin"
+    )
+    return totp_secret, uri
