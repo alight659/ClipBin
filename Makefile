@@ -70,7 +70,7 @@ lint-check:
 	flake8 *.py --max-line-length=120 --ignore=E203,W503
 	@echo "✅ All linting checks passed!"
 
-lint-fix: black-format flake8-fix
+lint-fix: format black-format flake8-fix
 	@echo "Applied code formatting fixes."
 
 flake8-fix:
