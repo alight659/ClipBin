@@ -1,0 +1,359 @@
+openapi: 3.0.3
+info:
+  title: ClipBin API
+  description: |
+    The ClipBin API allows users to create, retrieve, and manage text clips with optional password protection and expiration.
+    
+    ## Features
+    - Create and retrieve text clips
+    - Password protection for clips
+    - Optional expiration times
+    - Support for unlisted clips
+    - Raw text access
+    
+    ## Authentication
+    Some endpoints support password-based authentication for protected clips.
+  version: 1.0.0
+  contact:
+    name: ClipBin Support
+    email: aanis@clipb.in
+  license:
+    name: MIT
+    url: https://github.com/alight659/ClipBin/blob/main/LICENSE
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: https://clipb.in
+    description: Production server
+
+paths:
+  /api/get_data:
+    get:
+      summary: Retrieve clip data
+      description: |
+        Retrieve data from the database based on specific parameters.
+        Supports searching by ID or name, with optional password protection and unlisted filtering.
+      operationId: getClipData
+      tags:
+        - Clips
+      parameters:
+        - name: id
+          in: query
+          description: The unique identifier for the clip
+          required: false
+          schema:
+            type: string
+          example: "abc123"
+        - name: name
+          in: query
+          description: The name associated with the clip (supports partial matching)
+          required: false
+          schema:
+            type: string
+          example: "My Sample Clip"
+        - name: pwd
+          in: query
+          description: The password for accessing protected clips
+          required: false
+          schema:
+            type: string
+          example: "mypassword"
+        - name: unlisted
+          in: query
+          description: Filter for unlisted clips
+          required: false
+          schema:
+            type: string
+            enum: ["true", "false"]
+          example: "false"
+      responses:
+        '200':
+          description: Successfully retrieved data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Clip'
+              examples:
+                success:
+                  summary: Successful retrieval
+                  value:
+                    - id: "abc123"
+                      name: "Sample Clip"
+                      text: "This is sample text content"
+                      time: "01-01-2024 @ 12:00:00"
+        '400':
+          description: Bad Request - Missing or incorrect parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_params:
+                  summary: Missing parameters
+                  value:
+                    Error: "Missing Parameters!"
+                invalid_search:
+                  summary: Invalid search combination
+                  value:
+                    Message: "To Search, enter Id not Name with unlisted!"
+        '401':
+          description: Unauthorized - Incorrect password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                incorrect_password:
+                  summary: Incorrect password
+                  value:
+                    Error: "Incorrect Password"
+        '404':
+          description: Not Found - No data found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                no_data:
+                  summary: No data found
+                  value:
+                    Error: "No Data"
+
+  /api/post_data:
+    post:
+      summary: Create a new clip
+      description: |
+        Add new data to the database with the provided details.
+        Supports optional password protection, unlisted status, and automatic expiration.
+      operationId: createClip
+      tags:
+        - Clips
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateClipRequest'
+            examples:
+              basic_clip:
+                summary: Basic clip creation
+                value:
+                  name: "My Sample Clip"
+                  text: "This is the content of my clip"
+              protected_clip:
+                summary: Password-protected clip
+                value:
+                  name: "Protected Clip"
+                  text: "This is sensitive content"
+                  pwd: "mypassword"
+                  unlisted: "true"
+                  remove: "week"
+              temporary_clip:
+                summary: Temporary clip with expiration
+                value:
+                  name: "Temporary Note"
+                  text: "This will expire in a day"
+                  remove: "day"
+      responses:
+        '201':
+          description: Successfully created clip
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClipResponse'
+              examples:
+                success:
+                  summary: Clip created successfully
+                  value:
+                    id: "xyz789"
+                    Message: "Successfully added!"
+        '400':
+          description: Bad Request - Missing parameters or failed to create
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_params:
+                  summary: Missing required parameters
+                  value:
+                    Error: "Missing Parameters!"
+                creation_failed:
+                  summary: Failed to create clip
+                  value:
+                    Error: "Couldn't add. Something went wrong."
+
+  /{clip_id}/raw:
+    get:
+      summary: Get raw clip content
+      description: |
+        Retrieve the raw text content of a clip without HTML formatting.
+        For password-protected clips, use POST method with password.
+      operationId: getRawClip
+      tags:
+        - Clips
+      parameters:
+        - name: clip_id
+          in: path
+          description: The unique identifier of the clip
+          required: true
+          schema:
+            type: string
+          example: "abc123"
+      responses:
+        '200':
+          description: Raw clip content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "This is the raw content of the clip"
+        '404':
+          description: Clip not found or expired
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "That was not found on this server."
+    post:
+      summary: Get raw clip content with password
+      description: |
+        Retrieve the raw text content of a password-protected clip.
+      operationId: getRawClipWithPassword
+      tags:
+        - Clips
+      parameters:
+        - name: clip_id
+          in: path
+          description: The unique identifier of the clip
+          required: true
+          schema:
+            type: string
+          example: "abc123"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                passwd:
+                  type: string
+                  description: Password for the protected clip
+                  example: "mypassword"
+              required:
+                - passwd
+      responses:
+        '200':
+          description: Raw clip content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "This is the decrypted content of the clip"
+        '400':
+          description: Incorrect password
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "Incorrect Password!"
+        '404':
+          description: Clip not found or expired
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "That was not found on this server."
+
+components:
+  schemas:
+    Clip:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the clip
+          example: "abc123"
+        name:
+          type: string
+          description: The name/title of the clip
+          example: "Sample Clip"
+        text:
+          type: string
+          description: The text content of the clip
+          example: "This is sample text content"
+        time:
+          type: string
+          description: The creation time of the clip
+          example: "01-01-2024 @ 12:00:00"
+      required:
+        - id
+        - name
+        - text
+        - time
+
+    CreateClipRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name/title of the clip
+          example: "My Sample Clip"
+        text:
+          type: string
+          description: The text content to be stored
+          example: "This is the content of my clip"
+        pwd:
+          type: string
+          description: Optional password for protecting the clip
+          example: "mypassword"
+        unlisted:
+          type: string
+          enum: ["true", "false"]
+          description: Whether the clip should be unlisted
+          example: "false"
+        remove:
+          type: string
+          enum: ["day", "week", "twoweek", "month", "half", "year"]
+          description: When the clip should be automatically removed
+          example: "week"
+      required:
+        - name
+        - text
+
+    CreateClipResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the created clip
+          example: "xyz789"
+        Message:
+          type: string
+          description: Success message
+          example: "Successfully added!"
+      required:
+        - id
+        - Message
+
+    Error:
+      type: object
+      properties:
+        Error:
+          type: string
+          description: Error message
+          example: "Missing Parameters!"
+        Message:
+          type: string
+          description: Informational message
+          example: "To Search, enter Id not Name with unlisted!"
+      required:
+        - Error
+
+tags:
+  - name: Clips
+    description: Operations for managing text clips

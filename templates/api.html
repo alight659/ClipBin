@@ -12,10 +12,10 @@
             </p>
             <h1 class="sm:text-2xl text-xl font-medium title-font mb-4 mt-5 text-white">Endpoints</h1>
             <div class="lg:w-2/3 overflow-auto">
-                    <h2 class="text-xl font-semibold mb-2 text-white">1. GET /get_data</h2>
+                    <h2 class="text-xl font-semibold mb-2 text-white">1. GET /api/v1/clips/get_data</h2>
                     <p>Retrieve data from the database based on specific parameters.</p>
                     <ul class="list-disc list-inside mb-4">
-                        <li><strong>Endpoint:</strong> /get_data</li>
+                        <li><strong>Endpoint:</strong> /api/v1/clips/get_data</li>
                         <li><strong>Method:</strong> GET</li>
                         <li><strong>Description:</strong> Retrieves data from the database based on the provided parameters.</li>
                     </ul>
@@ -88,7 +88,7 @@
 }</code></pre>
             
                     <h3 class="text-lg font-semibold mb-2">Example Request</h3>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded break-all"><code class="bash">GET /get_data?id=1&name=Sample&pwd=example_password&unlisted=false</code></pre>
+                    <pre class="bg-gray-800 p-2 mb-4 rounded break-all"><code class="bash">GET /api/v1/clips/get_data?id=1&name=Sample&pwd=example_password&unlisted=false</code></pre>
             
                     <h3 class="text-lg font-semibold mb-2">Example Response</h3>
                     <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">[
@@ -100,10 +100,10 @@
     }
 ]</code></pre>
             
-                    <h2 class="text-xl font-semibold mb-2 text-white">2. POST /post_data</h2>
+                    <h2 class="text-xl font-semibold mb-2 text-white">2. POST /api/v1/clips/post_data</h2>
                     <p>Add new data to the database.</p>
                     <ul class="list-disc list-inside mb-4">
-                        <li><strong>Endpoint:</strong> /post_data</li>
+                        <li><strong>Endpoint:</strong> /api/v1/clips/post_data</li>
                         <li><strong>Method:</strong> POST</li>
                         <li><strong>Description:</strong> Adds new data to the database with the provided details.</li>
                     </ul>
@@ -186,7 +186,7 @@
 }</code></pre>
             
                     <h3 class="text-lg font-semibold mb-2">Example Request</h3>
-                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="bash">POST /post_data
+                    <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="bash">POST /api/v1/clips/post_data
             
 Body:
             
