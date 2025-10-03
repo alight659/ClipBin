@@ -316,9 +316,8 @@ def clipraw(clip_url_id):
 
         if passwd and request.method != "POST":
             return Response(
-                f'This Clip is Password Protected. Send a POST request at the url {
-                    request.url} with parameter passwd=<your_password>\nExample Request: curl -d "passwd=<your_password>" -X POST {
-                    request.url}\n',
+                f'This Clip is Password Protected. Send a POST request at the url {request.url} with parameter passwd=<your_password>\n'
+                f'Example Request: curl -d "passwd=<your_password>" -X POST {request.url}\n',
                 mimetype="text/plain",
             )
         elif request.method == "POST":
