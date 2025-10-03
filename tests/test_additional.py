@@ -6,8 +6,17 @@ import pytest
 import base64
 from unittest.mock import patch, MagicMock
 from additional import (
-    gen_id, login_required, stat, file_check, keygen, encrypt, decrypt,
-    validate_alias, jsonfy, csvfy, textify
+    gen_id,
+    login_required,
+    stat,
+    file_check,
+    keygen,
+    encrypt,
+    decrypt,
+    validate_alias,
+    jsonfy,
+    csvfy,
+    textify,
 )
 from flask import Flask, session
 
@@ -33,7 +42,7 @@ class TestGenId:
     def test_gen_id_characters(self):
         """Test that gen_id only contains valid URL-safe characters."""
         result = gen_id()
-        valid_chars = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_')
+        valid_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
         assert all(char in valid_chars for char in result)
 
 
@@ -43,31 +52,31 @@ class TestLoginRequired:
     def test_login_required_with_authenticated_user(self):
         """Test login_required allows access for authenticated users."""
         app = Flask(__name__)
-        app.secret_key = 'test_key'
-        
+        app.secret_key = "test_key"
+
         @login_required
         def protected_view():
             return "Protected content"
-        
+
         with app.test_request_context():
             with app.test_client() as client:
                 with client.session_transaction() as sess:
-                    sess['user_id'] = 1
-                
+                    sess["user_id"] = 1
+
                 with app.test_request_context():
-                    session['user_id'] = 1
+                    session["user_id"] = 1
                     result = protected_view()
                     assert result == "Protected content"
 
     def test_login_required_without_authentication(self):
         """Test login_required redirects unauthenticated users."""
         app = Flask(__name__)
-        app.secret_key = 'test_key'
-        
+        app.secret_key = "test_key"
+
         @login_required
         def protected_view():
             return "Protected content"
-        
+
         with app.test_request_context():
             result = protected_view()
             assert result.status_code == 302  # Redirect
@@ -98,37 +107,42 @@ class TestFileCheck:
     def test_file_check_valid_extensions(self):
         """Test file_check with valid file extensions."""
         valid_files = [
-            'test.txt', 'readme.md', 'data.csv', 'config.json',
-            'style.css', 'script.js', 'main.py', 'App.java',
-            'program.c', 'header.h', 'index.html'
+            "test.txt",
+            "readme.md",
+            "data.csv",
+            "config.json",
+            "style.css",
+            "script.js",
+            "main.py",
+            "App.java",
+            "program.c",
+            "header.h",
+            "index.html",
         ]
         for filename in valid_files:
             assert file_check(filename) is True
 
     def test_file_check_invalid_extensions(self):
         """Test file_check with invalid file extensions."""
-        invalid_files = [
-            'image.jpg', 'video.mp4', 'audio.mp3', 'document.pdf',
-            'archive.zip', 'executable.exe'
-        ]
+        invalid_files = ["image.jpg", "video.mp4", "audio.mp3", "document.pdf", "archive.zip", "executable.exe"]
         for filename in invalid_files:
             assert file_check(filename) is False
 
     def test_file_check_no_extension(self):
         """Test file_check with files without extensions."""
-        assert file_check('filename') is False
-        assert file_check('README') is False
+        assert file_check("filename") is False
+        assert file_check("README") is False
 
     def test_file_check_case_insensitive(self):
         """Test that file_check is case insensitive."""
-        assert file_check('TEST.TXT') is True
-        assert file_check('Script.JS') is True
-        assert file_check('DATA.CSV') is True
+        assert file_check("TEST.TXT") is True
+        assert file_check("Script.JS") is True
+        assert file_check("DATA.CSV") is True
 
     def test_file_check_multiple_dots(self):
         """Test file_check with multiple dots in filename."""
-        assert file_check('backup.data.txt') is True
-        assert file_check('config.dev.json') is True
+        assert file_check("backup.data.txt") is True
+        assert file_check("config.dev.json") is True
 
 
 class TestKeygen:
@@ -136,19 +150,19 @@ class TestKeygen:
 
     def test_keygen_returns_bytes(self):
         """Test that keygen returns bytes."""
-        salt = b'test_salt_16_bytes'
+        salt = b"test_salt_16_bytes"
         result = keygen("password", salt)
         assert isinstance(result, bytes)
 
     def test_keygen_key_length(self):
         """Test that keygen returns 32-byte key."""
-        salt = b'test_salt_16_bytes'
+        salt = b"test_salt_16_bytes"
         result = keygen("password", salt)
         assert len(result) == 32
 
     def test_keygen_same_input_same_output(self):
         """Test that same password and salt produce same key."""
-        salt = b'test_salt_16_bytes'
+        salt = b"test_salt_16_bytes"
         password = "test_password"
         key1 = keygen(password, salt)
         key2 = keygen(password, salt)
@@ -157,8 +171,8 @@ class TestKeygen:
     def test_keygen_different_salt_different_output(self):
         """Test that different salts produce different keys."""
         password = "test_password"
-        salt1 = b'test_salt_16_byte1'
-        salt2 = b'test_salt_16_byte2'
+        salt1 = b"test_salt_16_byte1"
+        salt2 = b"test_salt_16_byte2"
         key1 = keygen(password, salt1)
         key2 = keygen(password, salt2)
         assert key1 != key2
@@ -176,10 +190,10 @@ class TestEncryptDecrypt:
         """Test that data can be encrypted and then decrypted."""
         original_data = b"This is test data to encrypt"
         password = "test_password"
-        
+
         encrypted = encrypt(original_data, password)
         decrypted = decrypt(encrypted, password)
-        
+
         assert decrypted == original_data
 
     def test_encrypt_different_passwords_different_output(self):
@@ -194,9 +208,9 @@ class TestEncryptDecrypt:
         data = b"test_data"
         password = "correct_password"
         wrong_password = "wrong_password"
-        
+
         encrypted = encrypt(data, password)
-        
+
         # Decryption with wrong password should raise an exception
         with pytest.raises(Exception):
             decrypt(encrypted, wrong_password)
@@ -253,27 +267,24 @@ class TestJsonfy:
 
     def test_jsonfy_valid_data(self):
         """Test jsonfy with valid data."""
-        data = [
-            {'id': 1, 'name': 'Test'},
-            {'id': 2, 'name': 'Another Test'}
-        ]
+        data = [{"id": 1, "name": "Test"}, {"id": 2, "name": "Another Test"}]
         result = jsonfy(data)
-        assert hasattr(result, 'read')  # It's a BytesIO object
-        content = result.read().decode('utf-8')
+        assert hasattr(result, "read")  # It's a BytesIO object
+        content = result.read().decode("utf-8")
         assert '"id": 1' in content
         assert '"name": "Test"' in content
 
     def test_jsonfy_empty_list(self):
         """Test jsonfy with empty list."""
         result = jsonfy([])
-        content = result.read().decode('utf-8')
+        content = result.read().decode("utf-8")
         assert content.strip() == "[]"
 
     def test_jsonfy_single_item(self):
         """Test jsonfy with single item."""
-        data = [{'id': 1, 'name': 'Single'}]
+        data = [{"id": 1, "name": "Single"}]
         result = jsonfy(data)
-        content = result.read().decode('utf-8')
+        content = result.read().decode("utf-8")
         assert '"id": 1' in content
         assert '"name": "Single"' in content
 
@@ -283,15 +294,12 @@ class TestCsvfy:
 
     def test_csvfy_valid_data(self):
         """Test csvfy with valid data."""
-        data = [
-            {'id': 1, 'name': 'Test'},
-            {'id': 2, 'name': 'Another'}
-        ]
+        data = [{"id": 1, "name": "Test"}, {"id": 2, "name": "Another"}]
         result = csvfy(data)
         assert isinstance(result, str)
-        assert 'id,name' in result
-        assert '1,Test' in result
-        assert '2,Another' in result
+        assert "id,name" in result
+        assert "1,Test" in result
+        assert "2,Another" in result
 
     def test_csvfy_empty_list(self):
         """Test csvfy with empty list."""
@@ -300,10 +308,10 @@ class TestCsvfy:
 
     def test_csvfy_single_item(self):
         """Test csvfy with single item."""
-        data = [{'id': 1, 'name': 'Single'}]
+        data = [{"id": 1, "name": "Single"}]
         result = csvfy(data)
-        assert 'id,name' in result
-        assert '1,Single' in result
+        assert "id,name" in result
+        assert "1,Single" in result
 
 
 class TestTextify:
@@ -312,16 +320,16 @@ class TestTextify:
     def test_textify_valid_data(self):
         """Test textify with valid data."""
         data = [
-            {'id': 1, 'name': 'Test', 'text': 'Test content', 'time': '2023-01-01'},
-            {'id': 2, 'name': 'Another', 'text': 'Another content', 'time': '2023-01-02'}
+            {"id": 1, "name": "Test", "text": "Test content", "time": "2023-01-01"},
+            {"id": 2, "name": "Another", "text": "Another content", "time": "2023-01-02"},
         ]
         result = textify(data)
         assert isinstance(result, str)
-        assert 'ID: 1' in result
-        assert 'Name: Test' in result
-        assert 'Text: Test content' in result
-        assert 'ID: 2' in result
-        assert 'Name: Another' in result
+        assert "ID: 1" in result
+        assert "Name: Test" in result
+        assert "Text: Test content" in result
+        assert "ID: 2" in result
+        assert "Name: Another" in result
 
     def test_textify_empty_list(self):
         """Test textify with empty list."""
@@ -330,8 +338,8 @@ class TestTextify:
 
     def test_textify_single_item(self):
         """Test textify with single item."""
-        data = [{'id': 1, 'name': 'Single', 'text': 'Single content', 'time': '2023-01-01'}]
+        data = [{"id": 1, "name": "Single", "text": "Single content", "time": "2023-01-01"}]
         result = textify(data)
-        assert 'ID: 1' in result
-        assert 'Name: Single' in result
-        assert 'Text: Single content' in result
+        assert "ID: 1" in result
+        assert "Name: Single" in result
+        assert "Text: Single content" in result
