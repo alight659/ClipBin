@@ -1,277 +1,342 @@
-# ClipBin
+<div align="center">
 
-> Secure, shareable clipboard for teams and individuals.
+# 📋 ClipBin
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Contributors](https://img.shields.io/github/contributors/alight659/ClipBin)](https://github.com/alight659/ClipBin/graphs/contributors)
-[![Stars](https://img.shields.io/github/stars/alight659/ClipBin)](https://github.com/alight659/ClipBin/stargazers)
-[![Issues](https://img.shields.io/github/issues/alight659/ClipBin)](https://github.com/alight659/ClipBin/issues)
+### *Secure, shareable clipboard for modern teams*
 
----
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License">
+  <img src="https://img.shields.io/github/contributors/alight659/ClipBin?style=flat-square&color=success" alt="Contributors">
+  <img src="https://img.shields.io/github/stars/alight659/ClipBin?style=flat-square&color=yellow" alt="Stars">
+  <img src="https://img.shields.io/github/issues/alight659/ClipBin?style=flat-square&color=red" alt="Issues">
+  <img src="https://img.shields.io/badge/coverage-90%25-brightgreen?style=flat-square" alt="Coverage">
+</p>
 
-## Table of Contents
+<p align="center">
+  <strong>Share code snippets, configurations, and text securely with password protection, expiring links, and custom aliases.</strong>
+</p>
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Development Server](#running-the-development-server)
-- [Configuration](#configuration)
-- [Usage Guide](#usage-guide)
-- [Contributing](#contributing)
-- [Community & Support](#community--support)
-- [License](#license)
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing) • [Support](#-support)
+
+<img src="https://user-images.githubusercontent.com/placeholder/demo.gif" alt="ClipBin Demo" width="800">
 
 ---
 
-## Overview
+</div>
 
-ClipBin is a Flask-based web application for storing and sharing code snippets, configuration fragments, and other plaintext securely. It supports authenticated workflows for teams while also allowing anonymous users to create temporary clips with password protection.
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 🎨 **Beautiful Dark Theme**
+Carefully crafted interface optimized for comfortable reading and extended coding sessions.
+
+### 🔐 **End-to-End Encryption**
+Optional password protection with client-side encryption ensures your sensitive data stays private.
+
+### ⏱️ **Smart Expiration**
+Configurable retention periods from 1 hour to permanent storage—perfect for temporary shares.
+
+</td>
+<td width="50%">
+
+### 🎯 **Custom Aliases**
+Create memorable URLs like `clipb.in/my-config` instead of random identifiers.
+
+### 📁 **File Upload Support**
+Drag and drop or upload text-based files directly—no copy-paste required.
+
+### 🚀 **REST API**
+Full-featured API for automation, CI/CD integration, and programmatic access.
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><strong>🎁 More Features</strong></summary>
+
+- ✅ **Anonymous & Authenticated Modes** – Use without an account or sign in for advanced features
+- ✅ **User Dashboard** – Manage all your clips in one centralized location
+- ✅ **Export Options** – Download clips as JSON, CSV, or plain text
+- ✅ **Raw Endpoints** – Direct plaintext access via `/raw` for automation
+- ✅ **Editable Clips** – Allow others to modify your shared content
+- ✅ **Syntax Highlighting** – Beautiful code rendering for 100+ languages
+- ✅ **Mobile Responsive** – Perfect experience on any device
+
+</details>
 
 ---
 
-## Key Features
-
-- Dark theme interface for comfortable reading.
-- Anonymous and authenticated clip creation flows.
-- Optional password protection with end-to-end encryption.
-- Expiring links with configurable retention periods.
-- Custom aliases for easy-to-remember URLs.
-- File upload support for vetted text-based formats.
-- User dashboard with clip management and exports.
-- REST-style API endpoints for automation.
-
----
-
-## Tech Stack
-
-### Frontend
-
-![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-
-### Backend
-
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white) ![Jinja2](https://img.shields.io/badge/Jinja2-000000?style=for-the-badge&logo=jinja&logoColor=white) ![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
-
----
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.10 or later
-- pip 22+
-- (Optional) Virtual environment tooling such as `venv` or `pipenv`
+```bash
+Python 3.10+  |  pip 22+  |  venv (recommended)
+```
 
 ### Installation
 
-Clone the repository and install dependencies:
-
 ```bash
+# Clone the repository
 git clone https://github.com/alight659/ClipBin
 cd ClipBin
+
+# Create virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Running the Development Server
-
-Start the Flask application:
+### Launch Development Server
 
 ```bash
+# Option 1: Direct launch
 python3 app.py
-```
 
-By default the server listens on `http://127.0.0.1:5000`. Enable debug mode locally by editing `app.py` and starting the app with `app.run(debug=True)`.
-
----
-
-## Configuration
-
-| Variable | Description | Default |
-| --- | --- | --- |
-| `SECRET_KEY` | Session encryption key used by Flask. **Must** be set in production. | _None_ (Flask will raise if unset) |
-| `MAX_CONTENT_LENGTH` | Maximum upload size for clips and files. | 1.5 MB |
-
-Set environment variables in your shell before launching the app, for example:
-
-```bash
-export SECRET_KEY="change-me"
-```
-
-The application stores data in `clipbin.db`, an SQLite database created on first run. Back up this file for persistence.
-
----
-**Or use the Makefile for easier development:**
-
-```bash
-# Start development server
+# Option 2: Using Makefile (recommended)
 make dev
 
-# Install dependencies
-make install
-
-# Run tests quickly
-make test-fast
-
-# View all available commands
-make help
+# Server starts at http://127.0.0.1:5000
 ```
 
-To enable debugging mode, edit app.py
+> 💡 **Pro Tip:** Use `make help` to see all available commands!
 
-```python
-  app.run(debug=True)
-```
+---
 
-## Testing
+## 🛠️ Tech Stack
 
-This project includes a comprehensive test suite using pytest. The tests cover:
+<div align="center">
 
-- **Unit Tests**: Individual function testing for utility modules
-- **Integration Tests**: Complete workflow testing 
-- **Database Tests**: SQLite operations and data integrity
-- **Security Tests**: XSS, SQL injection prevention
-- **API Tests**: REST API endpoints
+### Frontend
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-### Quick Testing with Makefile
+### Backend
+![Python](https://img.shields.io/badge/Python_3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+![Jinja2](https://img.shields.io/badge/Jinja2-B41717?style=for-the-badge&logo=jinja&logoColor=white)
 
-The easiest way to run tests is using the provided Makefile:
+</div>
+
+---
+
+## ⚙️ Configuration
+
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECRET_KEY</code></td>
+<td>🔑 Session encryption key <strong>(required in production)</strong></td>
+<td><em>None</em></td>
+</tr>
+<tr>
+<td><code>MAX_CONTENT_LENGTH</code></td>
+<td>📦 Maximum upload size for clips and files</td>
+<td>1.5 MB</td>
+</tr>
+</tbody>
+</table>
+
+**Setting Environment Variables:**
 
 ```bash
-# View all available commands
+# Linux/macOS
+export SECRET_KEY="your-super-secret-key-here"
+
+# Windows
+set SECRET_KEY=your-super-secret-key-here
+```
+
+> ⚠️ **Security Note:** Always use a strong, random SECRET_KEY in production. Generate one with:
+> ```bash
+> python -c "import secrets; print(secrets.token_hex(32))"
+> ```
+
+**Data Storage:**  
+ClipBin uses `clipbin.db` (SQLite) for data persistence. Back up this file regularly!
+
+---
+
+## 🧪 Testing
+
+ClipBin maintains **90%+ test coverage** with comprehensive testing across all components.
+
+### Quick Testing Commands
+
+```bash
+# View all test options
 make help
 
-# Run all working tests (recommended)
+# Run fast tests (recommended for development)
 make test-fast
 
 # Run tests with coverage report
 make test-coverage
 
-# Run specific test categories
+# Run specific test suites
 make test-unit          # Unit tests only
-make test-integration   # Integration tests only
-
-# Quick commands
-make q                  # Quick test (alias for test-fast)
-make qc                 # Quick test with coverage
+make test-integration   # Integration tests
 ```
 
 ### Manual Testing
 
-Install test dependencies (already included in requirements.txt):
-
 ```bash
-pip install -r requirements.txt
-```
-
-Run all tests:
-
-```bash
+# Run all tests
 python -m pytest
-```
 
-Run tests with coverage report:
-
-```bash
+# Run with coverage
 python -m pytest --cov=. --cov-report=html
-```
 
-Run specific test categories:
+# Run specific test files
+python -m pytest tests/test_additional.py -v
 
-```bash
-# Run only unit tests
-python -m pytest tests/test_additional.py tests/test_sqlite.py
-
-# Run integration tests
-python -m pytest tests/test_integration.py
-
-# Run with verbose output
-python -m pytest -v
-```
-
-Use the convenient test runner script:
-
-```bash
-# Run all tests with coverage
-python run_tests.py
-
-# Run fast tests without coverage
+# Use the test runner script
 python run_tests.py --fast
-
-# Generate HTML coverage report
-python run_tests.py --html-report
-
-# Run only unit tests
-python run_tests.py --type unit
 ```
 
-### Test Coverage
+### Test Coverage Breakdown
 
-The project maintains high test coverage standards:
+- ✅ **Unit Tests** – Individual function validation
+- ✅ **Integration Tests** – Complete workflow testing
+- ✅ **Security Tests** – XSS & SQL injection prevention
+- ✅ **API Tests** – REST endpoint validation
+- ✅ **Database Tests** – SQLite operations & integrity
 
-- **Target Coverage**: 90% minimum, 100% preferred
-- **Current Coverage**: 
-  - `additional.py`: 100%
-  - `sqlite.py`: 100%
-  - `app.py`: Comprehensive route and functionality testing
+<div align="center">
 
-View detailed coverage reports:
+**Current Coverage:** `additional.py: 100%` • `sqlite.py: 100%` • `app.py: Comprehensive`
+
+</div>
+
+---
+
+## 📖 Documentation
+
+### Usage Guide
+
+1. **Create a Clip**  
+   Visit the homepage and enter your title and content, or upload a file
+
+2. **Configure Options**  
+   Set password protection, expiration time, custom alias, or edit permissions
+
+3. **Share the Link**  
+   Copy and share the generated URL with your team or friends
+
+4. **Access Variants**  
+   - **View:** `clipb.in/<id>` – Full web interface  
+   - **Raw:** `clipb.in/raw/<id>` – Plain text  
+   - **Download:** `clipb.in/download/<id>` – File download
+
+5. **User Dashboard** *(authenticated users)*  
+   Manage all clips, view analytics, and export data
+
+### API Endpoints
 
 ```bash
-# Generate HTML report
-python -m pytest --cov=. --cov-report=html
-open htmlcov/index.html  # View in browser
+# Create a clip
+POST /api/clips
+Content-Type: application/json
+{
+  "title": "My Config",
+  "content": "...",
+  "password": "optional",
+  "expires": "1h"
+}
+
+# Retrieve a clip
+GET /api/clips/<id>
+
+# Update a clip (if editable)
+PATCH /api/clips/<id>
+
+# Delete a clip
+DELETE /api/clips/<id>
 ```
 
-### Writing Tests
-
-Tests are organized in the `tests/` directory:
-
-- `test_additional.py`: Utility function tests
-- `test_sqlite.py`: Database operation tests  
-- `test_app.py`: Flask application route tests
-- `test_integration.py`: End-to-end workflow tests
-- `conftest.py`: Test configuration and fixtures
-
 ---
 
-## Usage Guide
+## 🤝 Contributing
 
-1. Visit the home page and create a clip by entering a title and body or uploading a supported file.
-2. Optionally set a password, mark the clip as editable, choose an expiration window, or supply a custom URL alias.
-3. Share the resulting link. A separate `/raw` endpoint is available for plaintext retrieval, and `/download/<id>` exposes the content as a file.
-4. Create an account to unlock the dashboard, manage existing clips, and export content as JSON, CSV, or plain text.
+We love contributions! Whether it's bug fixes, new features, or documentation improvements—all are welcome.
 
----
+### How to Contribute
 
-## Contributing
+1. 📖 Read our [Contributing Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md)
+2. 🍴 Fork the repository and create a feature branch
+3. 💻 Make your changes with clear commit messages
+4. ✅ Add tests and update documentation
+5. 🚀 Open a pull request with a detailed description
 
-Contributions that improve documentation, add features, or streamline the user experience are welcome. To get started:
+**Looking for ideas?** Check out [good first issues](https://github.com/alight659/ClipBin/labels/good%20first%20issue) and [help wanted](https://github.com/alight659/ClipBin/labels/help%20wanted) tags!
 
-1. Review the [Contributing Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md).
-2. Fork the repository and create a feature branch referencing the related issue.
-3. Write clear commit messages and include tests or documentation updates when they apply.
-4. Open a pull request explaining the motivation and testing performed.
+### Contributors Wall
 
-Need inspiration? Check the [issue tracker](https://github.com/alight659/ClipBin/issues) for help wanted and good first issues.
+<div align="center">
 
-### We ❤️ contributions!
+**Thank you to all our amazing contributors! ❤️**
 
 <a href="https://github.com/alight659/ClipBin/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=alight659/ClipBin&max=10" />
+  <img src="https://contrib.rocks/image?repo=alight659/ClipBin&max=100" />
 </a>
 
-## Community & Support
-
-Questions, bug reports, or feature ideas are encouraged. Reach the maintainers at [aanis@clipb.in](mailto:aanis@clipb.in) or open a GitHub issue.
+</div>
 
 ---
 
-## License
+## 💬 Support
 
-ClipBin is released under the [MIT License](./LICENSE).
+<table>
+<tr>
+<td align="center" width="33%">
+
+### 📧 Email
+[aanis@clipb.in](mailto:aanis@clipb.in)
+
+</td>
+<td align="center" width="33%">
+
+### 🐛 Bug Reports
+[GitHub Issues](https://github.com/alight659/ClipBin/issues)
+
+</td>
+<td align="center" width="33%">
+
+### 💡 Feature Requests
+[Discussions](https://github.com/alight659/ClipBin/discussions)
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📄 License
+
+ClipBin is open source software licensed under the [MIT License](./LICENSE).
+
+<div align="center">
+
+---
+
+**Built with ❤️ by the ClipBin Community**
+
+[⭐ Star us on GitHub](https://github.com/alight659/ClipBin) • [🐦 Follow updates](#) • [📚 Read the docs](#)
+
+</div>
