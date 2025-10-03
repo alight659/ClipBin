@@ -3,3 +3,4 @@ cryptography
 flask-session
 werkzeug
 cachelib
+flask-restx

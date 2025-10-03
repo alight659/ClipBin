@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from sqlite import SQLite
 from flask import Flask, flash, render_template, request, redirect, session, Response, jsonify, abort
 from flask_session import Session
+from flask_restx import Api, Resource, fields, reqparse
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from additional import gen_id, login_required, stat, file_check, encrypt, decrypt, validate_alias, jsonfy, csvfy, textify
@@ -12,6 +13,18 @@ app = Flask(__name__)
 
 # Connect to SQLITE3 Database
 db = SQLite("clipbin.db")
+
+# Initialize Flask-RESTX API
+api = Api(
+    app,
+    version='1.0.0',
+    title='ClipBin API',
+    description='The ClipBin API allows users to create, retrieve, and manage text clips with optional password protection and expiration.',
+    doc='/docs/',  # Swagger UI will be available at /docs/
+    contact='aanis@clipb.in',
+    license='MIT',
+    license_url='https://github.com/alight659/ClipBin/blob/main/LICENSE'
+)
 
 
 # Custom Filter JINJA
@@ -34,7 +47,36 @@ time = {
     "year": timedelta(weeks=52)
 }
 
-alias = ['clip', 'login', 'register', 'about', 'api', 'dashboard', 'settings', 'update', 'delete', 'terms', 'feedback']
+alias = ['clip', 'login', 'register', 'about', 'api', 'dashboard', 'settings', 'update', 'delete', 'terms', 'feedback', 'docs']
+
+# Swagger models
+clip_model = api.model('Clip', {
+    'id': fields.String(required=True, description='The unique identifier of the clip', example='abc123'),
+    'name': fields.String(required=True, description='The name/title of the clip', example='Sample Clip'),
+    'text': fields.String(required=True, description='The text content of the clip', example='This is sample text content'),
+    'time': fields.String(required=True, description='The creation time of the clip', example='01-01-2024 @ 12:00:00')
+})
+
+create_clip_model = api.model('CreateClip', {
+    'name': fields.String(required=True, description='The name/title of the clip', example='My Sample Clip'),
+    'text': fields.String(required=True, description='The text content to be stored', example='This is the content of my clip'),
+    'pwd': fields.String(required=False, description='Optional password for protecting the clip', example='mypassword'),
+    'unlisted': fields.String(required=False, enum=['true', 'false'], description='Whether the clip should be unlisted', example='false'),
+    'remove': fields.String(required=False, enum=['day', 'week', 'twoweek', 'month', 'half', 'year'], description='When the clip should be automatically removed', example='week')
+})
+
+create_clip_response_model = api.model('CreateClipResponse', {
+    'id': fields.String(required=True, description='The unique identifier of the created clip', example='xyz789'),
+    'Message': fields.String(required=True, description='Success message', example='Successfully added!')
+})
+
+error_model = api.model('Error', {
+    'Error': fields.String(required=False, description='Error message', example='Missing Parameters!'),
+    'Message': fields.String(required=False, description='Informational message', example='To Search, enter Id not Name with unlisted!')
+})
+
+# Create namespace for clips
+clips_ns = api.namespace('api', description='Clip operations')
 
 # Set Login Data
 def loginData():
@@ -493,109 +535,123 @@ def exportdata():
 
 
 # API Get Function
-@app.route("/api/get_data")
-def get_data():
-    clip_id = request.args.get("id")
-    clip_name = request.args.get("name")
-    clip_pass = request.args.get("pwd")
-    unlisted = request.args.get("unlisted")
+@clips_ns.route('/get_data')
+class GetData(Resource):
+    @clips_ns.doc('get_clip_data')
+    @clips_ns.param('id', 'The unique identifier for the clip')
+    @clips_ns.param('name', 'The name associated with the clip (supports partial matching)')
+    @clips_ns.param('pwd', 'The password for accessing protected clips')
+    @clips_ns.param('unlisted', 'Filter for unlisted clips', enum=['true', 'false'])
+    @clips_ns.marshal_list_with(clip_model, code=200)
+    @clips_ns.marshal_with(error_model, code=400)
+    @clips_ns.marshal_with(error_model, code=401)
+    @clips_ns.marshal_with(error_model, code=404)
+    def get(self):
+        """Retrieve clip data from the database"""
+        clip_id = request.args.get("id")
+        clip_name = request.args.get("name")
+        clip_pass = request.args.get("pwd")
+        unlisted = request.args.get("unlisted")
 
-    data = {}
+        if not clip_id and not clip_name:
+            return {'Error': 'Missing Parameters!'}, 400
 
-    if not clip_id and not clip_name:
-        return jsonify({'Error': 'Missing Parameters!'}), 400
+        if clip_name and unlisted == 'true':
+            return {'Message': 'To Search, enter Id not Name with unlisted!'}, 400
 
-    if clip_name and unlisted == 'true':
-        return jsonify({'Message': 'To Search, enter Id not Name with unlisted!'}), 400
-
-    if clip_name:
-        clip_name = '%'+clip_name+'%'
-        
-    query = 0
-    if not clip_pass:
-        if unlisted == 'true' and clip_id:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1 AND clip_pwd IS NULL", str(clip_id))
-        else:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1 AND clip_pwd IS NULL", str(clip_id), clip_name)
-    else:
-        if unlisted == 'true' and clip_id:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1", str(clip_id))
-        else:
-            data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1", str(clip_id), clip_name)
-
-    if len(data) != 0:
-        for i in data:
-            if i['delete_time']:
-                if datetime.strptime(i['delete_time'], '%d-%m-%Y %H:%M:%S') < datetime.now():
-                    db.execute("DELETE FROM clips WHERE clip_url=?", i['clip_url'])
-                    data.remove(i)
-
-    data_list = []
-    if len(data) != 0:
-        if data[0]['clip_pwd'] != None:
-            if not check_password_hash(data[0]['clip_pwd'], clip_pass):
-                return jsonify({'Error': 'Incorrect Password'}), 401
-        for i in data:
-            data_dict = {}
-            data_dict['id'] = i['clip_url']
-            data_dict['name'] = i['clip_name']
-            text = i['clip_text']
-            if type(text) == bytes:
-                data_dict['text'] = decrypt(text, clip_pass).decode()
+        if clip_name:
+            clip_name = '%'+clip_name+'%'
+            
+        if not clip_pass:
+            if unlisted == 'true' and clip_id:
+                data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1 AND clip_pwd IS NULL", str(clip_id))
             else:
-                data_dict['text'] = text
-            data_dict['time'] = i['clip_time']
-            data_list.append(data_dict)
-        return jsonify(data_list)
-    return jsonify({'Error': 'No Data'}), 404
+                data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1 AND clip_pwd IS NULL", str(clip_id), clip_name)
+        else:
+            if unlisted == 'true' and clip_id:
+                data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ?) AND is_unlisted == 1", str(clip_id))
+            else:
+                data = db.execute("SELECT clip_url, clip_name, clip_text, clip_time, delete_time, clip_pwd FROM clips WHERE (clip_url LIKE ? OR clip_name LIKE ?) AND is_unlisted != 1", str(clip_id), clip_name)
+
+        if len(data) != 0:
+            for i in data:
+                if i['delete_time']:
+                    if datetime.strptime(i['delete_time'], '%d-%m-%Y %H:%M:%S') < datetime.now():
+                        db.execute("DELETE FROM clips WHERE clip_url=?", i['clip_url'])
+                        data.remove(i)
+
+        data_list = []
+        if len(data) != 0:
+            if data[0]['clip_pwd'] != None:
+                if not check_password_hash(data[0]['clip_pwd'], clip_pass):
+                    return {'Error': 'Incorrect Password'}, 401
+            for i in data:
+                data_dict = {}
+                data_dict['id'] = i['clip_url']
+                data_dict['name'] = i['clip_name']
+                text = i['clip_text']
+                if type(text) == bytes:
+                    data_dict['text'] = decrypt(text, clip_pass).decode()
+                else:
+                    data_dict['text'] = text
+                data_dict['time'] = i['clip_time']
+                data_list.append(data_dict)
+            return data_list
+        return {'Error': 'No Data'}, 404
 
 
 # API POST Function
-@app.route("/api/post_data", methods=["GET","POST"])
-def post_data():
-    clip_name = str(request.form.get("name"))
-    clip_id = gen_id()
-    clip_text = str(request.form.get("text"))
-    unlist = request.form.get("unlisted")
-    clip_pass = request.form.get("pwd")
-    remove_after = request.form.get("remove")
+@clips_ns.route('/post_data')
+class PostData(Resource):
+    @clips_ns.doc('create_clip')
+    @clips_ns.expect(create_clip_model)
+    @clips_ns.marshal_with(create_clip_response_model, code=201)
+    @clips_ns.marshal_with(error_model, code=400)
+    def post(self):
+        """Create a new clip"""
+        clip_name = str(request.form.get("name"))
+        clip_id = gen_id()
+        clip_text = str(request.form.get("text"))
+        unlist = request.form.get("unlisted")
+        clip_pass = request.form.get("pwd")
+        remove_after = request.form.get("remove")
 
-    if remove_after:
-        if remove_after in time.keys():
-            remove_after = (time[remove_after] + datetime.now()).strftime('%d-%m-%Y %H:%M:%S')
+        if remove_after:
+            if remove_after in time.keys():
+                remove_after = (time[remove_after] + datetime.now()).strftime('%d-%m-%Y %H:%M:%S')
+            else:
+                remove_after = None
         else:
             remove_after = None
-    else:
-        remove_after = None
 
-    check = db.execute("SELECT clip_url FROM clips WHERE clip_url=?", clip_id)
-    if len(check) != 0:
-        clip_id = gen_id()
+        check = db.execute("SELECT clip_url FROM clips WHERE clip_url=?", clip_id)
+        if len(check) != 0:
+            clip_id = gen_id()
 
-    if not clip_name or not clip_text:
-        return jsonify({'Error': 'Missing Parameters!'}), 400
+        if not clip_name or not clip_text:
+            return {'Error': 'Missing Parameters!'}, 400
 
-    if unlist:
-        if unlist == 'true':
-            unlist = 1
+        if unlist:
+            if unlist == 'true':
+                unlist = 1
+            else:
+                unlist = 0
         else:
             unlist = 0
-    else:
-        unlist = 0
 
-    successStatus = False
-    cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
-    if not clip_pass:
-        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time, delete_time) VALUES (?,?,?,0,?,?,?)", str(clip_id), clip_name, clip_text, unlist, cur_time, remove_after)
-        successStatus = True
-    elif clip_pass:
-        pwd = generate_password_hash(clip_pass, method='scrypt')
-        clip_text = encrypt(clip_text.encode(), clip_pass) 
-        db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time, delete_time) VALUES (?,?,?,?,0,?,?,?)", str(clip_id), clip_name, clip_text, pwd, unlist, cur_time, remove_after)
-        successStatus = True
-    if successStatus:
-        return jsonify({'id': str(clip_id),'Message': 'Successfully added!'}), 201
-    return jsonify({'Error': 'Couldn\'t add. Something went wrong.'}), 400
+        successStatus = False
+        cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
+        if not clip_pass:
+            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, is_editable, is_unlisted, clip_time, delete_time) VALUES (?,?,?,0,?,?,?)", str(clip_id), clip_name, clip_text, unlist, cur_time, remove_after)
+            successStatus = True
+        elif clip_pass:
+            pwd = generate_password_hash(clip_pass, method='scrypt')
+            clip_text = encrypt(clip_text.encode(), clip_pass) 
+            db.execute("INSERT INTO clips (clip_url, clip_name, clip_text, clip_pwd, is_editable, is_unlisted, clip_time, delete_time) VALUES (?,?,?,?,0,?,?,?)", str(clip_id), clip_name, clip_text, pwd, unlist, cur_time, remove_after)
+            successStatus = True
+        if successStatus:
+            return {'id': str(clip_id),'Message': 'Successfully added!'}, 201
+        return {'Error': 'Couldn\'t add. Something went wrong.'}, 400
 
 
 # API Documentation Page
