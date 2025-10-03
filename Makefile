@@ -55,7 +55,7 @@ dev:
 run: dev
 
 lint:
-	black --check --diff *.py
+	black --check .
 
 format:
 	black *.py
