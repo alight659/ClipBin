@@ -80,7 +80,7 @@ jobs:
           
           # Wait for application to start
           for i in {1..30}; do
-            if curl -f http://127.0.0.1:5000 >/dev/null 2>&1; then
+            if curl -f http://127.0.0.1:5001 >/dev/null 2>&1; then
               echo "Application started successfully"
               break
             fi
@@ -88,9 +88,9 @@ jobs:
           done
           
           # Test endpoints
-          curl -f http://127.0.0.1:5000 || exit 1
-          curl -f http://127.0.0.1:5000/about || exit 1
-          curl -f http://127.0.0.1:5000/api || exit 1
+          curl -f http://127.0.0.1:5001 || exit 1
+          curl -f http://127.0.0.1:5001/about || exit 1
+          curl -f http://127.0.0.1:5001/api || exit 1
           
           # Cleanup
           kill $APP_PID
