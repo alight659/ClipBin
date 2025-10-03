@@ -22,9 +22,7 @@ help: ## Show this help message
 	@echo "  dev             Run development server"
 	@echo "  run             Alias for dev command"
 	@echo "  lint            Check code formatting with Black"
-	@echo "  lint-check      Check code formatting with Black (no changes applied)"
-	@echo "  lint-fix        Format code using Black"
-	@echo "  format          Alias for lint-fix"
+	@echo "  format          Format code using Black"
 	@echo "  clean           Remove cache and build files"
 	@echo "  db-reset        Delete the database file"
 
@@ -57,15 +55,12 @@ dev:
 run: dev
 
 lint:
-	black --check --diff --line-length=120 *.py
+	black --check --diff *.py
 
-lint-check: lint
+format:
+	black *.py
+	@echo "Applied code formatting with Black."
 
-lint-fix:
-	black *.py --line-length=120
-	@echo "Applied code formatting fixes with Black."
-
-format: lint-fix
 
 clean:
 	find . -type f -name "*.pyc" -delete
