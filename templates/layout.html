@@ -59,10 +59,10 @@
                 id="theme-toggle"
                 type="button"
                 class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0 md:ml-4"
-                aria-label="Alternar tema"
+                aria-label="Toggle theme"
               >
                 <i id="theme-toggle-icon" class="fa-solid fa-moon mr-2" aria-hidden="true"></i>
-                <span id="theme-toggle-label">Modo Claro</span>
+                <span id="theme-toggle-label">Light Mode</span>
               </button>
               {% if dat %}
                 {% if dat[0] == True %}
@@ -146,11 +146,11 @@
               document.documentElement.style.colorScheme = theme;
               localStorage.setItem("clipbin-theme", theme);
               if (themeToggleLabel) {
-                themeToggleLabel.textContent = theme === "dark" ? "Modo Claro" : "Modo Escuro";
+                themeToggleLabel.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
               }
               if (themeToggle) {
                 themeToggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
-                themeToggle.setAttribute("title", theme === "dark" ? "Alternar para modo claro" : "Alternar para modo escuro");
+                themeToggle.setAttribute("title", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
               }
               if (themeToggleIcon) {
                 themeToggleIcon.classList.remove("fa-moon", "fa-sun");
