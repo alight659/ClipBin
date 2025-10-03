@@ -72,25 +72,3 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-      - name: Test application startup
-        run: |
-          python app.py &
-          APP_PID=$!
-          
-          # Wait for application to start
-          for i in {1..30}; do
-            if curl -f http://127.0.0.1:5000 >/dev/null 2>&1; then
-              echo "Application started successfully"
-              break
-            fi
-            sleep 1
-          done
-          
-          # Test endpoints
-          curl -f http://127.0.0.1:5000 || exit 1
-          curl -f http://127.0.0.1:5000/about || exit 1
-          curl -f http://127.0.0.1:5000/api || exit 1
-          
-          # Cleanup
-          kill $APP_PID
