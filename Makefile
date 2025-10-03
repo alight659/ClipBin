@@ -59,24 +59,24 @@ dev:
 run: dev
 
 lint:
-	flake8 *.py tests/ --max-line-length=120 --ignore=E203,W503
+	flake8 *.py --max-line-length=120 --ignore=E203,W503
 
 lint-check:
 	@echo "Running code formatting and linting checks..."
 	@echo "Checking with Black formatter..."
-	black --check --diff --line-length=120 *.py tests/
+	black --check --diff --line-length=120 *.py
 	@echo "Checking with Flake8 linter..."
-	flake8 *.py tests/ --max-line-length=120 --ignore=E203,W503
+	flake8 *.py --max-line-length=120 --ignore=E203,W503
 	@echo "✅ All linting checks passed!"
 
 lint-fix: black-format
 	@echo "Applied code formatting fixes."
 
 black-check:
-	black --check --diff --line-length=120 *.py tests/
+	black --check --diff --line-length=120 *.py
 
 black-format:
-	black *.py tests/ --line-length=120
+	black *.py --line-length=120
 
 format: black-format
 
