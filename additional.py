@@ -11,12 +11,12 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
 # generates unique random url
 def gen_id():
-    genid = base64.urlsafe_b64encode(bytes.fromhex(uuid4().hex)).decode("utf-8").strip("=")[:7]
+    genid = base64.urlsafe_b64encode(bytes.fromhex(
+        uuid4().hex)).decode("utf-8").strip("=")[:7]
     return genid
 
 
@@ -72,7 +72,12 @@ def file_check(name):
 
 # Gen key from password
 def keygen(passwd: str, salt: bytes):
-    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend())
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend())
     key = kdf.derive(passwd.encode())
     return key
 
@@ -133,7 +138,12 @@ def textify(data):
     for i, element in enumerate(data):
         if i > 0:
             buffer.write("\n\n")
-        buffer.write(f"ID: {element['id']}\nName: {element['name']}\nText: {element['text']}\nTime: {element['time']}")
+        buffer.write(
+            f"ID: {
+                element['id']}\nName: {
+                element['name']}\nText: {
+                element['text']}\nTime: {
+                    element['time']}")
     return buffer.getvalue()
 
 
