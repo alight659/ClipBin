@@ -90,7 +90,7 @@ jobs:
           # Test endpoints
           curl -f http://127.0.0.1:5000 || exit 1
           curl -f http://127.0.0.1:5000/about || exit 1
-          curl -f http://127.0.0.1:5000/api/info || exit 1
+          curl -f http://127.0.0.1:5000/api || exit 1
           
           # Cleanup
           kill $APP_PID
