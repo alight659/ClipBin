@@ -201,7 +201,11 @@ def init_test_db_with_sqlite(sqlite_instance):
 @pytest.fixture
 def sample_user_data():
     """Provide sample user data for testing."""
-    return {"uname": "testuser", "passwd": "testpassword123", "passwdconf": "testpassword123"}
+    return {
+        "uname": "testuser",
+        "passwd": "testpassword123",
+        "passwdconf": "testpassword123",
+    }
 
 
 @pytest.fixture
@@ -227,6 +231,9 @@ def authenticated_client(client, sample_user_data):
     client.post("/register", data=sample_user_data)
 
     # Login user
-    client.post("/login", data={"uname": sample_user_data["uname"], "passwd": sample_user_data["passwd"]})
+    client.post(
+        "/login",
+        data={"uname": sample_user_data["uname"], "passwd": sample_user_data["passwd"]},
+    )
 
     return client

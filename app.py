@@ -2,7 +2,16 @@ import os
 from datetime import datetime, timedelta
 
 from sqlite import SQLite
-from flask import Flask, flash, render_template, request, redirect, session, Response, jsonify
+from flask import (
+    Flask,
+    flash,
+    render_template,
+    request,
+    redirect,
+    session,
+    Response,
+    jsonify,
+)
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -44,7 +53,19 @@ time = {
     "year": timedelta(weeks=52),
 }
 
-alias = ["clip", "login", "register", "about", "api", "dashboard", "settings", "update", "delete", "terms", "feedback"]
+alias = [
+    "clip",
+    "login",
+    "register",
+    "about",
+    "api",
+    "dashboard",
+    "settings",
+    "update",
+    "delete",
+    "terms",
+    "feedback",
+]
 
 
 # Set Login Data
@@ -114,9 +135,13 @@ def index():
                 flash("Alias cannot be one of the Primary Routes.")
                 return redirect("/")
             if not validate_alias(custom_alias):
-                flash("Alias must be 4-12 characters long and contain only letters, numbers, hyphens and underscores!")
+                flash(
+                    "Alias must be 4-12 characters long and contain only letters, numbers, hyphens and underscores!"
+                )
                 return redirect("/")
-            check = db.execute("SELECT clip_url from clips WHERE clip_url=?", custom_alias)
+            check = db.execute(
+                "SELECT clip_url from clips WHERE clip_url=?", custom_alias
+            )
             if len(check) != 0:
                 flash("This alias is already taken!")
                 return redirect("/")
@@ -169,12 +194,16 @@ def index():
             elif remove_time == "custom" and custom_delete:
                 try:
                     hours = int(custom_delete)
-                    remove_time = (datetime.now() + timedelta(hours=hours)).strftime("%d-%m-%Y %H:%M:%S")
+                    remove_time = (datetime.now() + timedelta(hours=hours)).strftime(
+                        "%d-%m-%Y %H:%M:%S"
+                    )
                 except ValueError:
                     flash("Invalid custom delete time.")
                     return redirect("/")
             else:
-                remove_time = (time[remove_time] + datetime.now()).strftime("%d-%m-%Y %H:%M:%S")
+                remove_time = (time[remove_time] + datetime.now()).strftime(
+                    "%d-%m-%Y %H:%M:%S"
+                )
 
         cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
         if not passwd:
@@ -204,9 +233,15 @@ def index():
             )
 
         if loginData()[0]:
-            uid = db.execute("SELECT id FROM users WHERE username=?", loginData()[1])[0]["id"]
-            cid = db.execute("SELECT id FROM clips WHERE clip_url=?", str(post_id))[0]["id"]
-            db.execute("INSERT INTO clipRef (userid, clipid) VALUES (?, ?)", int(uid), int(cid))
+            uid = db.execute("SELECT id FROM users WHERE username=?", loginData()[1])[
+                0
+            ]["id"]
+            cid = db.execute("SELECT id FROM clips WHERE clip_url=?", str(post_id))[0][
+                "id"
+            ]
+            db.execute(
+                "INSERT INTO clipRef (userid, clipid) VALUES (?, ?)", int(uid), int(cid)
+            )
 
         return redirect(f"/{post_id}")
     else:
@@ -237,8 +272,15 @@ def clip(clip_url_id):
         if remove_time:
             if datetime.strptime(remove_time, "%d-%m-%Y %H:%M:%S") < datetime.now():
                 db.execute("DELETE FROM clips WHERE clip_url=?", clip_url_id)
-                return render_template("error.html", code="This Clip was Expired.", dat=loginData()), 404
-            time_left = datetime.strptime(remove_time, "%d-%m-%Y %H:%M:%S") - datetime.now()
+                return (
+                    render_template(
+                        "error.html", code="This Clip was Expired.", dat=loginData()
+                    ),
+                    404,
+                )
+            time_left = (
+                datetime.strptime(remove_time, "%d-%m-%Y %H:%M:%S") - datetime.now()
+            )
 
             if time_left.days < 1:
                 seconds = time_left.seconds
@@ -257,7 +299,9 @@ def clip(clip_url_id):
             ext = "txt"
 
         if passwd and request.method != "POST":
-            return render_template("clip.html", passwd=True, url_id=clip_url_id, dat=loginData())
+            return render_template(
+                "clip.html", passwd=True, url_id=clip_url_id, dat=loginData()
+            )
         elif request.method == "POST":
             clip_passwd = request.form.get("clip_passwd")
 
@@ -277,7 +321,11 @@ def clip(clip_url_id):
                 )
             else:
                 return render_template(
-                    "clip.html", passwd=True, error="Incorrect Password!", url_id=clip_url_id, dat=loginData()
+                    "clip.html",
+                    passwd=True,
+                    error="Incorrect Password!",
+                    url_id=clip_url_id,
+                    dat=loginData(),
                 )
         else:
             text = str(text)
@@ -295,14 +343,22 @@ def clip(clip_url_id):
             )
 
     else:
-        return render_template("error.html", code="That was not found on this server.", dat=loginData()), 404
+        return (
+            render_template(
+                "error.html", code="That was not found on this server.", dat=loginData()
+            ),
+            404,
+        )
 
 
 # Show Raw
 @app.route("/<clip_url_id>/raw", methods=["GET", "POST"])
 @app.route("/clip/<clip_url_id>/raw", methods=["GET", "POST"])
 def clipraw(clip_url_id):
-    data = db.execute("SELECT clip_text, clip_pwd, delete_time FROM clips WHERE clip_url=?", clip_url_id)
+    data = db.execute(
+        "SELECT clip_text, clip_pwd, delete_time FROM clips WHERE clip_url=?",
+        clip_url_id,
+    )
     passwd = ""
     if len(data) != 0:
         text = data[0]["clip_text"]
@@ -316,7 +372,7 @@ def clipraw(clip_url_id):
 
         if passwd and request.method != "POST":
             return Response(
-                f'This Clip is Password Protected. Send a POST request at the url {request.url} with parameter passwd=<your_password>\n'
+                f"This Clip is Password Protected. Send a POST request at the url {request.url} with parameter passwd=<your_password>\n"
                 f'Example Request: curl -d "passwd=<your_password>" -X POST {request.url}\n',
                 mimetype="text/plain",
             )
@@ -333,7 +389,10 @@ def clipraw(clip_url_id):
             return text, {"Content-Type": "text/plain"}
 
     else:
-        return Response("That was not found on this server.\n", mimetype="text/plain"), 404
+        return (
+            Response("That was not found on this server.\n", mimetype="text/plain"),
+            404,
+        )
 
 
 # Search Function
@@ -342,7 +401,9 @@ def search():
     if request.method == "POST":
         clip_info = request.form.get("clip_info")
         if not clip_info:
-            return render_template("search.html", error="Search Field cannot be empty!", dat=loginData())
+            return render_template(
+                "search.html", error="Search Field cannot be empty!", dat=loginData()
+            )
         info = str("%" + clip_info + "%")
         data = db.execute(
             "SELECT clip_name, clip_url, clip_time FROM clips WHERE clip_url LIKE ? AND is_unlisted!=1 OR clip_name LIKE ? AND is_unlisted!=1",
@@ -351,7 +412,9 @@ def search():
         )
         if len(data) != 0:
             return render_template("search.html", data=data, dat=loginData())
-        return render_template("search.html", error="Nothing was found!", dat=loginData())
+        return render_template(
+            "search.html", error="Nothing was found!", dat=loginData()
+        )
     return render_template("search.html", dat=loginData())
 
 
@@ -381,7 +444,12 @@ def update(url_id):
             if request.method == "POST":
                 text = str(request.form.get("clip_text")).strip()
                 cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
-                db.execute("UPDATE clips SET clip_text=?, update_time=? WHERE id=?", text, cur_time, data[0]["id"])
+                db.execute(
+                    "UPDATE clips SET clip_text=?, update_time=? WHERE id=?",
+                    text,
+                    cur_time,
+                    data[0]["id"],
+                )
                 return redirect(f"/{url_id}")
             return render_template("error.html", code="Cannot Edit this Clip")
         return render_template("error.html", code="You cannot edit this clip!")
@@ -409,7 +477,9 @@ def delete(url_id):
 # Download Function -> File
 @app.route("/download/<url_id>", methods=["GET", "POST"])
 def download(url_id):
-    data = db.execute("SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id)
+    data = db.execute(
+        "SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id
+    )
     # HOT FIX
     if len(data) == 0:
         return render_template("error.html", code="404 Not Found!"), 404
@@ -428,17 +498,27 @@ def download(url_id):
 
         if check_password_hash(passwd, clip_passwd):
             return Response(
-                text, mimetype="text/plain", headers={"Content-disposition": f"attachment; filename={name}"}
+                text,
+                mimetype="text/plain",
+                headers={"Content-disposition": f"attachment; filename={name}"},
             )
             # FIX: Decrypt the content before sending it in the response.
             decrypted_text = decrypt(data[0]["clip_text"], clip_passwd).decode("utf-8")
             return Response(
-                decrypted_text, mimetype="text/plain", headers={"Content-disposition": f"attachment; filename={name}"}
+                decrypted_text,
+                mimetype="text/plain",
+                headers={"Content-disposition": f"attachment; filename={name}"},
             )
         else:
-            return render_template("passwd.html", error="Incorrect Password!", url_id=url_id)
+            return render_template(
+                "passwd.html", error="Incorrect Password!", url_id=url_id
+            )
 
-    return Response(text, mimetype="text/plain", headers={"Content-disposition": f"attachment; filename={name}"})
+    return Response(
+        text,
+        mimetype="text/plain",
+        headers={"Content-disposition": f"attachment; filename={name}"},
+    )
 
 
 # Login Function
@@ -503,13 +583,17 @@ def register():
 
         name = db.execute("SELECT username FROM users WHERE username=?", uname)
         if len(name) != 0:
-            return render_template("register.html", error="This username already exists!")
+            return render_template(
+                "register.html", error="This username already exists!"
+            )
 
         if not passwd:
             return render_template("register.html", error="Password cannot be empty!")
 
         if not conf:
-            return render_template("register.html", error="Password Confirmation is required!")
+            return render_template(
+                "register.html", error="Password Confirmation is required!"
+            )
         if passwd != conf:
             return render_template("register.html", error="Passwords do not match!")
 
@@ -565,7 +649,11 @@ def settings():
             flash("New Password cannot be same as Old Password.")
             return redirect("/settings")
 
-        data = db.execute("SELECT password FROM users WHERE id=? AND username=?", session["user_id"], session["uname"])
+        data = db.execute(
+            "SELECT password FROM users WHERE id=? AND username=?",
+            session["user_id"],
+            session["uname"],
+        )
 
         if len(data) != 0:
             if check_password_hash(data[0]["password"], old_pass):
@@ -609,13 +697,17 @@ def exportdata():
                 return Response(
                     csvfy(data),
                     mimetype="text/csv",
-                    headers={"Content-disposition": f'attachment; filename={session["uname"]}_export.csv'},
+                    headers={
+                        "Content-disposition": f'attachment; filename={session["uname"]}_export.csv'
+                    },
                 )
             elif ext == "text":
                 return Response(
                     textify(data),
                     mimetype="text/plain",
-                    headers={"Content-disposition": f'attachment; filename={session["uname"]}_export.txt'},
+                    headers={
+                        "Content-disposition": f'attachment; filename={session["uname"]}_export.txt'
+                    },
                 )
         return render_template("error.html", code="Nothing to Export!")
     return render_template("error.html", code="Nothing to Export!")
@@ -674,7 +766,10 @@ def get_data():
     if len(data) != 0:
         for i in data:
             if i["delete_time"]:
-                if datetime.strptime(i["delete_time"], "%d-%m-%Y %H:%M:%S") < datetime.now():
+                if (
+                    datetime.strptime(i["delete_time"], "%d-%m-%Y %H:%M:%S")
+                    < datetime.now()
+                ):
                     db.execute("DELETE FROM clips WHERE clip_url=?", i["clip_url"])
                     data.remove(i)
 
@@ -724,7 +819,9 @@ def post_data():
 
     if remove_after:
         if remove_after in time.keys():
-            remove_after = (time[remove_after] + datetime.now()).strftime("%d-%m-%Y %H:%M:%S")
+            remove_after = (time[remove_after] + datetime.now()).strftime(
+                "%d-%m-%Y %H:%M:%S"
+            )
         else:
             remove_after = None
     else:
