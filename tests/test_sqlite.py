@@ -52,9 +52,7 @@ class TestSQLite:
         )
 
         # Then insert data
-        result = test_db.execute(
-            "INSERT INTO test_table (name) VALUES (?)", "Test Name"
-        )
+        result = test_db.execute("INSERT INTO test_table (name) VALUES (?)", "Test Name")
         assert result is True
 
     def test_execute_select(self, test_db):
@@ -90,9 +88,7 @@ class TestSQLite:
         test_db.execute("INSERT INTO test_table (name) VALUES (?)", "Test Name")
 
         # Update data
-        result = test_db.execute(
-            "UPDATE test_table SET name = ? WHERE id = ?", "Updated Name", 1
-        )
+        result = test_db.execute("UPDATE test_table SET name = ? WHERE id = ?", "Updated Name", 1)
         assert result is True
 
         # Verify update
@@ -132,9 +128,7 @@ class TestSQLite:
         """
         )
 
-        result = test_db.execute(
-            "INSERT INTO test_table (name, age) VALUES (?, ?)", "John Doe", 25
-        )
+        result = test_db.execute("INSERT INTO test_table (name, age) VALUES (?, ?)", "John Doe", 25)
         assert result is True
 
         data = test_db.execute("SELECT * FROM test_table")
@@ -174,9 +168,7 @@ class TestSQLite:
         test_db.execute("INSERT INTO parent (name) VALUES (?)", "Parent")
 
         # Insert child record with valid foreign key
-        result = test_db.execute(
-            "INSERT INTO child (parent_id, name) VALUES (?, ?)", 1, "Child"
-        )
+        result = test_db.execute("INSERT INTO child (parent_id, name) VALUES (?, ?)", 1, "Child")
         assert result is True
 
     def test_row_factory_dict(self, test_db):
@@ -314,9 +306,7 @@ class TestSQLite:
 
         # Insert related data
         test_db.execute("INSERT INTO parent_table (name) VALUES (?)", "parent1")
-        parent_result = test_db.execute(
-            "SELECT id FROM parent_table WHERE name = ?", "parent1"
-        )
+        parent_result = test_db.execute("SELECT id FROM parent_table WHERE name = ?", "parent1")
         parent_id = parent_result[0]["id"]
 
         test_db.execute(

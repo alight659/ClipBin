@@ -55,10 +55,10 @@ dev:
 run: dev
 
 lint:
-	black --check .
+	black --check --line-length=120 .
 
 format:
-	black *.py
+	black --line-length=120 .
 	@echo "Applied code formatting with Black."
 
 

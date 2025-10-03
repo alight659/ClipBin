@@ -53,9 +53,7 @@ class SQLite:
 
                 # Get all user tables (excluding sqlite internal tables)
                 cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-                )
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
                 tables = cursor.fetchall()
 
                 # Delete all data from tables
@@ -84,9 +82,7 @@ class SQLite:
     def get_table_names(self):
         """Get a list of all user-created table names in the database."""
         try:
-            result = self.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-            )
+            result = self.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
             return [row["name"] for row in result] if result else []
         except Exception as e:
             logging.error("Error getting table names: %s", e)
