@@ -133,7 +133,7 @@ def index():
         custom_alias = request.form.get("clip_alias")
         remove_time = request.form.get('clip_delete')
         custom_delete = request.form.get('clip_custom_delete') 
-        file = request.files["clip_file"]
+        file = request.files.get("clip_file")
 
         if custom_alias:
             custom_alias = custom_alias.strip()
@@ -456,7 +456,7 @@ def register():
 
         if not conf:
             return render_template("register.html", error="Password Confirmation is required!")
-        if check_password_hash(passwd, conf):
+        if passwd != conf:
             return render_template("register.html", error="Passwords do not match!")
 
         db.execute("INSERT INTO users (username, password) VALUES (?, ?)", uname, generate_password_hash(passwd, method='scrypt'))
@@ -519,6 +519,7 @@ def settings():
 
 # Export Data Function -> File
 @app.route("/settings/export", methods=["POST", "GET"])
+@login_required
 def exportdata():
     if request.method == 'POST':
         ext = request.form.get('export_ext')

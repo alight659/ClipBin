@@ -297,30 +297,30 @@ class TestAPIRoutes:
 
     def test_api_get_data_no_params(self, client):
         """Test API get_data without parameters."""
-        response = client.get('/api/get_data')
-        assert response.status_code == 200
+        response = client.get('/api/v1/clips/get_data')
+        assert response.status_code == 400  # Should return 400 for missing parameters
         assert response.is_json
 
     def test_api_get_data_with_id(self, client):
         """Test API get_data with ID parameter."""
-        response = client.get('/api/get_data?id=testid')
+        response = client.get('/api/v1/clips/get_data?id=testid')
         # Should return 404 if ID doesn't exist, or empty JSON array
         assert response.status_code in [200, 404]
         if response.status_code == 200:
             assert response.is_json
 
     def test_api_get_data_with_alias(self, client):
-        """Test API get_data with alias parameter."""
-        response = client.get('/api/get_data?alias=testalias')
-        # Should return 404 if alias doesn't exist, or empty JSON array
+        """Test API get_data with name parameter."""
+        response = client.get('/api/v1/clips/get_data?name=testalias')
+        # Should return 404 if name doesn't exist, or empty JSON array
         assert response.status_code in [200, 404]
         if response.status_code == 200:
             assert response.is_json
 
     def test_api_post_data_get(self, client):
         """Test API post_data GET request."""
-        response = client.get('/api/post_data')
-        assert response.status_code == 200
+        response = client.get('/api/v1/clips/post_data')
+        assert response.status_code == 405  # Method not allowed for GET on POST endpoint
 
     def test_api_post_data_post_no_auth(self, client):
         """Test API post_data POST without authentication."""
@@ -328,7 +328,7 @@ class TestAPIRoutes:
             'content': 'Test content',
             'name': 'Test clip'
         }
-        response = client.post('/api/post_data', json=data)
+        response = client.post('/api/v1/clips/post_data', json=data)
         assert response.status_code == 201  # Should succeed and create clip
 
 
