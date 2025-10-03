@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11', '3.12']
+        python-version: ['3.12', '3.13']
         
     steps:
       - name: Checkout code
@@ -48,7 +48,7 @@ jobs:
             
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        if: matrix.python-version == '3.11' && github.event_name == 'pull_request'
+        if: matrix.python-version == '3.12' && github.event_name == 'pull_request'
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
