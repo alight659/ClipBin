@@ -15,11 +15,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 # generates unique random url
 def gen_id():
-    genid = (
-        base64.urlsafe_b64encode(bytes.fromhex(uuid4().hex))
-        .decode("utf-8")
-        .strip("=")[:7]
-    )
+    genid = base64.urlsafe_b64encode(bytes.fromhex(uuid4().hex)).decode("utf-8").strip("=")[:7]
     return genid
 
 

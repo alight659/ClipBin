@@ -120,10 +120,7 @@ class TestSecurityHeaders:
         """Test that sensitive server info isn't leaked."""
         response = client.get("/")
         # Flask shouldn't leak version info by default
-        assert (
-            "Server" not in response.headers
-            or "Werkzeug" not in response.headers.get("Server", "")
-        )
+        assert "Server" not in response.headers or "Werkzeug" not in response.headers.get("Server", "")
 
     def test_content_type_headers(self, client):
         """Test that content type headers are set correctly."""

@@ -42,9 +42,7 @@ class TestGenId:
     def test_gen_id_characters(self):
         """Test that gen_id only contains valid URL-safe characters."""
         result = gen_id()
-        valid_chars = set(
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-        )
+        valid_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
         assert all(char in valid_chars for char in result)
 
 
@@ -352,9 +350,7 @@ class TestTextify:
 
     def test_textify_single_item(self):
         """Test textify with single item."""
-        data = [
-            {"id": 1, "name": "Single", "text": "Single content", "time": "2023-01-01"}
-        ]
+        data = [{"id": 1, "name": "Single", "text": "Single content", "time": "2023-01-01"}]
         result = textify(data)
         assert "ID: 1" in result
         assert "Name: Single" in result

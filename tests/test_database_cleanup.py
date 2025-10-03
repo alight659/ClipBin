@@ -33,9 +33,7 @@ class TestDatabaseCleanup:
         )
 
         # Verify data exists
-        users = db.execute(
-            "SELECT * FROM users WHERE username = ?", "cleanup_test_user"
-        )
+        users = db.execute("SELECT * FROM users WHERE username = ?", "cleanup_test_user")
         clips = db.execute("SELECT * FROM clips WHERE clip_url = ?", "test123")
 
         assert len(users) > 0
@@ -47,9 +45,7 @@ class TestDatabaseCleanup:
     def test_database_is_clean_at_start(self, client):
         """Test that database is clean at the start of each test."""
         # Check that no test data exists from previous test
-        users = db.execute(
-            "SELECT * FROM users WHERE username = ?", "cleanup_test_user"
-        )
+        users = db.execute("SELECT * FROM users WHERE username = ?", "cleanup_test_user")
         clips = db.execute("SELECT * FROM clips WHERE clip_url = ?", "test123")
 
         # Database should be clean
@@ -161,9 +157,7 @@ class TestDatabaseCleanup:
         )
 
         # Verify the relationship exists
-        refs = db.execute(
-            "SELECT * FROM clipRef WHERE userid = ? AND clipid = ?", user_id, clip_id
-        )
+        refs = db.execute("SELECT * FROM clipRef WHERE userid = ? AND clipid = ?", user_id, clip_id)
         assert len(refs) > 0
 
         # Foreign key constraints should be working after cleanup
