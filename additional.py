@@ -150,6 +150,7 @@ def textify(data):
         )
     return buffer.getvalue()
 
+
 # Jsonify Export Data Function
 def jsonfy(data):
     json_data = StringIO()
