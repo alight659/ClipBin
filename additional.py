@@ -143,7 +143,8 @@ def textify(data):
                 element['id']}\nName: {
                 element['name']}\nText: {
                 element['text']}\nTime: {
-                    element['time']}")
+                    element['time']}"
+        )
     return buffer.getvalue()
 
 
