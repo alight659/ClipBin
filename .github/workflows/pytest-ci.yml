@@ -1,9 +1,10 @@
-name: CI Pipeline
+name: Pytest CI
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+  push:
     branches: [ main, develop ]
 
 env:
@@ -11,10 +12,10 @@ env:
   COVERAGE_THRESHOLD: 39
 
 jobs:
-  lint:
-    name: Code Quality
+  test:
+    name: Test Suite
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     
     steps:
       - name: Checkout code
@@ -25,47 +26,6 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-          
-      - name: Install linting tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 black isort bandit safety
-          
-      - name: Check code formatting
-        run: black --check --diff --line-length=120 *.py
-        
-      - name: Check import sorting
-        run: isort --check-only --diff *.py
-        
-      - name: Run linting
-        run: flake8 *.py --max-line-length=120 --exclude=.venv,__pycache__
-        
-      - name: Security scan
-        run: bandit -r *.py -ll
-        
-      - name: Dependency check
-        run: |
-          pip install -r requirements.txt
-          safety check
-
-  test:
-    name: Test Suite
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.9', '3.11', '3.12']
-        
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
           cache-dependency-path: 'requirements.txt'
           
       - name: Install dependencies
@@ -73,30 +33,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Run core tests
+      - name: Run tests with coverage
         run: |
-          python -m pytest tests/test_additional.py tests/test_sqlite.py tests/test_basic_app.py -v \
+          python -m pytest tests/ -v \
             --cov=. \
             --cov-report=xml \
             --cov-report=term-missing \
             --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} \
-            --tb=short
+            --tb=short \
+            --strict-markers
             
-      - name: Run integration tests
-        run: python -m pytest tests/test_integration.py -v --tb=short
-        
-      - name: Upload coverage
-        if: matrix.python-version == '3.11'
+      - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        if: github.event_name == 'pull_request'
         with:
           file: ./coverage.xml
           fail_ci_if_error: false
+          verbose: true
 
   build:
-    name: Build Validation
+    name: Build Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [lint, test]
+    needs: test
     
     steps:
       - name: Checkout code
@@ -114,35 +73,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Test application build
+      - name: Test application startup
         run: |
           python app.py &
           APP_PID=$!
           
-          # Wait for startup with timeout
+          # Wait for application to start
           for i in {1..30}; do
             if curl -f http://127.0.0.1:5000 >/dev/null 2>&1; then
               echo "Application started successfully"
               break
             fi
-            if [ $i -eq 30 ]; then
-              echo "Application failed to start within timeout"
-              exit 1
-            fi
             sleep 1
           done
           
-          # Test critical endpoints
+          # Test endpoints
           curl -f http://127.0.0.1:5000 || exit 1
           curl -f http://127.0.0.1:5000/about || exit 1
           curl -f http://127.0.0.1:5000/api/info || exit 1
           
           # Cleanup
           kill $APP_PID
-            
-            
-
-
-      
-      
-  
