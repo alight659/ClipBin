@@ -27,7 +27,10 @@ class TestCompleteWorkflow:
         assert response.status_code == 302  # Redirect after successful registration
 
         # Login with registered user
-        login_data = {"username": user_data["username"], "password": user_data["password"]}
+        login_data = {
+            "username": user_data["username"],
+            "password": user_data["password"],
+        }
         response = client.post("/login", data=login_data)
         assert response.status_code == 302  # Redirect after successful login
 
@@ -69,7 +72,11 @@ class TestCompleteWorkflow:
         """Test complete file upload workflow."""
         # Test with valid file
         file_content = b'def hello():\n    print("Hello, World!")'
-        file_data = {"clip_name": "Python File", "clip_delete": "day", "clip_file": (BytesIO(file_content), "hello.py")}
+        file_data = {
+            "clip_name": "Python File",
+            "clip_delete": "day",
+            "clip_file": (BytesIO(file_content), "hello.py"),
+        }
 
         response = client.post("/", data=file_data, content_type="multipart/form-data")
         assert response.status_code == 302
@@ -92,7 +99,11 @@ class TestUserAuthenticatedWorkflow:
     def test_authenticated_clip_management(self, authenticated_client):
         """Test clip management for authenticated users."""
         # Create a clip as authenticated user
-        clip_data = {"clip_name": "User Clip", "clip_text": "Content from authenticated user", "clip_delete": "week"}
+        clip_data = {
+            "clip_name": "User Clip",
+            "clip_text": "Content from authenticated user",
+            "clip_delete": "week",
+        }
 
         response = authenticated_client.post("/", data=clip_data)
         assert response.status_code == 302
@@ -109,7 +120,11 @@ class TestUserAuthenticatedWorkflow:
     def test_export_functionality(self, authenticated_client):
         """Test export functionality for authenticated users."""
         # Create some clips first
-        clip_data = {"clip_name": "Export Test Clip", "clip_text": "Content for export testing", "clip_delete": "month"}
+        clip_data = {
+            "clip_name": "Export Test Clip",
+            "clip_text": "Content for export testing",
+            "clip_delete": "month",
+        }
         authenticated_client.post("/", data=clip_data)
 
         # Test export endpoint
@@ -162,7 +177,11 @@ class TestSecurityWorkflow:
     def test_xss_prevention(self, client):
         """Test XSS prevention in clip content."""
         malicious_content = '<script>alert("XSS")</script>'
-        clip_data = {"clip_name": "XSS Test", "clip_text": malicious_content, "clip_delete": "day"}
+        clip_data = {
+            "clip_name": "XSS Test",
+            "clip_text": malicious_content,
+            "clip_delete": "day",
+        }
 
         response = client.post("/", data=clip_data)
         assert response.status_code == 302
@@ -170,7 +189,11 @@ class TestSecurityWorkflow:
     def test_sql_injection_prevention(self, client):
         """Test SQL injection prevention."""
         malicious_username = "admin'; DROP TABLE users; --"
-        user_data = {"username": malicious_username, "password": "password123", "email": "test@test.com"}
+        user_data = {
+            "username": malicious_username,
+            "password": "password123",
+            "email": "test@test.com",
+        }
 
         response = client.post("/register", data=user_data)
         # Should handle gracefully, not crash the application
@@ -226,7 +249,11 @@ class TestDataIntegrityWorkflow:
         Line 4: Unicode: 你好世界 🌍🚀
         """
 
-        clip_data = {"clip_name": "Content Preservation Test", "clip_text": special_content, "clip_delete": "day"}
+        clip_data = {
+            "clip_name": "Content Preservation Test",
+            "clip_text": special_content,
+            "clip_delete": "day",
+        }
 
         response = client.post("/", data=clip_data)
         assert response.status_code == 302

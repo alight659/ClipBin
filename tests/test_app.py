@@ -35,7 +35,15 @@ class TestAppConfiguration:
 
     def test_alias_list(self):
         """Test that alias list contains expected values."""
-        expected_aliases = ["clip", "login", "register", "about", "api", "dashboard", "settings"]
+        expected_aliases = [
+            "clip",
+            "login",
+            "register",
+            "about",
+            "api",
+            "dashboard",
+            "settings",
+        ]
         for expected_alias in expected_aliases:
             assert expected_alias in alias
 
@@ -353,13 +361,21 @@ class TestFileUpload:
         """Test uploading a file that's too large."""
         # Create a file larger than the limit (1.5MB)
         large_content = b"x" * (2 * 1024 * 1024)  # 2MB
-        data = {"clip_name": "Large File", "clip_delete": "day", "clip_file": (BytesIO(large_content), "large.txt")}
+        data = {
+            "clip_name": "Large File",
+            "clip_delete": "day",
+            "clip_file": (BytesIO(large_content), "large.txt"),
+        }
         response = client.post("/", data=data, content_type="multipart/form-data")
         assert response.status_code == 413  # Content Too Large
 
     def test_empty_file_upload(self, client):
         """Test uploading an empty file."""
-        data = {"clip_name": "Empty File", "clip_delete": "day", "clip_file": (BytesIO(b""), "empty.txt")}
+        data = {
+            "clip_name": "Empty File",
+            "clip_delete": "day",
+            "clip_file": (BytesIO(b""), "empty.txt"),
+        }
         response = client.post("/", data=data, content_type="multipart/form-data")
         assert response.status_code == 302
 

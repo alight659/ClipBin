@@ -42,7 +42,9 @@ class TestGenId:
     def test_gen_id_characters(self):
         """Test that gen_id only contains valid URL-safe characters."""
         result = gen_id()
-        valid_chars = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
+        valid_chars = set(
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+        )
         assert all(char in valid_chars for char in result)
 
 
@@ -124,7 +126,14 @@ class TestFileCheck:
 
     def test_file_check_invalid_extensions(self):
         """Test file_check with invalid file extensions."""
-        invalid_files = ["image.jpg", "video.mp4", "audio.mp3", "document.pdf", "archive.zip", "executable.exe"]
+        invalid_files = [
+            "image.jpg",
+            "video.mp4",
+            "audio.mp3",
+            "document.pdf",
+            "archive.zip",
+            "executable.exe",
+        ]
         for filename in invalid_files:
             assert file_check(filename) is False
 
@@ -321,7 +330,12 @@ class TestTextify:
         """Test textify with valid data."""
         data = [
             {"id": 1, "name": "Test", "text": "Test content", "time": "2023-01-01"},
-            {"id": 2, "name": "Another", "text": "Another content", "time": "2023-01-02"},
+            {
+                "id": 2,
+                "name": "Another",
+                "text": "Another content",
+                "time": "2023-01-02",
+            },
         ]
         result = textify(data)
         assert isinstance(result, str)
@@ -338,7 +352,9 @@ class TestTextify:
 
     def test_textify_single_item(self):
         """Test textify with single item."""
-        data = [{"id": 1, "name": "Single", "text": "Single content", "time": "2023-01-01"}]
+        data = [
+            {"id": 1, "name": "Single", "text": "Single content", "time": "2023-01-01"}
+        ]
         result = textify(data)
         assert "ID: 1" in result
         assert "Name: Single" in result

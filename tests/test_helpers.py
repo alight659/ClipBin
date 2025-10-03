@@ -137,7 +137,10 @@ class MockData:
     def get_test_file_contents():
         """Get various test file contents."""
         return {
-            "python": {"content": 'def hello():\n    print("Hello, World!")\n\nhello()', "filename": "hello.py"},
+            "python": {
+                "content": 'def hello():\n    print("Hello, World!")\n\nhello()',
+                "filename": "hello.py",
+            },
             "javascript": {
                 "content": 'function hello() {\n    console.log("Hello, World!");\n}\n\nhello();',
                 "filename": "hello.js",

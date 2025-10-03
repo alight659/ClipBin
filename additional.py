@@ -15,7 +15,11 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 # generates unique random url
 def gen_id():
-    genid = base64.urlsafe_b64encode(bytes.fromhex(uuid4().hex)).decode("utf-8").strip("=")[:7]
+    genid = (
+        base64.urlsafe_b64encode(bytes.fromhex(uuid4().hex))
+        .decode("utf-8")
+        .strip("=")[:7]
+    )
     return genid
 
 
@@ -71,7 +75,13 @@ def file_check(name):
 
 # Gen key from password
 def keygen(passwd: str, salt: bytes):
-    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000, backend=default_backend())
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=default_backend(),
+    )
     key = kdf.derive(passwd.encode())
     return key
 
