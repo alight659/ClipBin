@@ -55,10 +55,10 @@ dev:
 run: dev
 
 lint:
-	black --check --line-length=120 .
+	find . -name "*.py" -not -path "./.venv/*" -not -path "./venv/*" | xargs black --check --line-length=120
 
 format:
-	black --line-length=120 .
+	find . -name "*.py" -not -path "./.venv/*" -not -path "./venv/*" | xargs black --line-length=120
 	@echo "Applied code formatting with Black."
 
 
