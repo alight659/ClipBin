@@ -14,29 +14,26 @@ help: ## Show this help message
 	@echo "Available commands:"
 	@echo "  help            Show this help message"
 	@echo "  install         Install required dependencies"
-	@echo "  install-dev     Install development dependencies (including linting tools)"
-	@echo "  setup          Set up project directories and install dependencies"
-	@echo "  test           Run all tests"
-	@echo "  test-coverage  Run tests with coverage report"
-	@echo "  test-fast      Run tests with minimal output"
-	@echo "  dev            Run development server"
-	@echo "  run            Alias for dev command"
-	@echo "  lint           Check code style with flake8"
-	@echo "  lint-check     Check code formatting and linting (no changes applied)"
-	@echo "  lint-fix       Apply code formatting and linting fixes"
-	@echo "  flake8-fix     Attempt to automatically fix lint issues with flake8 (via autoflake and autopep8)"
-	@echo "  black-check    Check code formatting with Black (no changes applied)"
-	@echo "  black-format   Format code using Black"
-	@echo "  format         Alias for black-format"
-	@echo "  clean          Remove cache and build files"
-	@echo "  db-reset       Delete the database file"
+	@echo "  install-dev     Install development dependencies (including Black)"
+	@echo "  setup           Set up project directories and install dependencies"
+	@echo "  test            Run all tests"
+	@echo "  test-coverage   Run tests with coverage report"
+	@echo "  test-fast       Run tests with minimal output"
+	@echo "  dev             Run development server"
+	@echo "  run             Alias for dev command"
+	@echo "  lint            Check code formatting with Black"
+	@echo "  lint-check      Check code formatting with Black (no changes applied)"
+	@echo "  lint-fix        Format code using Black"
+	@echo "  format          Alias for lint-fix"
+	@echo "  clean           Remove cache and build files"
+	@echo "  db-reset        Delete the database file"
 
 install:
 	$(PIP) install -r requirements.txt
 
 install-dev:
 	$(PIP) install -r requirements.txt
-	$(PIP) install black flake8 autoflake autopep8
+	$(PIP) install black
 
 setup: install
 	mkdir -p htmlcov
@@ -60,32 +57,15 @@ dev:
 run: dev
 
 lint:
-	flake8 *.py --max-line-length=120 --ignore=E203,W503
-
-lint-check:
-	@echo "Running code formatting and linting checks..."
-	@echo "Checking with Black formatter..."
-	black --check --diff --line-length=120 *.py
-	@echo "Checking with Flake8 linter..."
-	flake8 *.py --max-line-length=120 --ignore=E203,W503
-	@echo "✅ All linting checks passed!"
-
-lint-fix: format black-format flake8-fix
-	@echo "Applied code formatting fixes."
-
-flake8-fix:
-	@echo "Attempting to automatically fix lint issues with autoflake and autopep8..."
-	autoflake --in-place --remove-unused-variables --remove-all-unused-imports *.py
-	autopep8 --in-place --aggressive --aggressive *.py
-	@echo "✅ flake8-fix completed (autoflake + autopep8 applied)."
-
-black-check:
 	black --check --diff --line-length=120 *.py
 
-black-format:
+lint-check: lint
+
+lint-fix:
 	black *.py --line-length=120
+	@echo "Applied code formatting fixes with Black."
 
-format: black-format
+format: lint-fix
 
 clean:
 	find . -type f -name "*.pyc" -delete
