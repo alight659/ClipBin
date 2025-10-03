@@ -3,4 +3,8 @@ cryptography
 flask-session
 werkzeug
 cachelib
-flask-restx
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-flask>=1.2.0
+pytest-mock>=3.10.0
+coverage>=7.0.0
