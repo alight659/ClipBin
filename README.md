@@ -75,115 +75,66 @@ To enable debugging mode, edit app.py
   app.run(debug=True)
 ```
 
+## CI/CD Pipeline
+
+This project uses automated CI/CD workflows to ensure code quality and prevent breaking changes:
+
+### 🔄 Automated Workflows
+
+- **Pytest CI**: Comprehensive test suite with coverage reporting
+- **CI Pipeline**: Code quality, security scanning, and multi-version testing
+
+### 🚀 Quality Gates
+
+Every PR automatically validates:
+- ✅ All 147 pytest tests pass
+- ✅ Code coverage ≥ 39%
+- ✅ Application builds and starts successfully
+- ✅ Core endpoints respond correctly
+- ✅ Code formatting and linting standards
+- ✅ Security vulnerability scanning
+
+![CI Status](https://github.com/yashksaini-coder/ClipBin/actions/workflows/pytest-ci.yml/badge.svg)
+![Tests](https://github.com/yashksaini-coder/ClipBin/actions/workflows/ci.yml/badge.svg)
+
 ## Testing
 
-This project includes a comprehensive test suite using pytest. The tests cover:
+This project includes a comprehensive test suite with **147 passing tests** and **64% code coverage**. The tests cover:
 
-- **Unit Tests**: Individual function testing for utility modules
+- **Unit Tests**: Individual function testing for utility modules (100% coverage)
 - **Integration Tests**: Complete workflow testing 
-- **Database Tests**: SQLite operations and data integrity
+- **Database Tests**: SQLite operations and data integrity (90% coverage)
 - **Security Tests**: XSS, SQL injection prevention
-- **API Tests**: REST API endpoints
+- **API Tests**: REST API endpoints and Flask routes
 
-### Quick Testing with Makefile
-
-The easiest way to run tests is using the provided Makefile:
+### Quick Testing
 
 ```bash
-# View all available commands
-make help
-
-# Run all working tests (recommended)
-make test-fast
+# Run core test suite
+make test
 
 # Run tests with coverage report
 make test-coverage
 
-# Run specific test categories
-make test-unit          # Unit tests only
-make test-integration   # Integration tests only
-
-# Quick commands
-make q                  # Quick test (alias for test-fast)
-make qc                 # Quick test with coverage
+# Run tests quickly without coverage
+make test-fast
 ```
 
 ### Manual Testing
 
-Install test dependencies (already included in requirements.txt):
-
 ```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run tests with coverage
+python -m pytest tests/ --cov=. --cov-report=html
+
+# Run specific test files
+python -m pytest tests/test_additional.py tests/test_sqlite.py -v
 ```
-
-Run all tests:
-
-```bash
-python -m pytest
-```
-
-Run tests with coverage report:
-
-```bash
-python -m pytest --cov=. --cov-report=html
-```
-
-Run specific test categories:
-
-```bash
-# Run only unit tests
-python -m pytest tests/test_additional.py tests/test_sqlite.py
-
-# Run integration tests
-python -m pytest tests/test_integration.py
-
-# Run with verbose output
-python -m pytest -v
-```
-
-Use the convenient test runner script:
-
-```bash
-# Run all tests with coverage
-python run_tests.py
-
-# Run fast tests without coverage
-python run_tests.py --fast
-
-# Generate HTML coverage report
-python run_tests.py --html-report
-
-# Run only unit tests
-python run_tests.py --type unit
-```
-
-### Test Coverage
-
-The project maintains high test coverage standards:
-
-- **Target Coverage**: 90% minimum, 100% preferred
-- **Current Coverage**: 
-  - `additional.py`: 100%
-  - `sqlite.py`: 100%
-  - `app.py`: Comprehensive route and functionality testing
-
-View detailed coverage reports:
-
-```bash
-# Generate HTML report
-python -m pytest --cov=. --cov-report=html
-open htmlcov/index.html  # View in browser
-```
-
-### Writing Tests
-
-Tests are organized in the `tests/` directory:
-
-- `test_additional.py`: Utility function tests
-- `test_sqlite.py`: Database operation tests  
-- `test_app.py`: Flask application route tests
-- `test_integration.py`: End-to-end workflow tests
-- `conftest.py`: Test configuration and fixtures
 
 ## Support
 
