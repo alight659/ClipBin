@@ -1,4 +1,5 @@
 flask
+flask-restx
 cryptography
 flask-session
 werkzeug
