@@ -1,5 +1,9 @@
 import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from sqlite import SQLite
 from flask import Flask, flash, render_template, request, redirect, session, Response, jsonify, abort
