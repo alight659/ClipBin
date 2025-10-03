@@ -143,14 +143,12 @@ def textify(data):
         if i > 0:
             buffer.write("\n\n")
         buffer.write(
-            f"ID: {
-                element['id']}\nName: {
-                element['name']}\nText: {
-                element['text']}\nTime: {
-                    element['time']}"
+            f"ID: {element['id']}\n"
+            f"Name: {element['name']}\n"
+            f"Text: {element['text']}\n"
+            f"Time: {element['time']}"
         )
     return buffer.getvalue()
-
 
 # Jsonify Export Data Function
 def jsonfy(data):
