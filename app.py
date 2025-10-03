@@ -6,8 +6,9 @@ from flask import Flask, flash, render_template, request, redirect, session, Res
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from additional import gen_id, login_required, stat, file_check, encrypt, decrypt, validate_alias, jsonfy, csvfy, textify
+from additional import gen_id, login_required, stat, file_check, encrypt, decrypt, validate_alias, jsonfy, csvfy, textify, totp_generator
 
+import pyotp
 app = Flask(__name__)
 
 # Connect to SQLITE3 Database
@@ -386,9 +387,12 @@ def login():
         data = db.execute("SELECT * FROM users WHERE username=?", uname)
         if len(data) != 0:
             if check_password_hash(data[0]["password"], passwd):
-                session["user_id"] = data[0]["id"]
-                session["uname"] = uname
-                return redirect("/")
+                ''' 
+                 Change user_id   to user_id_temp
+                '''
+                session["user_id_temp"] = data[0]["id"]
+                session["uname_temp"] = uname
+                return redirect("/login/totp")
             else:
                 flash("Incorrect Username or Password!")
                 return render_template("login.html", dat=loginData(), reg=True)
@@ -396,6 +400,76 @@ def login():
             flash("Account Not Found!")
 
     return render_template("login.html", dat=loginData(), reg=True)
+
+# TOTP Function
+@app.route("/login/totp", methods=["GET", "POST"])
+def totp():
+    if "user_id_temp" not in session or "uname_temp" not in session:
+        flash("Session expired. Please log in again.")
+        return redirect("/login")
+
+    user_id = session["user_id_temp"]
+    uname = session["uname_temp"]
+
+    totp_code , uri = totp_generator(user_id, uname)
+
+    if request.method == "POST":
+        user_code = request.form.get("totp")
+        if not totp_code:
+            flash("TOTP code cannot be empty!")
+            return render_template("totp.html", dat=loginData())
+
+        totp = pyotp.TOTP(totp_code)
+        if totp.verify(user_code):
+            session["user_id"] = user_id
+            session["uname"] = uname
+            session.pop("user_id_temp", None)
+            session.pop("uname_temp", None)
+            return redirect("/")
+        else:
+            flash("Invalid TOTP code!")
+            return render_template("totp.html", dat=loginData())
+
+    return render_template("totp.html", totp_secret=totp_code, dat=loginData())
+
+@app.route("/login/totp/setup", methods=["GET","POST"])
+def totp_setup():
+    if "user_id_temp" not in session or "uname_temp" not in session:
+        flash("Session expired. Please log in again.")
+        return redirect("/login")
+
+    user_id = session["user_id_temp"]
+    uname = session["uname_temp"]
+
+    totp_code, uri = totp_generator(user_id, uname)
+    totp = pyotp.TOTP(totp_code)
+    if request.method == "POST":
+        user_code = request.form.get("totp")
+        if not totp_code:
+            flash("TOTP code cannot be empty!")
+            return render_template("totp_setup.html",
+                                    totp_secret=totp_code,
+                                    uri=uri,
+                                    dat=loginData()
+                                )
+        if totp.verify(user_code):
+            session["user_id"] = user_id
+            session["uname"] = uname
+            session.pop("user_id_temp", None)
+            session.pop("uname_temp", None)
+            return redirect("/")
+        else:
+            flash("Invalid TOTP code!")
+            return render_template("totp_setup.html",
+                                    totp_secret=totp_code,
+                                    uri=uri,
+                                    dat=loginData())
+    return render_template(
+        "totp_setup.html",
+        totp_secret=totp_code,
+        uri=uri,
+        dat=loginData()
+    )
 
 
 # Logout Function
