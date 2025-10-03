@@ -24,6 +24,7 @@ help: ## Show this help message
 	@echo "  lint           Check code style with flake8"
 	@echo "  lint-check     Check code formatting and linting (no changes applied)"
 	@echo "  lint-fix       Apply code formatting and linting fixes"
+	@echo "  flake8-fix     Attempt to automatically fix lint issues with flake8 (via autoflake and autopep8)"
 	@echo "  black-check    Check code formatting with Black (no changes applied)"
 	@echo "  black-format   Format code using Black"
 	@echo "  format         Alias for black-format"
@@ -35,7 +36,7 @@ install:
 
 install-dev:
 	$(PIP) install -r requirements.txt
-	$(PIP) install black flake8
+	$(PIP) install black flake8 autoflake autopep8
 
 setup: install
 	mkdir -p htmlcov
@@ -69,8 +70,14 @@ lint-check:
 	flake8 *.py --max-line-length=120 --ignore=E203,W503
 	@echo "✅ All linting checks passed!"
 
-lint-fix: black-format
+lint-fix: black-format flake8-fix
 	@echo "Applied code formatting fixes."
+
+flake8-fix:
+	@echo "Attempting to automatically fix lint issues with autoflake and autopep8..."
+	autoflake --in-place --remove-unused-variables --remove-all-unused-imports *.py
+	autopep8 --in-place --aggressive --aggressive *.py
+	@echo "✅ flake8-fix completed (autoflake + autopep8 applied)."
 
 black-check:
 	black --check --diff --line-length=120 *.py
