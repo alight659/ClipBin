@@ -25,17 +25,20 @@
         <script src="https://kit.fontawesome.com/fe5f56cf4b.js" crossorigin="anonymous"></script>
 
         <!-- highlight.js -->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/default.min.css">
         <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/highlightjs-line-numbers.js/dist/highlightjs-line-numbers.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"/>
+        <link
+          id="hljs-theme"
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+        />
 
         <title>
             ClipBin: {% block title %}{% endblock %}
         </title>
     </head>
 
-    <body class="bg-gray-900">
+    <body class="bg-gray-900" data-theme="dark">
         <header class="text-gray-400 bg-gray-900 body-font">
             <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
               <a class="flex title-font font-medium items-center text-white mb-4 md:mb-0" href="/">
@@ -52,6 +55,15 @@
                 <a href="/api" class="mr-5 hover:text-white">API</a>
                 <a class="mr-5 hover:text-white" href="/about">About</a>
               </nav>
+              <button
+                id="theme-toggle"
+                type="button"
+                class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0 md:ml-4"
+                aria-label="Alternar tema"
+              >
+                <i id="theme-toggle-icon" class="fa-solid fa-moon mr-2" aria-hidden="true"></i>
+                <span id="theme-toggle-label">Modo Claro</span>
+              </button>
               {% if dat %}
                 {% if dat[0] == True %}
                   <div class="relative inline-block text-left group" tabindex="0">
@@ -119,21 +131,64 @@
         <script>hljs.initLineNumbersOnLoad({singleLine: true});</script>
         <script>
           document.addEventListener("DOMContentLoaded", () => {
-           const select = document.getElementById("clip_delete");
+            const body = document.body;
+            const themeToggle = document.getElementById("theme-toggle");
+            const themeToggleLabel = document.getElementById("theme-toggle-label");
+            const themeToggleIcon = document.getElementById("theme-toggle-icon");
+            const hljsTheme = document.getElementById("hljs-theme");
+            const highlightThemes = {
+              dark: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css",
+              light: "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css",
+            };
+
+            const setTheme = (theme) => {
+              body.setAttribute("data-theme", theme);
+              document.documentElement.style.colorScheme = theme;
+              localStorage.setItem("clipbin-theme", theme);
+              if (themeToggleLabel) {
+                themeToggleLabel.textContent = theme === "dark" ? "Modo Claro" : "Modo Escuro";
+              }
+              if (themeToggle) {
+                themeToggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+                themeToggle.setAttribute("title", theme === "dark" ? "Alternar para modo claro" : "Alternar para modo escuro");
+              }
+              if (themeToggleIcon) {
+                themeToggleIcon.classList.remove("fa-moon", "fa-sun");
+                themeToggleIcon.classList.add(theme === "dark" ? "fa-moon" : "fa-sun");
+              }
+              if (hljsTheme) {
+                hljsTheme.setAttribute("href", highlightThemes[theme]);
+              }
+            };
+
+            const storedTheme = localStorage.getItem("clipbin-theme");
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setTheme(storedTheme || (prefersDark ? "dark" : "light"));
+
+            if (themeToggle) {
+              themeToggle.addEventListener("click", () => {
+                const nextTheme = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+                setTheme(nextTheme);
+              });
+            }
+
+            const select = document.getElementById("clip_delete");
             const label = document.getElementById("clip_custom_delete_label");
             const input = document.getElementById("clip_custom_delete");
 
-            select.addEventListener("change", () => {
-              if (select.value === "custom") {
-                label.style.display = "block";
-                input.style.display = "block";
-                input.setAttribute("required", "");
-              } else {
-                input.removeAttribute("required");
-                label.style.display = "none";
-                input.style.display = "none";
-              }
-            });
+            if (select && label && input) {
+              select.addEventListener("change", () => {
+                if (select.value === "custom") {
+                  label.style.display = "block";
+                  input.style.display = "block";
+                  input.setAttribute("required", "");
+                } else {
+                  input.removeAttribute("required");
+                  label.style.display = "none";
+                  input.style.display = "none";
+                }
+              });
+            }
           });
         </script>
 
