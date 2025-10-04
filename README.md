@@ -339,4 +339,4 @@ ClipBin is open source software licensed under the [MIT License](./LICENSE).
 
 [⭐ Star us on GitHub](https://github.com/alight659/ClipBin) • [🐦 Follow updates](#) • [📚 Read the docs](#)
 
-</div>
+ClipBin is released under the [MIT License](./LICENSE).
