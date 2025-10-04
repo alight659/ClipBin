@@ -3,7 +3,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
     transition: background-color 0.3s ease, color 0.3s ease;
-    font-family: "Raleway", "Segoe UI", Tahoma, Geneva, sans-serif;
     line-height: 1.6;
     letter-spacing: 0.01em;
 }
@@ -163,7 +162,7 @@ body[data-theme="light"] pre {
     border-radius: 0.75rem;
     box-shadow: 0 12px 32px rgba(15, 23, 42, 0.45);
     color: #f8fafc;
-    padding: 1.25rem 1.5rem;
+    padding: 1.1rem 1.1rem;
     transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -172,6 +171,7 @@ body[data-theme="light"] pre {
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.015em;
+    text-align: center;
 }
 
 .flash-message__text + .flash-message__text {
