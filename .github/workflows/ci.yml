@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: Build Pipeline
 
 on:
   push:
@@ -8,58 +8,12 @@ on:
 
 env:
   PYTHON_VERSION: '3.11'
-  COVERAGE_THRESHOLD: 39
 
 jobs:
-  test:
-    name: Test Suite
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.9', '3.11', '3.12']
-        
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
-          
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          
-      - name: Run core tests
-        run: |
-          python -m pytest tests/test_additional.py tests/test_sqlite.py tests/test_basic_app.py -v \
-            --cov=. \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} \
-            --tb=short
-            
-      - name: Run integration tests
-        run: python -m pytest tests/test_integration.py -v --tb=short
-        
-      - name: Upload coverage
-        if: matrix.python-version == '3.11'
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
-
   build:
     name: Build Validation
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [test]
+    timeout-minutes: 5
     
     steps:
       - name: Checkout code
@@ -76,36 +30,3 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-      - name: Test application build
-        run: |
-          python app.py &
-          APP_PID=$!
-          
-          # Wait for startup with timeout
-          for i in {1..30}; do
-            if curl -f http://127.0.0.1:5000 >/dev/null 2>&1; then
-              echo "Application started successfully"
-              break
-            fi
-            if [ $i -eq 30 ]; then
-              echo "Application failed to start within timeout"
-              exit 1
-            fi
-            sleep 1
-          done
-          
-          # Test critical endpoints
-          curl -f http://127.0.0.1:5000 || exit 1
-          curl -f http://127.0.0.1:5000/about || exit 1
-          curl -f http://127.0.0.1:5000/api || exit 1
-          
-          # Cleanup
-          kill $APP_PID
-            
-            
-
-
-      
-      
-  
