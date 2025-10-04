@@ -581,16 +581,16 @@ def totp():
         if not user_code:
             flash("TOTP code cannot be empty!")
             return render_template("totp.html", dat=loginData())
-        
+
         # FIX: Extract the encrypted secret from the database result
         data = db.execute("SELECT uri FROM twoFA WHERE user_id =?", user_id)
         if not data:
             flash("2FA data not found!")
             return redirect("/login")
-            
+
         encrypted_secret = data[0]["uri"]  # This should be the actual bytes
         totp_secret = totpCode(encrypted_secret=encrypted_secret, user_id=user_id, username=uname)
-        
+
         # Verify the TOTP code
         totp = pyotp.TOTP(totp_secret)
         if totp.verify(user_code):
