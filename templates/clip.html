@@ -49,9 +49,16 @@
             </div>
             <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
                 <div class="relative sm:mb-0 flex-grow w-full">
-                    {% if edit and dat[0] == True %}
+
+                    {% if edit and is_owner %} <!-- appending for is_owner -->
+
                     <form action="/update/{{ url_id }}" method="post">
                         <textarea name="clip_text" id="clip_text" class="w-full mt-4 bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap" rows="4" oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } ">{{ text }}</textarea>
+                        <!-- new edit -->
+                         {% if passwd %}
+                                <label for="clip_passwd" class="leading-7 text-sm text-gray-400 mt-2 block">Enter Password to Confirm Edit</label>
+                                <input type="password" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" required>
+                            {% endif %}
                         <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
                     </form>
                     {% else %}

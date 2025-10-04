@@ -193,6 +193,7 @@ def clip(clip_url_id):
     data = db.execute("SELECT clip_name, clip_text, clip_time, clip_pwd, is_editable, update_time, delete_time FROM clips WHERE clip_url=?", clip_url_id)
     passwd = ""
     is_editable = False
+    is_owner = False
     if len(data) != 0:
         text = data[0]["clip_text"]
         name = data[0]["clip_name"]
@@ -220,6 +221,13 @@ def clip(clip_url_id):
 
         if editable == 1:
             is_editable = True
+            # Check if the logged-in user is the owner of this clip
+            if loginData()[0]: # Check if a user is logged in
+                user_id = session.get("user_id")
+                # Query to see if a link exists between this user and this clip
+                ownership_check = db.execute("SELECT clipRef.id FROM clipRef JOIN clips ON clips.id = clipRef.clipid WHERE clipRef.userid = ? AND clips.clip_url = ?", user_id, clip_url_id)
+                if ownership_check:
+                    is_owner = True
 
         try:
             ext = name.rsplit('.')[1]
@@ -233,12 +241,12 @@ def clip(clip_url_id):
             
             if check_password_hash(passwd, clip_passwd):
                 text = decrypt(text, clip_passwd).decode()
-                return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, time_left=time_left, ext=ext, dat=loginData())
+                return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, time_left=time_left, ext=ext, dat=loginData(), is_owner=is_owner) # added is_owner=is_owner
             else:
                 return render_template("clip.html", passwd=True, error="Incorrect Password!", url_id=clip_url_id, dat=loginData())
         else:
             text = str(text)
-            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, time_left=time_left, ext=ext, dat=loginData())
+            return render_template("clip.html", url_id=clip_url_id, name=name, text=text, time=time, edit=is_editable, update=updated, time_left=time_left, ext=ext, dat=loginData(), is_owner=is_owner) # added is_owner=is_owner
 
     else:
         return render_template("error.html", code="That was not found on this server.", dat=loginData()), 404
@@ -304,23 +312,40 @@ def about():
 def test_405():
     return "Test route for 405 error", 200
 
-
-# Update Function
-@app.route("/update/<url_id>", methods=["GET","POST"])
+@app.route("/update/<url_id>", methods=["POST"])
 @login_required
 def update(url_id):
-    if loginData()[0]:
-        data = db.execute("SELECT clips.id, clips.is_editable FROM clipRef JOIN clips ON clips.id = clipRef.clipid WHERE clipRef.userid=? AND clips.clip_URL=?", session["user_id"], url_id)
-        if len(data) != 0 and data[0]["is_editable"] == 1:
-            if request.method == "POST":
-                text = str(request.form.get("clip_text")).strip()
-                cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
-                db.execute("UPDATE clips SET clip_text=?, update_time=? WHERE id=?", text, cur_time, data[0]["id"])
-                return redirect(f"/{url_id}")
-            return render_template("error.html", code="Cannot Edit this Clip")
-        return render_template("error.html", code="You cannot edit this clip!")
-    return redirect("/login")
+    # Fetch the clip's ID, edit status, and password hash for the logged-in user
+    data = db.execute("SELECT c.id, c.is_editable, c.clip_pwd FROM clipRef cr JOIN clips c ON c.id = cr.clipid WHERE cr.userid=? AND c.clip_URL=?", session["user_id"], url_id)
 
+    # Ensure the user owns this clip and it's marked as editable
+    if not data or not data[0]["is_editable"]:
+        return render_template("error.html", code="You cannot edit this clip!")
+
+    clip_id = data[0]["id"]
+    clip_pwd_hash = data[0]["clip_pwd"]
+    new_text = str(request.form.get("clip_text")).strip()
+    cur_time = datetime.now().strftime('%d-%m-%Y @ %H:%M:%S')
+
+    # If the clip has a password, we must re-encrypt the new content
+    if clip_pwd_hash:
+        submitted_passwd = request.form.get("clip_passwd")
+        if not submitted_passwd:
+            flash("Password is required to update an encrypted clip.")
+            return redirect(f"/{url_id}")
+
+        if check_password_hash(clip_pwd_hash, submitted_passwd):
+            # Password is correct, re-encrypt the new text before saving
+            updated_text = encrypt(new_text.encode(), submitted_passwd)
+            db.execute("UPDATE clips SET clip_text=?, update_time=? WHERE id=?", updated_text, cur_time, clip_id)
+        else:
+            flash("Incorrect password. Update failed.")
+            return redirect(f"/{url_id}")
+    else:
+        # If clip is not protected, just save the new plaintext
+        db.execute("UPDATE clips SET clip_text=?, update_time=? WHERE id=?", new_text, cur_time, clip_id)
+
+    return redirect(f"/{url_id}")
 
 # Delete Function
 @app.route("/delete/<url_id>")
