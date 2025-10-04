@@ -94,13 +94,17 @@
               {% endif %}
             </div>
         </header>
-        {% if get_flashed_messages() %}
-          <div class="container mx-auto">
-              <div class="flex flex-col text-center w-full">
-                  <p class="mx-auto leading-relaxed text-base text-white">{{ get_flashed_messages() | join(" ") }}</p>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="container mx-auto px-4">
+              <div class="flash-message" role="status" aria-live="polite">
+                {% for message in messages %}
+                  <p class="flash-message__text">{{ message }}</p>
+                {% endfor %}
               </div>
-          </div>
-        {% endif %}
+            </div>
+          {% endif %}
+        {% endwith %}
 
         {% block body %}
         
