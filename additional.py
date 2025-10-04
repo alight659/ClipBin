@@ -162,11 +162,13 @@ def jsonfy(data):
 
     return json_bytes
 
+
 def totp_generator(user_id: str, username: str):
     totp_secret = pyotp.random_base32()
     encrypted_secret = encrypt(totp_secret.encode("utf-8"), str(user_id) + username)
     uri = pyotp.TOTP(totp_secret).provisioning_uri(name=username, issuer_name="Clipbin")
     return encrypted_secret, uri
+
 
 def totpCode(encrypted_secret: bytes, user_id: str, username: str):
     return decrypt(encrypted_secret, str(user_id) + username).decode("utf-8")
