@@ -54,10 +54,12 @@
                         <textarea name="clip_text" id="clip_text" class="w-full mt-4 bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap" rows="4" oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } ">{{ text }}</textarea>
                         <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
                     </form>
+                    <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(document.getElementById('clip_text').value); alert('Text Copied!');">Copy Text</button>
                     {% else %}
                         <pre>
                         <code name="clip_text" class="w-full bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap">{{ text }}</code>
                         </pre>
+                        <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(document.querySelector('code[name=clip_text]').innerText); alert('Text Copied!');">Copy Text</button>
                     {% endif %}
                     </pre>
                 </div>
