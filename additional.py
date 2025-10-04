@@ -3,6 +3,10 @@ import os
 import csv
 import json
 import base64
+import time
+import pyotp
+import hashlib
+import hmac
 from uuid import uuid4
 from functools import wraps
 from io import StringIO, BytesIO
@@ -11,6 +15,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
 # generates unique random url
@@ -156,3 +161,12 @@ def jsonfy(data):
     json_bytes.seek(0)
 
     return json_bytes
+
+def totp_generator(user_id: str, username: str):
+    totp_secret = pyotp.random_base32()
+    encrypted_secret = encrypt(totp_secret.encode("utf-8"), str(user_id) + username)
+    uri = pyotp.TOTP(totp_secret).provisioning_uri(name=username, issuer_name="Clipbin")
+    return encrypted_secret, uri
+
+def totpCode(encrypted_secret: bytes, user_id: str, username: str):
+    return decrypt(encrypted_secret, str(user_id) + username).decode("utf-8")
