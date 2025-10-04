@@ -81,13 +81,35 @@ def loginData():
     return [login, name]
 
 
+@app.context_processor
+def inject_navigation_helpers():
+    """Expose helpers for determining the active navigation link."""
+
+    def nav_is_active(*paths: str) -> bool:
+        """Return ``True`` when the current request path matches any of the given paths."""
+
+        current_path = (request.path.rstrip(
+            "/") or "/") if request.path else "/"
+        for raw_path in paths:
+            normalized = (raw_path or "/").rstrip("/") or "/"
+            if normalized == "/":
+                if current_path == "/":
+                    return True
+            elif current_path == normalized or current_path.startswith(f"{normalized}/"):
+                return True
+        return False
+
+    return {"nav_is_active": nav_is_active}
+
+
 # Error Handling 404
 @app.errorhandler(404)
 def error_404(code):
     return render_template("error.html", code="404 Not Found!"), 404
 
-
 # Error Handling 405
+
+
 @app.errorhandler(405)
 def error_405(code):
     return render_template("error.html", code="405 Method Not Allowed!"), 405
@@ -135,9 +157,11 @@ def index():
                 flash("Alias cannot be one of the Primary Routes.")
                 return redirect("/")
             if not validate_alias(custom_alias):
-                flash("Alias must be 4-12 characters long and contain only letters, numbers, hyphens and underscores!")
+                flash(
+                    "Alias must be 4-12 characters long and contain only letters, numbers, hyphens and underscores!")
                 return redirect("/")
-            check = db.execute("SELECT clip_url from clips WHERE clip_url=?", custom_alias)
+            check = db.execute(
+                "SELECT clip_url from clips WHERE clip_url=?", custom_alias)
             if len(check) != 0:
                 flash("This alias is already taken!")
                 return redirect("/")
@@ -176,7 +200,8 @@ def index():
         if unlist:
             is_unlisted = 1
 
-        check = db.execute("SELECT clip_url from clips WHERE clip_url=?", post_id)
+        check = db.execute(
+            "SELECT clip_url from clips WHERE clip_url=?", post_id)
         if len(check) != 0:
             if not custom_alias:
                 post_id = gen_id()
@@ -190,12 +215,14 @@ def index():
             elif remove_time == "custom" and custom_delete:
                 try:
                     hours = int(custom_delete)
-                    remove_time = (datetime.now() + timedelta(hours=hours)).strftime("%d-%m-%Y %H:%M:%S")
+                    remove_time = (
+                        datetime.now() + timedelta(hours=hours)).strftime("%d-%m-%Y %H:%M:%S")
                 except ValueError:
                     flash("Invalid custom delete time.")
                     return redirect("/")
             else:
-                remove_time = (time[remove_time] + datetime.now()).strftime("%d-%m-%Y %H:%M:%S")
+                remove_time = (time[remove_time] + datetime.now()
+                               ).strftime("%d-%m-%Y %H:%M:%S")
 
         cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
         if not passwd:
@@ -225,9 +252,12 @@ def index():
             )
 
         if loginData()[0]:
-            uid = db.execute("SELECT id FROM users WHERE username=?", loginData()[1])[0]["id"]
-            cid = db.execute("SELECT id FROM clips WHERE clip_url=?", str(post_id))[0]["id"]
-            db.execute("INSERT INTO clipRef (userid, clipid) VALUES (?, ?)", int(uid), int(cid))
+            uid = db.execute("SELECT id FROM users WHERE username=?", loginData()[1])[
+                0]["id"]
+            cid = db.execute("SELECT id FROM clips WHERE clip_url=?", str(post_id))[
+                0]["id"]
+            db.execute(
+                "INSERT INTO clipRef (userid, clipid) VALUES (?, ?)", int(uid), int(cid))
 
         return redirect(f"/{post_id}")
     else:
@@ -259,10 +289,12 @@ def clip(clip_url_id):
             if datetime.strptime(remove_time, "%d-%m-%Y %H:%M:%S") < datetime.now():
                 db.execute("DELETE FROM clips WHERE clip_url=?", clip_url_id)
                 return (
-                    render_template("error.html", code="This Clip was Expired.", dat=loginData()),
+                    render_template(
+                        "error.html", code="This Clip was Expired.", dat=loginData()),
                     404,
                 )
-            time_left = datetime.strptime(remove_time, "%d-%m-%Y %H:%M:%S") - datetime.now()
+            time_left = datetime.strptime(
+                remove_time, "%d-%m-%Y %H:%M:%S") - datetime.now()
 
             if time_left.days < 1:
                 seconds = time_left.seconds
@@ -324,7 +356,8 @@ def clip(clip_url_id):
 
     else:
         return (
-            render_template("error.html", code="That was not found on this server.", dat=loginData()),
+            render_template(
+                "error.html", code="That was not found on this server.", dat=loginData()),
             404,
         )
 
@@ -368,7 +401,8 @@ def clipraw(clip_url_id):
 
     else:
         return (
-            Response("That was not found on this server.\n", mimetype="text/plain"),
+            Response("That was not found on this server.\n",
+                     mimetype="text/plain"),
             404,
         )
 
@@ -451,7 +485,8 @@ def delete(url_id):
 # Download Function -> File
 @app.route("/download/<url_id>", methods=["GET", "POST"])
 def download(url_id):
-    data = db.execute("SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id)
+    data = db.execute(
+        "SELECT clip_text, clip_name, clip_pwd FROM clips WHERE clip_url=? ", url_id)
     # HOT FIX
     if len(data) == 0:
         return render_template("error.html", code="404 Not Found!"), 404
@@ -475,7 +510,8 @@ def download(url_id):
                 headers={"Content-disposition": f"attachment; filename={name}"},
             )
             # FIX: Decrypt the content before sending it in the response.
-            decrypted_text = decrypt(data[0]["clip_text"], clip_passwd).decode("utf-8")
+            decrypted_text = decrypt(
+                data[0]["clip_text"], clip_passwd).decode("utf-8")
             return Response(
                 decrypted_text,
                 mimetype="text/plain",
@@ -541,7 +577,8 @@ def register():
         uname = request.form.get("uname") or request.form.get("username")
         # Handle both 'passwd' and 'password' field names for compatibility
         passwd = request.form.get("passwd") or request.form.get("password")
-        conf = request.form.get("passwdconf") or request.form.get("password_confirm")
+        conf = request.form.get(
+            "passwdconf") or request.form.get("password_confirm")
 
         # If no confirmation provided, use password (for API/test
         # compatibility)
@@ -663,13 +700,15 @@ def exportdata():
                 return Response(
                     csvfy(data),
                     mimetype="text/csv",
-                    headers={"Content-disposition": f'attachment; filename={session["uname"]}_export.csv'},
+                    headers={
+                        "Content-disposition": f'attachment; filename={session["uname"]}_export.csv'},
                 )
             elif ext == "text":
                 return Response(
                     textify(data),
                     mimetype="text/plain",
-                    headers={"Content-disposition": f'attachment; filename={session["uname"]}_export.txt'},
+                    headers={
+                        "Content-disposition": f'attachment; filename={session["uname"]}_export.txt'},
                 )
         return render_template("error.html", code="Nothing to Export!")
     return render_template("error.html", code="Nothing to Export!")
@@ -729,7 +768,8 @@ def get_data():
         for i in data:
             if i["delete_time"]:
                 if datetime.strptime(i["delete_time"], "%d-%m-%Y %H:%M:%S") < datetime.now():
-                    db.execute("DELETE FROM clips WHERE clip_url=?", i["clip_url"])
+                    db.execute("DELETE FROM clips WHERE clip_url=?",
+                               i["clip_url"])
                     data.remove(i)
 
     data_list = []
@@ -778,7 +818,8 @@ def post_data():
 
     if remove_after:
         if remove_after in time.keys():
-            remove_after = (time[remove_after] + datetime.now()).strftime("%d-%m-%Y %H:%M:%S")
+            remove_after = (time[remove_after] +
+                            datetime.now()).strftime("%d-%m-%Y %H:%M:%S")
         else:
             remove_after = None
     else:
