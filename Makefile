@@ -14,19 +14,24 @@ help: ## Show this help message
 	@echo "Available commands:"
 	@echo "  help            Show this help message"
 	@echo "  install         Install required dependencies"
-	@echo "  setup          Set up project directories and install dependencies"
-	@echo "  test           Run all tests"
-	@echo "  test-coverage  Run tests with coverage report"
-	@echo "  test-fast      Run tests with minimal output"
-	@echo "  dev            Run development server"
-	@echo "  run            Alias for dev command"
-	@echo "  lint           Check code style with flake8"
-	@echo "  format         Format code using black"
-	@echo "  clean          Remove cache and build files"
-	@echo "  db-reset       Delete the database file"
+	@echo "  install-dev     Install development dependencies (including Black)"
+	@echo "  setup           Set up project directories and install dependencies"
+	@echo "  test            Run all tests"
+	@echo "  test-coverage   Run tests with coverage report"
+	@echo "  test-fast       Run tests with minimal output"
+	@echo "  dev             Run development server"
+	@echo "  run             Alias for dev command"
+	@echo "  lint            Check code formatting with Black"
+	@echo "  format          Format code using Black"
+	@echo "  clean           Remove cache and build files"
+	@echo "  db-reset        Delete the database file"
 
 install:
 	$(PIP) install -r requirements.txt
+
+install-dev:
+	$(PIP) install -r requirements.txt
+	$(PIP) install black
 
 setup: install
 	mkdir -p htmlcov
@@ -50,10 +55,12 @@ dev:
 run: dev
 
 lint:
-	flake8 *.py --max-line-length=120
+	find . -name "*.py" -not -path "./.venv/*" -not -path "./venv/*" | xargs black --check --line-length=120
 
 format:
-	black *.py --line-length=120
+	find . -name "*.py" -not -path "./.venv/*" -not -path "./venv/*" | xargs black --line-length=120
+	@echo "Applied code formatting with Black."
+
 
 clean:
 	find . -type f -name "*.pyc" -delete
