@@ -172,7 +172,6 @@ def index():
             if not name:
                 name = secure_filename(file.filename)
 
-
         if editable:
             is_editable = 1
 
