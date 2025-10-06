@@ -163,12 +163,15 @@ def index():
 
         if file and file.filename:
             if file_check(file.filename):
-                text = str(file.read().decode("utf-8"))
+                content = file.read().decode("utf-8")
+                preview = content[:1000]  # limit preview to 1000 chars
+                text = content
             else:
                 flash("File Not Allowed!")
                 return redirect("/")
             if not name:
                 name = secure_filename(file.filename)
+
 
         if editable:
             is_editable = 1
