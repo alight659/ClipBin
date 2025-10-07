@@ -47,11 +47,11 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = os.environ.get("SECRET_KEY")
 
 # --- GITHUB OAUTH CONFIGURATION ---
-app.config['GITHUB_CLIENT_ID'] = os.environ.get('GITHUB_CLIENT_ID')
-app.config['GITHUB_CLIENT_SECRET'] = os.environ.get('GITHUB_CLIENT_SECRET')
-GITHUB_AUTHORIZE_URL = 'https://github.com/login/oauth/authorize'
-GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token'
-GITHUB_USER_API = 'https://api.github.com/user'
+app.config["GITHUB_CLIENT_ID"] = os.environ.get("GITHUB_CLIENT_ID")
+app.config["GITHUB_CLIENT_SECRET"] = os.environ.get("GITHUB_CLIENT_SECRET")
+GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
+GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
+GITHUB_USER_API = "https://api.github.com/user"
 # --- END GITHUB CONFIGURATION ---
 
 time = {
@@ -498,63 +498,58 @@ def download(url_id):
 
 # --- GITHUB OAUTH ROUTES ---
 
+
 @app.route("/login/github")
 def github_login():
-    client_id = app.config.get('GITHUB_CLIENT_ID')
+    client_id = app.config.get("GITHUB_CLIENT_ID")
     if not client_id:
         flash("GitHub OAuth is not configured.")
         return redirect("/login")
-        
-    scope = 'user:email' 
-    redirect_uri = url_for('github_callback', _external=True) 
-    
+
+    scope = "user:email"
+    redirect_uri = url_for("github_callback", _external=True)
+
     github_auth_url = (
-        f"{GITHUB_AUTHORIZE_URL}?"
-        f"client_id={client_id}&"
-        f"redirect_uri={redirect_uri}&"
-        f"scope={scope}"
+        f"{GITHUB_AUTHORIZE_URL}?" f"client_id={client_id}&" f"redirect_uri={redirect_uri}&" f"scope={scope}"
     )
     return redirect(github_auth_url)
 
 
 @app.route("/callback/github")
 def github_callback():
-    code = request.args.get('code')
+    code = request.args.get("code")
     if not code:
         flash("GitHub login failed or was cancelled.")
         return redirect("/login")
 
-    client_id = app.config['GITHUB_CLIENT_ID']
-    client_secret = app.config['GITHUB_CLIENT_SECRET']
+    client_id = app.config["GITHUB_CLIENT_ID"]
+    client_secret = app.config["GITHUB_CLIENT_SECRET"]
 
     # 1. Exchange code for an access token
     token_data = {
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'code': code,
-        'redirect_uri': url_for('github_callback', _external=True)
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "code": code,
+        "redirect_uri": url_for("github_callback", _external=True),
     }
-    
-    headers = {'Accept': 'application/json'}
+
+    headers = {"Accept": "application/json"}
     try:
         token_response = requests.post(GITHUB_TOKEN_URL, data=token_data, headers=headers)
-        token_response.raise_for_status() 
+        token_response.raise_for_status()
         token_json = token_response.json()
     except requests.RequestException as e:
         flash(f"Error fetching GitHub token.")
         return redirect("/login")
 
-    if 'access_token' not in token_json:
+    if "access_token" not in token_json:
         flash("Could not retrieve access token from GitHub.")
         return redirect("/login")
-        
-    access_token = token_json['access_token']
+
+    access_token = token_json["access_token"]
 
     # 2. Fetch user details
-    user_headers = {
-        'Authorization': f'token {access_token}',
-        'Accept': 'application/vnd.github.v3+json'
-    }
+    user_headers = {"Authorization": f"token {access_token}", "Accept": "application/vnd.github.v3+json"}
     try:
         user_response = requests.get(GITHUB_USER_API, headers=user_headers)
         user_response.raise_for_status()
@@ -563,42 +558,45 @@ def github_callback():
         flash(f"Error fetching GitHub user data.")
         return redirect("/login")
 
-    github_id = str(user_data.get('id'))
-    username = user_data.get('login') 
-    primary_email = user_data.get('email')
+    github_id = str(user_data.get("id"))
+    username = user_data.get("login")
+    primary_email = user_data.get("email")
 
     # If the main user API didn't return an email, try the specific /emails endpoint
     if not primary_email:
         try:
-            email_response = requests.get(GITHUB_USER_API + '/emails', headers=user_headers)
+            email_response = requests.get(GITHUB_USER_API + "/emails", headers=user_headers)
             email_data = email_response.json()
-            primary_email = next((item['email'] for item in email_data if item.get('primary') and item.get('verified')), None)
+            primary_email = next(
+                (item["email"] for item in email_data if item.get("primary") and item.get("verified")), None
+            )
         except:
-             pass 
+            pass
 
     # 3. LOGIN / SIGNUP LOGIC
     user = db.execute("SELECT * FROM users WHERE github_id = ?", github_id)
 
     if len(user) == 0:
-        random_password_hash = generate_password_hash(gen_id(), method="scrypt") 
+        random_password_hash = generate_password_hash(gen_id(), method="scrypt")
 
         db.execute(
             "INSERT INTO users (username, password, github_id, email) VALUES (?, ?, ?, ?)",
             username,
             random_password_hash,
             github_id,
-            primary_email
+            primary_email,
         )
         user = db.execute("SELECT * FROM users WHERE github_id = ?", github_id)
-    
+
     if len(user) != 0:
         session["user_id"] = user[0]["id"]
         session["uname"] = user[0]["username"]
         flash(f"Successfully logged in with GitHub as {session['uname']}!")
         return redirect("/")
-    
+
     flash("An unexpected authentication error occurred.")
     return redirect("/login")
+
 
 # --- END GITHUB OAUTH ROUTES ---
 
@@ -620,9 +618,9 @@ def login():
         if not passwd:
             flash("Password Cannot be Empty!")
             return render_template("login.html", dat=loginData(), reg=True)
-        
+
         data = db.execute("SELECT * FROM users WHERE username=?", uname)
-        
+
         if len(data) != 0:
             user = data[0]
             if user.get("password") and check_password_hash(user["password"], passwd):
@@ -630,8 +628,8 @@ def login():
                 session["uname"] = uname
                 return redirect("/")
             elif user.get("github_id") and not user.get("password"):
-                 flash("Account was registered via GitHub. Please use the GitHub login button.")
-                 return render_template("login.html", dat=loginData(), reg=True)
+                flash("Account was registered via GitHub. Please use the GitHub login button.")
+                return render_template("login.html", dat=loginData(), reg=True)
             else:
                 flash("Incorrect Username or Password!")
                 return render_template("login.html", dat=loginData(), reg=True)
