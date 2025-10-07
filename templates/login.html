@@ -1,5 +1,8 @@
-{% extends "layout.html" %} {% block title %} Login {% endblock %} {% block body
-%}
+{% extends "layout.html" %} {% block title %} Login {% endblock %} 
+
+{% block body %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <section class="text-gray-400 bg-gray-900 body-font">
   <div class="container px-5 py-24 mx-auto flex flex-wrap items-center">
     <div class="lg:w-3/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
@@ -14,6 +17,14 @@
       {% if success %}
       <p class="text-s mt-3">Successful</p>
       {% endif %}
+
+      <a href="{{ url_for('github_login') }}" 
+        class="text-white bg-gray-700 border-0 py-2 px-8 focus:outline-none hover:bg-gray-600 rounded text-lg w-full mb-4 flex items-center justify-center"
+      >
+        <i class="fab fa-github me-2 mr-2"></i> Log in with GitHub
+      </a>
+      <hr class="border-gray-600 mb-4">
+
       <form action="/login" method="post" autocomplete="on">
         <div class="relative mb-4">
           <label for="username" class="leading-7 text-sm text-gray-400"
