@@ -22,8 +22,10 @@ Share Code or Text Instantly
                   <p class="leading-7 text-sm text-gray-400"> --OR-- </p>
                 </div>
                 <label for="clip_file" class="leading-7 text-sm text-gray-400">Upload File?</label>
-                <div class="text-white bg-gray-800 bg-opacity-40 border-0 py-2 px-2 mb-1">
-                  <input type="file" name="clip_file" id="clip_file" class="flex text-white py-2 px-2 mb-2 focus:outline-none hover:bg-gray-800 hover:bg-opacity-80 rounded" accept=".txt,.md,.csv,.json,.xml,.html,.css,.js,.py,.java,.c,.cpp,.cs,.h,.php,.rb,.go,.sh,.bat,.pl,.r,.kt,.swift">
+                <div class="flex items-center justify-center text-white bg-gray-800 bg-opacity-40 border-0 py-2 px-2 mb-1">
+                  <label for="clip_file" class="clip_file_label">Escolher Arquivo</label>
+                  <input type="file" name="clip_file" id="clip_file" class="input-file flex text-white py-2 px-2 mb-2 focus:outline-none hover:bg-gray-800 hover:bg-opacity-80 rounded" accept=".txt,.md,.csv,.json,.xml,.html,.css,.js,.py,.java,.c,.cpp,.cs,.h,.php,.rb,.go,.sh,.bat,.pl,.r,.kt,.swift">
+                
                 </div>
 
                 <div class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 roundedtext-lg">
@@ -63,7 +65,7 @@ Share Code or Text Instantly
                     style="display:none;"
                   >
                     
-                    <div class="flex text-center mt-1">
+                    <div class="check-box-container flex text-center mt-1">
                       <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? (Login)</label>
                       <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="clip_edit" id="clip_edit" class="sr-only peer">
