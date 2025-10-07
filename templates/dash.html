@@ -29,7 +29,9 @@
           {% for d in data %}
                 <tr>
                 <td class="px-4 py-3">{{ d["clip_name"] }}</td>
-                <td class="px-4 py-3">{{ d["clip_url"] }}</td>
+                <td class="px-4 py-3">{{ d["clip_url"] }}
+                  <button class="ml-2 text-white bg-green-500 border-0 py-1 px-3 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText('{{ d.clip_url }}'); alert('ID Copied!');">Copy ID</button>
+                </td>
                 <td class="px-4 py-3">{{ d["clip_time"] }} UTC</td>
                 <td class="px-4 py-3">{{ d["is_editable"] | stat }}</td>
                 <td class="px-4 py-3">{{ d["is_unlisted"] | stat }}</td>

@@ -36,7 +36,10 @@
         <div class="container px-5 py-24 mx-auto">
             <div class="flex flex-col text-center w-full mb-12">
                 <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">{{ name }}</h1>
-                <p class="leading-7 text-l text-white-400">ID: {{ url_id }} <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(window.location.href);alert('URL Copied!');">Copy URL</button> </p>
+                <p class="leading-7 text-l text-white-400">ID: {{ url_id }}
+                    <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(window.location.href);alert('URL Copied!');">Copy URL</button>
+                    <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText('{{ url_id }}');alert('ID Copied!');">Copy ID</button>
+                </p>
             </div>
             <div class="flex flex-col text-center w-full text-wrap">
                 <p class="leading-7 text-l text-white-400 w-auto text-wrap items-center">

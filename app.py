@@ -486,12 +486,7 @@ def download(url_id):
         clip_passwd = request.form.get("clip_passwd")
 
         if check_password_hash(passwd, clip_passwd):
-            return Response(
-                text,
-                mimetype="text/plain",
-                headers={"Content-disposition": f"attachment; filename={name}"},
-            )
-            # FIX: Decrypt the content before sending it in the response.
+            # Decrypt the content before sending it in the response.
             decrypted_text = decrypt(data[0]["clip_text"], clip_passwd).decode("utf-8")
             return Response(
                 decrypted_text,
