@@ -18,8 +18,15 @@ def migrate():
         cursor.execute("PRAGMA table_info(users)")
         columns = [col[1] for col in cursor.fetchall()]
 
-        if "github_id" in columns and "email" in columns:
-            print("Migration skipped: 'github_id' and 'email' columns already exist.")
+        # If users table already has the needed columns, migration of users is not required.
+        users_ok = "github_id" in columns and "email" in columns
+
+        # Additionally detect whether any tables still reference an old_users table
+        cursor.execute("SELECT name, sql FROM sqlite_master WHERE type='table' AND sql LIKE '%old_users%'")
+        tables_ref_old = cursor.fetchall()
+
+        if users_ok and not tables_ref_old:
+            print("Migration skipped: 'github_id' and 'email' columns already exist and no tables reference old_users.")
             return
 
         # --- SAFE MIGRATION STEPS ---
@@ -56,6 +63,29 @@ def migrate():
         # 4. Drop the temporary old table
         print("4. Dropping 'old_users' table...")
         cursor.execute("DROP TABLE old_users")
+
+        # 5. Repair any tables that still reference the historical "old_users" name.
+        # This can happen if some tables were created while users was temporarily renamed.
+        cursor.execute("SELECT name, sql FROM sqlite_master WHERE type='table' AND sql LIKE '%old_users%'")
+        ref_tables = cursor.fetchall()
+
+        for tbl_name, tbl_sql in ref_tables:
+            print(f"Repairing table '{tbl_name}' which references old_users...")
+            # Rename the affected table
+            temp_name = f"old_{tbl_name}"
+            cursor.execute(f"ALTER TABLE {tbl_name} RENAME TO {temp_name}")
+
+            # Create new table SQL by replacing references to old_users with users
+            new_sql = tbl_sql.replace('"old_users"', "users").replace("old_users", "users")
+            cursor.execute(new_sql)
+
+            # Copy columns from temp table to new table. Use PRAGMA to get column names.
+            cursor.execute(f"PRAGMA table_info({temp_name})")
+            cols = [row[1] for row in cursor.fetchall()]
+            cols_list = ", ".join(cols)
+
+            cursor.execute(f"INSERT INTO {tbl_name} ({cols_list}) SELECT {cols_list} FROM {temp_name}")
+            cursor.execute(f"DROP TABLE {temp_name}")
 
         conn.commit()
         print("SUCCESS: Database migration complete. 'users' table schema is updated.")
