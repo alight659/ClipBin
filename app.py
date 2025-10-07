@@ -244,7 +244,19 @@ def clip(clip_url_id):
     )
     passwd = ""
     is_editable = False
+    is_owner = False
     if len(data) != 0:
+        # Check for ownership if a user is logged in
+        if loginData()[0]:
+            user_id = session.get("user_id")
+            if user_id:
+                owner_check = db.execute(
+                    "SELECT C.id FROM clipRef R JOIN clips C ON C.id = R.clipid WHERE R.userid = ? AND C.clip_url = ?",
+                    user_id,
+                    clip_url_id,
+                )
+                if len(owner_check) > 0:
+                    is_owner = True
         text = data[0]["clip_text"]
         name = data[0]["clip_name"]
         time = data[0]["clip_time"]
@@ -294,6 +306,7 @@ def clip(clip_url_id):
                     text=text,
                     time=time,
                     edit=is_editable,
+                    is_owner=is_owner,
                     update=updated,
                     time_left=time_left,
                     ext=ext,
@@ -316,6 +329,7 @@ def clip(clip_url_id):
                 text=text,
                 time=time,
                 edit=is_editable,
+                is_owner=is_owner,
                 update=updated,
                 time_left=time_left,
                 ext=ext,
@@ -410,12 +424,15 @@ def test_405():
 def update(url_id):
     if loginData()[0]:
         data = db.execute(
-            "SELECT clips.id, clips.is_editable FROM clipRef JOIN clips ON clips.id = clipRef.clipid WHERE clipRef.userid=? AND clips.clip_URL=?",
+            "SELECT clips.id, clips.is_editable, clips.clip_pwd FROM clipRef JOIN clips ON clips.id = clipRef.clipid WHERE clipRef.userid=? AND clips.clip_URL=?",
             session["user_id"],
             url_id,
         )
         if len(data) != 0 and data[0]["is_editable"] == 1:
             if request.method == "POST":
+                if data[0]["clip_pwd"]:
+                    flash("Password-protected clips cannot be edited directly to maintain security.")
+                    return redirect(f"/{url_id}")
                 text = str(request.form.get("clip_text")).strip()
                 cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
                 db.execute(

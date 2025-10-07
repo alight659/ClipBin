@@ -95,6 +95,8 @@ def encrypt(data: bytes, passwd: str):
 
 # Decrypt Function
 def decrypt(encrypted_data: bytes, passwd: str):
+    if isinstance(encrypted_data, str):
+        encrypted_data = encrypted_data.encode("latin-1")
     salt = encrypted_data[:16]
     nonce = encrypted_data[16:28]
     cipher = encrypted_data[28:]
