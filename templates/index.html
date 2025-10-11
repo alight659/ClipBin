@@ -16,11 +16,17 @@ Share Code or Text Instantly
                 <form action="/" method="post" enctype="multipart/form-data">
                     <!-- Title -->
                     <label for="clip_name" class="leading-7 text-sm text-gray-400">Enter Title</label>
-                    <input type="text" id="clip_name" name="clip_name" class="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Hello Title" autocapitalize="off" autocomplete="off" autofocus>
-                    
+                    <input type="text" id="clip_name" name="clip_name"
+                        class="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                        placeholder="Hello Title" autocapitalize="off" autocomplete="off" autofocus>
+
                     <!-- Text Area -->
                     <label for="clip_text" class="leading-7 text-sm text-gray-400 mt-2">Enter your Text</label>
-                    <textarea id="clip_text" name="clip_text" class="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 h-32 transition-colors duration-200 ease-in-out rounded-md resize-none hover:resize-y ubuntu-mono-regular" placeholder="Something Interesting..." oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } "></textarea>
+                    <textarea id="clip_text" name="clip_text"
+                        class="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 h-32 transition-colors duration-200 ease-in-out rounded-md resize-none hover:resize-y ubuntu-mono-regular"
+                        placeholder="Something Interesting..."
+                        oninput="this.style.height='auto'; let min=8*16; let max=30*16; let scrh=this.scrollHeight; if(scrh<min){this.style.height=min+'px';} else if(scrh>max){this.style.height=max+'px';} else{this.style.height=scrh+'px';}">
+                    </textarea>
 
                     <div class="flex flex-col text-white text-center border-0 py-2 px-2">
                         <p class="leading-7 text-sm text-gray-400"> --OR-- </p>
@@ -29,57 +35,74 @@ Share Code or Text Instantly
                     <!-- File Upload -->
                     <label for="clip_file" class="leading-7 text-sm text-gray-400 mt-2">Upload File?</label>
                     <div class="text-white bg-gray-800 bg-opacity-40 border-0 py-2 px-2 mb-1">
-                        <input type="file" name="clip_file" id="clip_file" class="flex text-white py-2 px-2 mb-2 focus:outline-none hover:bg-gray-800 hover:bg-opacity-80 rounded" accept=".txt,.md,.csv,.json,.xml,.html,.css,.js,.py,.java,.c,.cpp,.cs,.h,.php,.rb,.go,.sh,.bat,.pl,.r,.kt,.swift">
+                        <input type="file" name="clip_file" id="clip_file"
+                            class="flex text-white py-2 px-2 mb-2 focus:outline-none hover:bg-gray-800 hover:bg-opacity-80 rounded"
+                            accept=".txt,.md,.csv,.json,.xml,.html,.css,.js,.py,.java,.c,.cpp,.cs,.h,.php,.rb,.go,.sh,.bat,.pl,.r,.kt,.swift">
                     </div>
 
                     <!-- File Preview -->
-                    <div id="file_preview" class="bg-gray-800 bg-opacity-40 text-gray-100 rounded border border-gray-700 p-3 whitespace-pre-wrap mb-4" style="display:none;"></div>
+                    <div id="file_preview"
+                        class="bg-gray-800 bg-opacity-40 text-gray-100 rounded border border-gray-700 p-3 whitespace-pre-wrap mb-4"
+                        style="display:none;"></div>
 
                     <!-- Optional Fields -->
-                    <div class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 roundedtext-lg">
+                    <div class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 rounded text-lg">
                         <h1 class="leading-7 text-white">Optionals</h1>
                         <div class="relative">
                             <label for="clip_alias" class="leading-7 text-sm text-gray-400">Custom URL Alias</label>
-                            <input type="text" id="clip_alias" name="clip_alias" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Custom-Alias (a-z A-Z 0-9 -_ only)" autocapitalize="off" autocomplete="off" maxlength="12" minlength="4">
-                            
+                            <input type="text" id="clip_alias" name="clip_alias"
+                                class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                placeholder="Custom-Alias (a-z A-Z 0-9 -_ only)" autocapitalize="off" autocomplete="off"
+                                maxlength="12" minlength="4">
+
                             <label for="clip_passwd" class="leading-7 text-sm text-gray-400 mt-2">Create a Password Protected Clip</label>
-                            <input type="text" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password" autocapitalize="off" autocomplete="off">
+                            <input type="text" id="clip_passwd" name="clip_passwd"
+                                class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                placeholder="Enter Password" autocapitalize="off" autocomplete="off">
                             <label class="leading-7 text-sm text-gray-400">Using Password also enables E2EE.</label><br>
 
                             <label class="leading-7 text-sm text-gray-400" for="clip_delete">Remove After:</label>
-                            <select name="clip_delete" id="clip_delete" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                              <option value="never">Never</option>
-                              <option value="day">1 Day</option>
-                              <option value="week">1 Week</option>
-                              <option value="twoweek">2 Weeks</option>
-                              <option value="month">1 Month</option>
-                              <option value="half">6 Months</option>
-                              <option value="year">1 Year</option>
-                              <option value="custom">Custom</option>
+                            <select name="clip_delete" id="clip_delete"
+                                class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                                <option value="never">Never</option>
+                                <option value="day">1 Day</option>
+                                <option value="week">1 Week</option>
+                                <option value="twoweek">2 Weeks</option>
+                                <option value="month">1 Month</option>
+                                <option value="half">6 Months</option>
+                                <option value="year">1 Year</option>
+                                <option value="custom">Custom</option>
                             </select>
 
-                            <label id="clip_custom_delete_label" for="clip_custom_delete" class="leading-7 text-sm text-gray-400 hidden" style="display:none;">Or enter custom delete time (hours):</label>
-                            <input id="clip_custom_delete" name="clip_custom_delete" type="number" min="1" placeholder="e.g., 1 for 1 hour" class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" style="display:none;">
+                            <label id="clip_custom_delete_label" for="clip_custom_delete"
+                                class="leading-7 text-sm text-gray-400 hidden" style="display:none;">Or enter custom delete time (hours):</label>
+                            <input id="clip_custom_delete" name="clip_custom_delete" type="number" min="1"
+                                placeholder="e.g., 1 for 1 hour"
+                                class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                style="display:none;">
 
-                            <div class="flex text-center mt-1">
+                            <div class="flex text-center mt-1 space-x-6">
                                 <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? (Login)</label>
                                 <label class="inline-flex items-center cursor-pointer">
                                     <input type="checkbox" name="clip_edit" id="clip_edit" class="sr-only peer">
-                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                                    <span class="ms-3 text-sm font-medium text-gray-300"></span> 
+                                    <div
+                                        class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                                 </label>
+
                                 <label for="clip_disp" class="leading-7 text-l text-gray-400">Set Unlisted? </label>
                                 <label class="inline-flex items-center cursor-pointer">
                                     <input type="checkbox" name="clip_disp" id="clip_disp" class="sr-only peer">
-                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                                    <span class="ms-3 text-sm font-medium text-gray-300"></span> 
+                                    <div
+                                        class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
                         </div>
                     </div>
 
                     <br>
-                    <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Save</button>
+                    <button
+                        class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 rounded text-lg"
+                        type="submit">Save</button>
                 </form>
             </div>
         </div>
@@ -90,7 +113,9 @@ Share Code or Text Instantly
 const fileInput = document.getElementById("clip_file");
 const previewBox = document.getElementById("file_preview");
 const clipText = document.getElementById("clip_text");
+const form = document.querySelector("form");
 
+// --- Preview file ---
 fileInput.addEventListener("change", () => {
     const file = fileInput.files[0];
     if (!file) {
@@ -113,7 +138,10 @@ fileInput.addEventListener("change", () => {
         "text/x-c++"
     ];
 
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(txt|md|csv|json|html|css|js|py|java|c|cpp|cs|h|php|rb|go|sh|bat|pl|r|kt|swift)$/i)) {
+    if (
+        !allowedTypes.includes(file.type) &&
+        !file.name.match(/\.(txt|md|csv|json|html|css|js|py|java|c|cpp|cs|h|php|rb|go|sh|bat|pl|r|kt|swift)$/i)
+    ) {
         previewBox.style.display = "block";
         previewBox.textContent = "File type not allowed for preview.";
         return;
@@ -126,12 +154,25 @@ fileInput.addEventListener("change", () => {
         previewBox.style.display = "block";
         previewBox.textContent = content;
 
-        // Fill textarea with file content
+        // Show file content as preview only
         clipText.value = content;
+        clipText.readOnly = true; // make preview text uneditable
         clipText.style.height = "auto";
-        clipText.style.height = Math.min(Math.max(clipText.scrollHeight, 8*16), 30*16) + "px";
+        clipText.style.height = Math.min(Math.max(clipText.scrollHeight, 8 * 16), 30 * 16) + "px";
     };
     reader.readAsText(file);
 });
+
+// --- On form submit ---
+// if file is uploaded → ignore textarea content when sending
+form.addEventListener("submit", (e) => {
+    const file = fileInput.files[0];
+    if (file) {
+        clipText.value = ""; // don't send text content
+    } else {
+        clipText.readOnly = false; // allow text input submission if no file
+    }
+});
 </script>
+
 {% endblock %}
