@@ -49,112 +49,76 @@
     <title>ClipBin: {% block title %}{% endblock %}</title>
   </head>
 
-  <body class="bg-gray-900" data-theme="dark">
-    <header class="text-gray-400 bg-gray-900 body-font">
-      <div
-        class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center"
-      >
-        <a
-          class="flex title-font font-medium items-center text-white mb-4 md:mb-0"
-          href="/"
-        >
-          <span class="ml-3 text-3xl">ClipBin</span>
-        </a>
-        <nav class="md:ml-auto md:mr-auto flex flex-wrap items-center text-lg justify-center">
-          <a class="mr-5 hover:text-white" href="/">Home</a>
-          <a class="mr-5 hover:text-white" href="/clip">Search</a>
-          {% if dat %} {% if dat[0] == True %}
-          <a class="mr-5 hover:text-white" href="/dashboard">Dashboard</a>
-          {% endif %} {% endif %}
-          <a href="/api" class="mr-5 hover:text-white">API</a>
-          <a class="mr-8 hover:text-white" href="/about">About</a>
-        </nav>
-          <button
-            id="theme-toggle"
-            type="button"
-            class="inline-flex items-center focus:outline-none rounded text-base mt-4 md:mt-0 md:ml-4 p-2 hover:text-white"
-            aria-label="Toggle theme"
-          >
-            <i
-              id="theme-toggle-icon"
-              class="fa-solid fa-moon"
-              aria-hidden="true"
-            ></i>
-          </button>
-          {% if dat %} {% if dat[0] == True %}
-          <div class="relative inline-block text-left group" tabindex="0">
-            <button
-              class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              {{ dat[1] }}
-              <svg
-                class="-mr-1 size-5 text-gray-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
+    <body class="bg-gray-900" data-theme="dark">
+        <header class="text-gray-400 bg-gray-900 body-font">
+            <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+              <a class="flex title-font font-medium items-center text-white mb-4 md:mb-0" href="/">
+                <span class="ml-3 text-xl">ClipBin</span>
+              </a>
+              <nav class="md:ml-auto md:mr-auto flex flex-wrap items-center text-lg justify-center">
+                <a class="mr-5 hover:text-white" href="/">Home</a>
+                <a class="mr-5 hover:text-white" href="/clip">Search</a>
+                {% if dat %}
+                  {% if dat[0] == True %}
+                    <a class="mr-5 hover:text-white" href="/dashboard">Dashboard</a>
+                  {% endif %}
+                {% endif %}
+                <a href="/api" class="mr-5 hover:text-white">API</a>
+                <a class="mr-8 hover:text-white" href="/about">About</a>
+              </nav>
+              <button
+                id="theme-toggle"
+                type="button"
+                class="inline-flex items-center focus:outline-none rounded text-base mt-4 md:mt-0 md:ml-4 p-2 hover: text-white"
+                aria-label="Toggle theme"
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-            <div
-              class="invisible opacity-0 absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-500 rounded-md bg-gray-800 shadow-lg ring-1 ring-black/5 transition duration-200 ease-in-out group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100"
-            >
-              <div class="py-1" role="none">
-                <span class="block px-4 py-2 text-sm text-base"
-                  >Signed in as <b>{{ dat[1] }}</b></span
-                >
-              </div>
-              <div class="py-1" role="none">
-                <a
-                  href="/dashboard"
-                  class="block px-4 py-2 text-sm text-base hover:text-white"
-                  >Dashboard</a
-                >
-                <a
-                  href="/settings"
-                  class="block px-4 py-2 text-sm text-base hover:text-white"
-                  >Settings</a
-                >
-              </div>
-              <div class="py-1" role="none">
-                <a
-                  href="/logout"
-                  class="block px-4 py-2 text-sm text-base hover:text-white"
-                  >Logout</a
-                >
+                <i id="theme-toggle-icon" class="fa-solid fa-moon" aria-hidden="true"></i>
+              </button>
+              {% if dat %}
+                {% if dat[0] == True %}
+                  <div class="relative inline-block text-left group" tabindex="0">
+                    <button class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0" aria-haspopup="true" aria-expanded="false">
+                      {{ dat[1] }}
+                      <svg class="-mr-1 size-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                    <div class="invisible opacity-0 absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-500 rounded-md bg-gray-800 shadow-lg ring-1 ring-black/5 transition duration-200 ease-in-out group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                      <div class="py-1" role="none">
+                        <span class="block px-4 py-2 text-sm text-base">Signed in as <b>{{ dat[1] }}</b></span>
+                      </div>
+                      <div class="py-1" role="none">
+                        <a href="/dashboard" class="block px-4 py-2 text-sm text-base hover:text-white">Dashboard</a>
+                        <a href="/settings" class="block px-4 py-2 text-sm text-base hover:text-white">Settings</a>
+                      </div>
+                      <div class="py-1" role="none">
+                        <a href="/logout" class="block px-4 py-2 text-sm text-base hover:text-white">Logout</a>
+                      </div>
+                    </div>
+                  </div>
+                {% elif reg == True %}
+                  <a class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0 ml-2" href="/register">Register</a>
+                {% else %}
+                  <a class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0 ml-2" href="/login">Login</a>
+                {% endif %}
+              {% endif %}
+            </div>
+        </header>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="container mx-auto px-4">
+              <div class="flash-message" role="status" aria-live="polite">
+                {% for message in messages %}
+                  <p class="flash-message__text">{{ message }}</p>
+                {% endfor %}
               </div>
             </div>
-          </div>
-          {% elif reg == True %}
-          <a
-            class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0 ml-2"
-            href="/register"
-            >Register</a
-          >
-          {% else %}    
-          <a
-            class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0 ml-2"
-            href="/login"
-            >Login</a
-          >
-          {% endif %} {% endif %}
-      </div>
-    </header>
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <div class="container mx-auto px-4">
-      <div class="flash-message" role="status" aria-live="polite">
-        {% for message in messages %}
-        <p class="flash-message__text">{{ message }}</p>
-        {% endfor %}
-      </div>
-    </div>
-    {% endif %} {% endwith %} {% block body %} {% endblock %}
+          {% endif %}
+        {% endwith %}
+
+        {% block body %}
+        
+        {% endblock %}
 
     <footer class="text-gray-400 bg-gray-900 body-font">
       <div
