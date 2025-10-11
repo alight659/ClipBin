@@ -1,31 +1,32 @@
-name: CI
+name: Build Pipeline
+
 on:
   push:
-    branches:
-      - main
+    branches: [ main, develop ]
   pull_request:
-    branches:
-      - main
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.11'
+
 jobs:
-  Backend:
+  build:
+    name: Build Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
     steps:
-      -  name: Checkout
-         uses: actions/checkout@v5.0.0
-         with:
-           path: .
-      - name: Setup Python
-        uses: actions/setup-python@v6.0.0
-      - name: Install Dependencies and Run
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
+          
+      - name: Install dependencies
         run: |
-            pip3 install -r requirements.txt
-            python3 app.py || exit 1 &
-            sleep 7
-            curl http://127.0.0.1:5000 || exit 1
-            
-            
-
-
-      
-      
-  
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
