@@ -71,7 +71,8 @@ alias = [
 
 def init_db():
     """Initialize database tables on startup"""
-    db.execute("""
+    db.execute(
+        """
         CREATE TABLE IF NOT EXISTS edit_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             clip_url VARCHAR(255),
@@ -83,10 +84,8 @@ def init_db():
             lines_removed INTEGER DEFAULT 0,
             FOREIGN KEY (clip_url) REFERENCES clips(clip_url)
         )
-    """)
-    
-    
-
+    """
+    )
 
 
 # Set Login Data
@@ -467,8 +466,8 @@ def update(url_id):
                     request.remote_addr,
                     old_text,
                     text,
-                    diff_stats['added'],
-                    diff_stats['removed']
+                    diff_stats["added"],
+                    diff_stats["removed"],
                 )
 
                 cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
@@ -885,24 +884,23 @@ def post_data():
     return jsonify({"Error": "Couldn't add. Something went wrong."}), 400
 
 
-
 def calculate_diff(old_text, new_text):
     """Calculate lines added and removed using difflib"""
     old_lines = old_text.splitlines()
     new_lines = new_text.splitlines()
-    
-    diff = difflib.unified_diff(old_lines, new_lines, lineterm='')
-    
+
+    diff = difflib.unified_diff(old_lines, new_lines, lineterm="")
+
     added = 0
     removed = 0
-    
+
     for line in diff:
-        if line.startswith('+') and not line.startswith('+++'):
+        if line.startswith("+") and not line.startswith("+++"):
             added += 1
-        elif line.startswith('-') and not line.startswith('---'):
+        elif line.startswith("-") and not line.startswith("---"):
             removed += 1
-    
-    return {'added': added, 'removed': removed}
+
+    return {"added": added, "removed": removed}
 
 
 @app.route("/history/<clip_url_id>")
@@ -910,47 +908,49 @@ def calculate_diff(old_text, new_text):
 def view_history(clip_url_id):
     # First check if clip exists
     clip_exists = db.execute("SELECT clip_name FROM clips WHERE clip_url=?", clip_url_id)
-    
+
     if not clip_exists or len(clip_exists) == 0:
         return render_template("error.html", code="Clip not found.", dat=loginData()), 404
-    
+
     # Verify ownership using the EXACT same query as dashboard
     clip_data = db.execute(
         "SELECT clips.clip_name FROM clipRef JOIN clips ON clips.id = clipRef.clipid JOIN users ON users.id = clipRef.userid WHERE users.username=? AND clips.clip_url=?",
         session["uname"],
-        clip_url_id
+        clip_url_id,
     )
-    
+
     if not clip_data or len(clip_data) == 0:
         return render_template("error.html", code="You don't have access to this clip.", dat=loginData()), 403
-    
+
     # Get all edit history
     history = db.execute(
         "SELECT id, editor_ip, old_content, new_content, edit_timestamp, lines_added, lines_removed FROM edit_history WHERE clip_url=? ORDER BY edit_timestamp DESC",
-        clip_url_id
+        clip_url_id,
     )
-    
+
     if not history:
         history = []
-    
+
     # Generate diff HTML for each edit
     history_with_diff = []
     for edit in history:
-        diff_html = generate_diff_html(edit['old_content'], edit['new_content'])
-        history_with_diff.append({
-            'timestamp': edit['edit_timestamp'],
-            'editor_ip': mask_ip(edit['editor_ip']),
-            'lines_added': edit['lines_added'],
-            'lines_removed': edit['lines_removed'],
-            'diff_html': diff_html
-        })
-    
+        diff_html = generate_diff_html(edit["old_content"], edit["new_content"])
+        history_with_diff.append(
+            {
+                "timestamp": edit["edit_timestamp"],
+                "editor_ip": mask_ip(edit["editor_ip"]),
+                "lines_added": edit["lines_added"],
+                "lines_removed": edit["lines_removed"],
+                "diff_html": diff_html,
+            }
+        )
+
     return render_template(
         "history.html",
         clip_name=clip_data[0]["clip_name"],
         clip_url=clip_url_id,
         history=history_with_diff,
-        dat=loginData()
+        dat=loginData(),
     )
 
 
@@ -958,47 +958,44 @@ def generate_diff_html(old_text, new_text):
     """Generate simple HTML diff with red/green highlighting"""
     old_lines = old_text.splitlines()
     new_lines = new_text.splitlines()
-    
+
     # Generate unified diff
-    diff = list(difflib.unified_diff(old_lines, new_lines, lineterm=''))
-    
+    diff = list(difflib.unified_diff(old_lines, new_lines, lineterm=""))
+
     # Build custom HTML
     html_output = '<div class="diff-container" style="font-family: monospace; font-size: 13px;">'
-    
+
     for line in diff:
-        if line.startswith('+++') or line.startswith('---'):
+        if line.startswith("+++") or line.startswith("---"):
             # Skip file markers
             continue
-        elif line.startswith('@@'):
+        elif line.startswith("@@"):
             # Chunk header
             html_output += f'<div style="background-color: rgba(59, 130, 246, 0.2); color: #93c5fd; padding: 4px 8px; margin-top: 8px;">{line}</div>'
-        elif line.startswith('+'):
+        elif line.startswith("+"):
             # Added line
             html_output += f'<div style="background-color: rgba(34, 197, 94, 0.2); color: #86efac; padding: 2px 8px;"><span style="color: #22c55e; margin-right: 8px;">+</span>{line[1:]}</div>'
-        elif line.startswith('-'):
+        elif line.startswith("-"):
             # Removed line
             html_output += f'<div style="background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 2px 8px;"><span style="color: #ef4444; margin-right: 8px;">-</span>{line[1:]}</div>'
         else:
             # Context line
             html_output += f'<div style="color: #9ca3af; padding: 2px 8px;"><span style="margin-right: 8px;"> </span>{line[1:] if line else ""}</div>'
-    
-    html_output += '</div>'
-    
+
+    html_output += "</div>"
+
     if len(diff) == 0:
         return '<p style="color: #9ca3af; text-align: center; padding: 20px;">No changes detected</p>'
-    
+
     return html_output
 
 
 def mask_ip(ip_address):
     """Mask last octet for privacy"""
-    parts = ip_address.split('.')
+    parts = ip_address.split(".")
     if len(parts) == 4:
         return f"{parts[0]}.{parts[1]}.{parts[2]}.xxx"
     return "unknown"
-
-
-
 
 
 # API Documentation Page
