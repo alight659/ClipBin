@@ -2,6 +2,8 @@ import os
 from datetime import datetime, timedelta
 
 from sqlite import SQLite
+from authlib.integrations.flask_client import OAuth
+import secrets
 from flask import (
     Flask,
     flash,
@@ -107,6 +109,18 @@ def error_413(code):
 
 # Initialize session after error handlers
 Session(app)
+
+# OAuth client setup (GitHub already present upstream; adding Google)
+oauth = OAuth(app)
+oauth.register(
+    name="google",
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
+# Expose oauth on the Flask app object for easier access in tests
+app.oauth = oauth
 
 
 # Main Index Function
@@ -538,6 +552,58 @@ def login():
             flash("Account Not Found!")
 
     return render_template("login.html", dat=loginData(), reg=True)
+
+
+@app.route("/login/google")
+def login_google():
+    redirect_uri = request.url_root.rstrip("/") + "/auth/google"
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@app.route("/auth/google")
+def auth_google():
+    try:
+        token = oauth.google.authorize_access_token()
+    except Exception:
+        flash("Google login failed.")
+        return redirect("/login")
+
+    userinfo = oauth.google.parse_id_token(token)
+    if not userinfo:
+        flash("Failed to obtain user info from Google.")
+        return redirect("/login")
+
+    # Use email local-part as username (ensure uniqueness)
+    email = userinfo.get("email")
+    if not email:
+        flash("Google account has no email.")
+        return redirect("/login")
+
+    username_candidate = email.split("@")[0]
+    # Ensure username is unique; append random suffix if taken
+    existing = db.execute("SELECT id FROM users WHERE username = ?", username_candidate)
+    if existing is None:
+        flash("Database error during OAuth login.")
+        return redirect("/login")
+    if len(existing) != 0:
+        username_candidate = f"{username_candidate}_{secrets.token_hex(4)}"
+
+    # Create a random password hash to satisfy NOT NULL password column
+    random_pass = secrets.token_urlsafe(16)
+    pwd_hash = generate_password_hash(random_pass, method="scrypt")
+
+    db.execute("INSERT INTO users (username, password) VALUES (?, ?)", username_candidate, pwd_hash)
+
+    # Log the user in
+    user_row = db.execute("SELECT id FROM users WHERE username = ?", username_candidate)
+    if user_row and len(user_row) > 0:
+        session.clear()
+        session["user_id"] = user_row[0]["id"] if isinstance(user_row[0], dict) else user_row[0][0]
+        session["uname"] = username_candidate
+        return redirect("/")
+
+    flash("Unable to log in via Google.")
+    return redirect("/login")
 
 
 # Logout Function
