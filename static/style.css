@@ -31,6 +31,11 @@ footer {
     padding-left: 10px !important;
 }
 
+.table-responsive{
+    max-width: 100%;    
+    overflow-x: scroll; 
+}
+
 @media (min-width: 640px) {
     table {
       display: inline-table !important;
@@ -39,6 +44,39 @@ footer {
     thead tr:not(:first-child) {
       display: none;
     }
+}
+
+@media (max-width: 480px){
+    .input-file{
+        display: none !important;
+    }
+
+    .clip_file_label{
+        display: block !important;
+        padding: 1px 6px;
+        width: 135px;
+        height: 30px;
+        background-color: #333;
+        color: #FFF;
+        text-align: center;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 2px;
+        border:1px solid rgb(229, 231, 235);
+    }
+    
+    .label-upload:hover {
+      background-color: #4a5568; /* hover:bg-gray-700 */
+    }
+
+    .check-box-container{
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+.clip_file_label{
+    display: none;
 }
 
 td:not(:last-child) {

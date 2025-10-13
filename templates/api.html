@@ -21,43 +21,45 @@
                     </ul>
             
                     <h3 class="text-lg font-semibold mb-2">Query Parameters</h3>
-                    <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
-                        <thead>
-                            <tr class="bg-gray-800">
-                                <th class="border border-gray-700 px-4 py-2">Parameter</th>
-                                <th class="border border-gray-700 px-4 py-2">Type</th>
-                                <th class="border border-gray-700 px-4 py-2">Required</th>
-                                <th class="border border-gray-700 px-4 py-2">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">id</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">Yes</td>
-                                <td class="border border-gray-700 px-4 py-2">The unique identifier for the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">name</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">The name associated with the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">pwd</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">The password for authorization.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">unlisted</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">Filter for unlisted data. Accepted values: true or false.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-            
+                    <div class="table-responsive">
+                        <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
+                            <thead>
+                                <tr class="bg-gray-800">
+                                    <th class="border border-gray-700 px-4 py-2">Parameter</th>
+                                    <th class="border border-gray-700 px-4 py-2">Type</th>
+                                    <th class="border border-gray-700 px-4 py-2">Required</th>
+                                    <th class="border border-gray-700 px-4 py-2">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">id</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">Yes</td>
+                                    <td class="border border-gray-700 px-4 py-2">The unique identifier for the data.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">name</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">No</td>
+                                    <td class="border border-gray-700 px-4 py-2">The name associated with the data.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">pwd</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">No</td>
+                                    <td class="border border-gray-700 px-4 py-2">The password for authorization.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">unlisted</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">No</td>
+                                    <td class="border border-gray-700 px-4 py-2">Filter for unlisted data. Accepted values: true or false.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                     <h3 class="text-lg font-semibold mb-2">Responses</h3>
                     <h4 class="text-md font-semibold mb-2">200 OK: Successfully retrieved data.</h4>
                     <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">[
@@ -109,58 +111,60 @@
                     </ul>
             
                     <h3 class="text-lg font-semibold mb-2">Request Parameters</h3>
-                    <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
-                        <thead>
-                            <tr class="bg-gray-800">
-                                <th class="border border-gray-700 px-4 py-2">Parameter</th>
-                                <th class="border border-gray-700 px-4 py-2">Type</th>
-                                <th class="border border-gray-700 px-4 py-2">Required</th>
-                                <th class="border border-gray-700 px-4 py-2">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">name</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">Yes</td>
-                                <td class="border border-gray-700 px-4 py-2">The name associated with the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">text</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">Yes</td>
-                                <td class="border border-gray-700 px-4 py-2">The text content to be stored.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">pwd</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">The password for protecting the data.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">unlisted</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">Specify if the data should be unlisted. Accepted values: true or false.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">remove</td>
-                                <td class="border border-gray-700 px-4 py-2">string</td>
-                                <td class="border border-gray-700 px-4 py-2">No</td>
-                                <td class="border border-gray-700 px-4 py-2">Specify when the clip will be removed. Available options: 
-                                    <ul>
-                                        <li>day - for 1 day</li>
-                                        <li>week - for 1 week</li>
-                                        <li>twoweek - for 2 week</li>
-                                        <li>month - for 1 month</li>
-                                        <li>half - for 6 month</li>
-                                        <li>year - for 1 year</li>
-                                    </ul>
-                                    If any other option is provided, it will be treated as never.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
+                            <thead>
+                                <tr class="bg-gray-800">
+                                    <th class="border border-gray-700 px-4 py-2">Parameter</th>
+                                    <th class="border border-gray-700 px-4 py-2">Type</th>
+                                    <th class="border border-gray-700 px-4 py-2">Required</th>
+                                    <th class="border border-gray-700 px-4 py-2">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">name</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">Yes</td>
+                                    <td class="border border-gray-700 px-4 py-2">The name associated with the data.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">text</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">Yes</td>
+                                    <td class="border border-gray-700 px-4 py-2">The text content to be stored.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">pwd</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">No</td>
+                                    <td class="border border-gray-700 px-4 py-2">The password for protecting the data.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">unlisted</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">No</td>
+                                    <td class="border border-gray-700 px-4 py-2">Specify if the data should be unlisted. Accepted values: true or false.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">remove</td>
+                                    <td class="border border-gray-700 px-4 py-2">string</td>
+                                    <td class="border border-gray-700 px-4 py-2">No</td>
+                                    <td class="border border-gray-700 px-4 py-2">Specify when the clip will be removed. Available options: 
+                                        <ul>
+                                            <li>day - for 1 day</li>
+                                            <li>week - for 1 week</li>
+                                            <li>twoweek - for 2 week</li>
+                                            <li>month - for 1 month</li>
+                                            <li>half - for 6 month</li>
+                                            <li>year - for 1 year</li>
+                                        </ul>
+                                        If any other option is provided, it will be treated as never.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
             
                     <h4 class="text-md font-semibold mb-2">Body Example:</h4>
                     <pre class="bg-gray-800 p-2 mb-4 rounded"><code class="json">{
@@ -204,36 +208,38 @@ Body:
 }</code></pre>
             
                     <h2 class="text-xl font-semibold mb-2">Error Codes</h2>
-                    <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
-                        <thead>
-                            <tr class="bg-gray-800">
-                                <th class="border border-gray-700 px-4 py-2">Status Code</th>
-                                <th class="border border-gray-700 px-4 py-2">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">200</td>
-                                <td class="border border-gray-700 px-4 py-2">OK – Request succeeded.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">201</td>
-                                <td class="border border-gray-700 px-4 py-2">Created – Resource successfully created.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">400</td>
-                                <td class="border border-gray-700 px-4 py-2">Bad Request – Request was invalid.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">401</td>
-                                <td class="border border-gray-700 px-4 py-2">Unauthorized – Authentication failed.</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-700 px-4 py-2">404</td>
-                                <td class="border border-gray-700 px-4 py-2">Not Found – Resource not found.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table-auto w-full mb-4 border-collapse border border-gray-700">
+                            <thead>
+                                <tr class="bg-gray-800">
+                                    <th class="border border-gray-700 px-4 py-2">Status Code</th>
+                                    <th class="border border-gray-700 px-4 py-2">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">200</td>
+                                    <td class="border border-gray-700 px-4 py-2">OK – Request succeeded.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">201</td>
+                                    <td class="border border-gray-700 px-4 py-2">Created – Resource successfully created.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">400</td>
+                                    <td class="border border-gray-700 px-4 py-2">Bad Request – Request was invalid.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">401</td>
+                                    <td class="border border-gray-700 px-4 py-2">Unauthorized – Authentication failed.</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-700 px-4 py-2">404</td>
+                                    <td class="border border-gray-700 px-4 py-2">Not Found – Resource not found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
             
                     <h2 class="text-xl font-semibold mb-2">Authentication</h2>
                     <p>(pwd) is required for retrieving protected data and optional for adding data.</p>

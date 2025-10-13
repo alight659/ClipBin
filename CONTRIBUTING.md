@@ -88,6 +88,8 @@ To contribute code:
     - A detailed description of your changes.
     - Reference any related issues (e.g., "Closes #issue_number").
 
+> Note: You are not allowed to create any unauthorized changes in the Database structure. Pull Requests with unauthorized structural changed will be closed.
+
 ## Code of Conduct
 
 This project adheres to a [Code of Conduct](./CODE_OF_CONDUCT.md). By participating, you agree to uphold the standards outlined within it.
