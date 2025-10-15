@@ -3,6 +3,7 @@ import os
 import csv
 import json
 import base64
+import pyotp
 from uuid import uuid4
 from functools import wraps
 from io import StringIO, BytesIO
@@ -11,6 +12,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
 # generates unique random url
@@ -158,3 +160,35 @@ def jsonfy(data):
     json_bytes.seek(0)
 
     return json_bytes
+
+
+# Generate TOTP secret and provisioning URI
+def totp_generator(user_id: str, username: str):
+    totp_secret = pyotp.random_base32()
+    encrypted_bytes = encrypt(totp_secret.encode("utf-8"), str(user_id) + username)
+    encrypted_b64 = base64.b64encode(encrypted_bytes).decode("utf-8")
+    provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(name=username, issuer_name="Clipbin")
+    return encrypted_b64, provisioning_uri
+
+
+# Decrypt TOTP secret
+def totpCode(encrypted_secret: str, user_id: str, username: str):
+    try:
+        encrypted_bytes = base64.b64decode(encrypted_secret)
+        decrypted_bytes = decrypt(encrypted_bytes, str(user_id) + username)
+        return decrypted_bytes.decode("utf-8")
+    except Exception as e:
+        raise ValueError(f"Failed to decrypt TOTP secret: {str(e)}")
+
+
+# Verify TOTP code
+def totp_verify(encrypted_secret_b64: str, user_id: str, username: str, otp_code: str, last_used: str = None) -> bool:
+    try:
+        totp_secret = totpCode(encrypted_secret_b64, user_id, username)
+        totp = pyotp.TOTP(totp_secret)
+        # Check if the provided code matches the last used code
+        if last_used and otp_code == last_used:
+            return False  # Prevent reuse of the same TOTP code
+        return totp.verify(otp_code, valid_window=1)
+    except Exception:
+        return False

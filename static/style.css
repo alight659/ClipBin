@@ -31,7 +31,7 @@ footer {
     padding-left: 10px !important;
 }
 
-.table-responsive{
+.table-responsive {
     max-width: 100%;    
     overflow-x: scroll; 
 }
@@ -46,12 +46,12 @@ footer {
     }
 }
 
-@media (max-width: 480px){
-    .input-file{
+@media (max-width: 480px) {
+    .input-file {
         display: none !important;
     }
 
-    .clip_file_label{
+    .clip_file_label {
         display: block !important;
         padding: 1px 6px;
         width: 135px;
@@ -62,20 +62,20 @@ footer {
         margin-top: 10px;
         cursor: pointer;
         border-radius: 2px;
-        border:1px solid rgb(229, 231, 235);
+        border: 1px solid rgb(229, 231, 235);
     }
     
     .label-upload:hover {
       background-color: #4a5568; /* hover:bg-gray-700 */
     }
 
-    .check-box-container{
+    .check-box-container {
         flex-direction: column;
         align-items: center;
     }
 }
 
-.clip_file_label{
+.clip_file_label {
     display: none;
 }
 
@@ -257,4 +257,40 @@ body[data-theme="light"] .shadow {
 
 body[data-theme="light"] .ring-1 {
     --tw-ring-color: #cbd5e1 !important;
+}
+
+.otp-input {
+    margin-left: 0.25rem; 
+    margin-right: 0.25rem; 
+}
+
+/* TOTP setup page-specific border color overrides */
+.totp-setup .border-indigo-500\/30,
+.totp-setup .border-gray-700\/50,
+.totp-setup .border-gray-600,
+.totp-setup .totp-right-container {
+    border-color: #ffffff !important; 
+}
+
+.totp-setup .hover\:border-indigo-500\/50:hover {
+    border-color: #ffffff !important; 
+}
+
+.totp-setup .focus\:border-indigo-500:focus {
+    border-color: #a5b4fc !important; 
+}
+
+body[data-theme="light"] .totp-setup .border-indigo-500\/30,
+body[data-theme="light"] .totp-setup .border-gray-700\/50,
+body[data-theme="light"] .totp-setup .border-gray-600,
+body[data-theme="light"] .totp-setup .totp-right-container {
+    border-color: #000000 !important; 
+}
+
+body[data-theme="light"] .totp-setup .hover\:border-indigo-500\/50:hover {
+    border-color: #000000 !important; 
+}
+
+body[data-theme="light"] .totp-setup .focus\:border-indigo-500:focus {
+    border-color: #1d4ed8 !important; 
 }

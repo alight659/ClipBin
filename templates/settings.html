@@ -8,24 +8,78 @@ Settings
 <section class="text-gray-400 bg-gray-900 body-font">
     <div class="container px-5 py-24 mx-auto">
         <div class="flex flex-col w-full mb-12">
-            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">Settings</h1>
-            <h1 class="sm:text-l text-xl font-medium title-font mb-4 text-white">Change Password</h1>
-            <div class="lg:w-1/3 md:w-auto flex flex-col md:mr-auto">
-                <form action="/settings" method="post">
-                    <div class="relative mb-4">
-                        <label for="old_passwd" class="leading-7 text-smivide-y divide-gray-100 text-gray-400">Old Password</label>
-                        <input type="password" id="old_passwd" name="old_passwd" class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                    </div>
-                    <div class="relative mb-4">
-                        <label for="new_passwd" class="leading-7 text-sm text-gray-400">New Password</label>
-                        <input type="password" id="new_passwd" name="new_passwd" class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                    </div>
-                    <div class="relative mb-4">
-                        <label for="conf_passwd" class="leading-7 text-sm text-gray-400">Confirm Password</label>
-                        <input type="password" id="conf_passwd" name="conf_passwd" class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
-                    </div>
-                    <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
-                </form>
+            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-8 text-white">Settings</h1>
+
+            <!-- Change Password Section -->
+            <div class="mb-12">
+                <h2 class="text-xl font-medium title-font mb-4 text-white">Change Password</h2>
+                <div class="lg:w-1/3 md:w-auto flex flex-col md:mr-auto">
+                    <form action="/settings" method="post">
+                        <div class="relative mb-4">
+                            <label for="old_passwd" class="leading-7 text-sm text-gray-400">Old Password</label>
+                            <input type="password" id="old_passwd" name="old_passwd" required class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 
+                                          focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 
+                                          py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                        <div class="relative mb-4">
+                            <label for="new_passwd" class="leading-7 text-sm text-gray-400">New Password</label>
+                            <input type="password" id="new_passwd" name="new_passwd" required class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 
+                                          focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 
+                                          py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                        <div class="relative mb-4">
+                            <label for="conf_passwd" class="leading-7 text-sm text-gray-400">Confirm Password</label>
+                            <input type="password" id="conf_passwd" name="conf_passwd" required class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 
+                                          focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 
+                                          py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+                        <button type="submit" class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none 
+                                       hover:bg-green-600 rounded text-lg">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 2FA Section -->
+            <div class="mb-12">
+                <h2 class="text-xl font-medium title-font mb-4 text-white">Two-Factor Authentication</h2>
+                <div class="lg:w-1/3 md:w-auto flex flex-col md:mr-auto">
+                    <p class="mb-4">
+                        Current Status:
+                        <span
+                            class="font-medium {% if user_2fa_enabled %}text-green-500{% else %}text-red-500{% endif %}">
+                            {% if user_2fa_enabled %}Enabled{% else %}Disabled{% endif %}
+                        </span>
+                    </p>
+
+                    <form action="/permission" method="post">
+                        <div class="relative mb-4">
+                            <label for="password_2fa" class="leading-7 text-sm text-gray-400">Current Password</label>
+                            <input type="password" id="password_2fa" name="password" required class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 
+                                          focus:ring-2 focus:ring-indigo-900 text-base outline-none text-gray-100 
+                                          py-1 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="inline-flex items-center text-gray-300 mr-4">
+                                <input type="radio" name="2fa_action" value="enable" {% if not user_2fa_enabled
+                                    %}checked{% endif %} class="mr-2">
+                                Enable 2FA
+                            </label>
+                            <label class="inline-flex items-center text-gray-300">
+                                <input type="radio" name="2fa_action" value="disable" {% if user_2fa_enabled %}checked{%
+                                    endif %} class="mr-2">
+                                Disable 2FA
+                            </label>
+                        </div>
+
+                        <button type="submit" class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none 
+                                       hover:bg-indigo-600 rounded text-lg">
+                            Update 2FA Settings
+                        </button>
+                    </form>
+                </div>
             </div>
             <hr class="mt-4 border-gray-800 dark:border-gray">
             <div class="">
@@ -36,13 +90,17 @@ Settings
                     Data Export currently does not support exporting encrypted data. Only unencrypted data will be exported.
                 </p>
                 <form action="/settings/export" method="post">
-                    <label for="export_ext">Select export format: </label>
-                    <select name="export_ext" id="export_ext" class="mr-2 bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                    <label for="export_ext" class="text-gray-400">Select export format:</label>
+                    <select name="export_ext" id="export_ext" class="mr-2 bg-gray-700 bg-opacity-40 rounded border border-gray-700 
+                                   focus:border-green-500 focus:ring-2 focus:ring-green-900 
+                                   focus:bg-transparent text-base outline-none text-gray-100 
+                                   py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
                         <option value="json">JSON</option>
                         <option value="csv">CSV</option>
                         <option value="text">TXT</option>
                     </select>
-                    <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">
+                    <button type="submit" class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none 
+                                   hover:bg-green-600 rounded text-lg">
                         Export
                     </button>
                 </form>
