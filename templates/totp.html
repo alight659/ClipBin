@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block title %}
+    Two-Factor Authentication
+{% endblock %}
+{% block body %}
+<section class="text-gray-400 bg-gray-900 body-font">
+    <div class="container px-5 py-24 mx-auto flex flex-wrap items-center">
+        <div class="lg:w-3/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
+            <h1 class="title-font font-medium text-3xl text-white">Two-Factor Authentication</h1>
+            <p class="leading-relaxed mt-4">Enter the code from your authenticator app.</p>
+        </div>
+        <div class="lg:w-2/6 md:w-1/2 bg-gray-800 bg-opacity-50 rounded-lg p-8 flex flex-col md:ml-auto w-full mt-10 md:mt-0">
+            <h2 class="text-white text-lg font-medium title-font mb-5">Enter TOTP Code</h2>
+            <form id="totpForm" action="/login/totp" method="post">
+                <div class="relative mb-4">
+                    <label class="leading-7 text-sm text-gray-400 mb-3 block">
+                        Enter the 6-digit code from your authenticator app
+                    </label>
+                    <div class="flex justify-center gap-4 mb-4">
+                        {% for i in range(6) %}
+                        <input type="text" inputmode="numeric" maxlength="1" autocomplete="off" pattern="[0-9]*" class="otp-input w-10 h-12 bg-gray-700 focus:bg-transparent focus:ring-2 focus:ring-indigo-900
+                                      rounded-lg border border-gray-600 focus:border-indigo-500 text-base outline-none text-gray-100
+                                      text-center text-xl font-semibold transition-all duration-150 ease-in-out"
+                          data-index="{{ i }}" />
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="totp" name="totp" />
+                </div>
+                <button class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg w-full">Verify</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const otpInputs = document.querySelectorAll(".otp-input");
+    const hiddenInput = document.getElementById("totp");
+    const form = document.getElementById("totpForm");
+
+    function updateHiddenInput() {
+        hiddenInput.value = Array.from(otpInputs).map(i => i.value).join("");
+    }
+
+    otpInputs.forEach((input, i) => {
+        input.addEventListener("input", (e) => {
+            if (!/^\d?$/.test(e.target.value)) e.target.value = "";
+            if (e.target.value && i < otpInputs.length - 1) otpInputs[i + 1].focus();
+            updateHiddenInput();
+        });
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace" && !input.value && i > 0) otpInputs[i - 1].focus();
+        });
+
+        input.addEventListener("paste", (e) => {
+            e.preventDefault();
+            const data = e.clipboardData.getData("text").trim();
+            if (/^\d{6}$/.test(data)) {
+                data.split("").forEach((char, idx) => otpInputs[idx].value = char);
+                otpInputs[5].focus();
+                updateHiddenInput();
+            }
+        });
+    });
+
+    form.addEventListener("submit", function() {
+        updateHiddenInput();
+    });
+
+    otpInputs[0].focus();
+});
+</script>
+{% endblock %}
