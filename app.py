@@ -685,13 +685,20 @@ def permission():
         flash("Incorrect password!")
         return redirect("/settings")
 
+    # Handle Enable / Disable / Resync Actions
     if twofa_action == "enable":
         flash("Please complete 2FA setup with your authenticator app.")
         return redirect("/login/totp/setup")
+
     elif twofa_action == "disable":
         db.execute("DELETE FROM twoFA WHERE user_id=?", session["user_id"])
         flash("2FA has been disabled successfully.")
         return redirect("/settings")
+
+    elif twofa_action == "resync":
+        flash("Password verified. Please resynchronize your TOTP device.")
+        return redirect("/login/totp/setup")
+
     else:
         flash("Invalid 2FA action selected.")
         return redirect("/settings")
