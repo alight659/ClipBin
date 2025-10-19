@@ -29,7 +29,6 @@ from additional import (
     textify,
     totp_generator,
     totpCode,
-    totp_verify,
 )
 
 app = Flask(__name__)
@@ -85,33 +84,34 @@ def loginData():
     return [login, name]
 
 
-# Create twoFA table
 def twoFATable():
     db.execute(
         """
-        CREATE TABLE IF NOT EXISTS "twoFA" (
-            "id" INTEGER NOT NULL UNIQUE,
-            "user_id" INTEGER NOT NULL UNIQUE,
-            "uri" TEXT NOT NULL,
-            "last" VARCHAR(6),
-            PRIMARY KEY("id" AUTOINCREMENT),
-            FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE
-        )
+    CREATE TABLE IF NOT EXISTS "twoFA" (
+        "id"        INTEGER NOT NULL UNIQUE,
+        "user_id"   INTEGER NOT NULL UNIQUE,
+        "uri"    TEXT NOT NULL,
+        PRIMARY KEY("id" AUTOINCREMENT),
+        FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE
+    )
         """
     )
-    # Ensure 'last' exists in case table was created before
-    columns = [col["name"] for col in db.execute("PRAGMA table_info(twoFA)")]
-    if "last" not in columns:
-        db.execute("ALTER TABLE twoFA ADD COLUMN last VARCHAR(6)")
 
 
-# Check for 2FA setup
-def twoFACheck(user_id):
+def twoFACheck(user_id=None):
     twoFATable()
-    data = db.execute("SELECT uri, last FROM twoFA WHERE user_id=?", user_id)
-    if data and data[0]["uri"]:
-        return data[0]
-    return None
+
+    if user_id is None:
+        if "user_id" not in session:
+            return False
+        user_id = session["user_id"]
+
+    data = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+
+    if not data:
+        return False
+    else:
+        return data[0]["uri"]
 
 
 # Error Handling 404
@@ -544,43 +544,49 @@ def download(url_id):
 # Login Function
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
     session.clear()
+
     if request.method == "POST":
+        # Handle both 'uname' and 'username' field names for compatibility
         uname = request.form.get("uname") or request.form.get("username")
+        # Handle both 'passwd' and 'password' field names for compatibility
         passwd = request.form.get("passwd") or request.form.get("password")
         if not uname:
-            flash("Username cannot be empty!")
-            return render_template("login.html", dat=loginData(), reg=True)
+            flash("Username Cannot be Empty!")
+
         if not passwd:
-            flash("Password cannot be empty!")
-            return render_template("login.html", dat=loginData(), reg=True)
+            flash("Password Cannot be Empty!")
+
         data = db.execute("SELECT * FROM users WHERE username=?", uname)
-        if not data:
-            flash("Account not found!")
-            return render_template("login.html", dat=loginData(), reg=True)
-        if check_password_hash(data[0]["password"], passwd):
-            twofa_data = twoFACheck(data[0]["id"])
-            if not twofa_data:
+        if len(data) != 0:
+            if check_password_hash(data[0]["password"], passwd):
+                twofa_enabled = twoFACheck(data[0]["id"])
                 session["user_id"] = data[0]["id"]
                 session["uname"] = uname
-                return redirect("/")
-            session["user_id_temp"] = data[0]["id"]
-            session["uname_temp"] = uname
-            return redirect("/login/totp")
-        flash("Incorrect Username or Password!")
-        return render_template("login.html", dat=loginData(), reg=True)
+                if not twofa_enabled:
+                    return redirect("/")
+                else:
+                    return redirect("/login/totp")
+            else:
+                flash("Incorrect Username or Password!")
+                return render_template("login.html", dat=loginData(), reg=True)
+        else:
+            flash("Account Not Found!")
+
     return render_template("login.html", dat=loginData(), reg=True)
 
 
-# TOTP Verification
+# TOTP Function
 @app.route("/login/totp", methods=["GET", "POST"])
+@login_required
 def totp():
-    if "user_id_temp" not in session or "uname_temp" not in session:
+    if "user_id" not in session or "uname" not in session:
         flash("Session expired. Please log in again.")
         return redirect("/login")
 
-    user_id = session["user_id_temp"]
-    uname = session["uname_temp"]
+    user_id = session["user_id"]
+    uname = session["uname"]
     twofa_data = twoFACheck(user_id)
     if not twofa_data:
         flash("2FA not set up for this account.")
@@ -591,29 +597,34 @@ def totp():
         if not user_code:
             flash("TOTP code cannot be empty!")
             return render_template("totp.html", dat=loginData())
-        try:
-            encrypted_secret = twofa_data["uri"]
-            last_used = twofa_data["last"]
-            if totp_verify(encrypted_secret, str(user_id), uname, user_code, last_used):
-                db.execute("UPDATE twoFA SET last=? WHERE user_id=?", user_code, user_id)
-                session["user_id"] = user_id
-                session["uname"] = uname
-                session.pop("user_id_temp", None)
-                session.pop("uname_temp", None)
-                return redirect("/")
+
+        # FIX: Extract the encrypted secret from the database result
+        data = db.execute("SELECT uri FROM twoFA WHERE user_id =?", user_id)
+        if not data:
+            flash("2FA data not found!")
+            return redirect("/login")
+
+        encrypted_secret = data[0]["uri"]  # This should be the actual bytes
+        totp_secret = totpCode(encrypted_secret=encrypted_secret, user_id=user_id, username=uname)
+
+        # Verify the TOTP code
+        totp = pyotp.TOTP(totp_secret)
+        if totp.verify(user_code):
+            session["user_id"] = user_id
+            session["uname"] = uname
+            return redirect("/")
+        else:
             flash("Invalid TOTP code!")
-        except ValueError as e:
-            flash(f"TOTP verification failed: {str(e)}")
-        return render_template("totp.html", dat=loginData())
+            return render_template("totp.html", dat=loginData())
+
     return render_template("totp.html", dat=loginData())
 
 
 @app.route("/login/totp/setup", methods=["GET", "POST"])
+@login_required
 def totp_setup():
-
     if "user_id_temp" not in session or "uname_temp" not in session:
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return jsonify({"status": "error", "message": "Session expired. Please log in again."}), 403
+        print("Session expired: user_id_temp or uname_temp missing")
         flash("Session expired. Please log in again.")
         return redirect("/login")
 
@@ -623,47 +634,30 @@ def totp_setup():
     twoFATable()
     existing = twoFACheck(user_id=user_id)
 
-    session.setdefault("totp_attempts", 0)
     if not existing:
-        encrypted_secret_b64, provisioning_uri = totp_generator(user_id, uname)
-        db.execute("DELETE FROM twoFA WHERE user_id=?", user_id)
-        db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_secret_b64)
-        secret_plain = totpCode(encrypted_secret_b64, str(user_id), uname)
+        totp_c, uri = totp_generator(user_id, uname)
+        db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, totp_c)
     else:
-        encrypted_secret_b64 = existing["uri"]
-        secret_plain = totpCode(encrypted_secret_b64, str(user_id), uname)
-        provisioning_uri = pyotp.TOTP(secret_plain).provisioning_uri(name=uname, issuer_name="Clipbin")
+        totp_c = existing
+        totp_secret = totpCode(encrypted_secret=totp_c, user_id=user_id, username=uname)
+        uri = pyotp.TOTP(totp_secret).provisioning_uri(name=uname, issuer_name="Clipbin")
 
-    totp = pyotp.TOTP(secret_plain)
+    totp_code = totpCode(encrypted_secret=totp_c, user_id=user_id, username=uname)
+    totp = pyotp.TOTP(totp_code)
 
     if request.method == "POST":
-        user_code = request.form.get("totp", "").strip()
-
+        user_code = request.form.get("totp")
         if not user_code:
-            return jsonify({"status": "error", "message": "Please enter your 6-digit code."})
+            return render_template("totp_setup.html", totp_secret=totp_code, uri=uri, dat=loginData())
 
-        if totp.verify(user_code, valid_window=1):
+        if totp.verify(user_code):
             session["user_id"] = user_id
             session["uname"] = uname
-            session.pop("user_id_temp", None)
-            session.pop("uname_temp", None)
-            session.pop("totp_attempts", None)
             return jsonify({"status": "success", "message": "2FA setup successful!", "redirect": "/"})
         else:
-            session["totp_attempts"] += 1
-            remaining = 5 - session["totp_attempts"]
+            return jsonify({"status": "error", "message": "Invalid TOTP code!"})
 
-            if remaining <= 0:
-                session["totp_attempts"] = 5
-                # regenerate new secret
-                encrypted_secret_b64, provisioning_uri = totp_generator(user_id, uname)
-                db.execute("DELETE FROM twoFA WHERE user_id=?", user_id)
-                db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_secret_b64)
-                return jsonify({"status": "regen", "message": "Too many failed attempts. New QR generated."})
-
-            return jsonify({"status": "error", "message": f"Invalid TOTP code! {remaining} attempts remaining."})
-
-    return render_template("totp_setup.html", totp_secret=secret_plain, uri=provisioning_uri, dat=loginData())
+    return render_template("totp_setup.html", totp_secret=totp_code, uri=uri, dat=loginData())
 
 
 # Logout Function
@@ -673,20 +667,24 @@ def logout():
     return redirect("/")
 
 
-# 2FA Permission
+# 2FA permission
 @app.route("/permission", methods=["POST"])
 @login_required
 def permission():
     twoFATable()
+
     twofa_action = request.form.get("2fa_action")
     password = request.form.get("password")
+
     if not password:
         flash("Password cannot be empty!")
         return redirect("/settings")
+
     user = db.execute("SELECT * FROM users WHERE id=?", session["user_id"])
     if not user or not check_password_hash(user[0]["password"], password):
         flash("Incorrect password!")
         return redirect("/settings")
+
     if twofa_action == "enable":
         session["user_id_temp"] = session["user_id"]
         session["uname_temp"] = session["uname"]
@@ -696,8 +694,9 @@ def permission():
         db.execute("DELETE FROM twoFA WHERE user_id=?", session["user_id"])
         flash("2FA has been disabled successfully.")
         return redirect("/settings")
-    flash("Invalid 2FA action selected.")
-    return redirect("/settings")
+    else:
+        flash("Invalid 2FA action selected.")
+        return redirect("/settings")
 
 
 # Registration Function
@@ -760,36 +759,46 @@ def dashboard():
 @app.route("/settings", methods=["GET", "POST"])
 @login_required
 def settings():
-    twoFA_enabled = bool(twoFACheck(session["user_id"]))
+    twoFA_enabled = bool(twoFACheck())
     if request.method == "POST":
         old_pass = str(request.form.get("old_passwd"))
         new_pass = str(request.form.get("new_passwd"))
         conf_pass = str(request.form.get("conf_passwd"))
+
         if not old_pass:
             flash("Enter your Old Password.")
-        elif not new_pass:
+            return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
+
+        if not new_pass:
             flash("Enter your New Password.")
-        elif not conf_pass:
+            return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
+
+        if not conf_pass:
             flash("Confirm your New Password.")
-        elif conf_pass != new_pass:
+            return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
+
+        if conf_pass != new_pass:
             flash("New Password not Confirmed. Does not Match.")
-        elif new_pass == old_pass:
+            return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
+
+        if new_pass == old_pass:
             flash("New Password cannot be same as Old Password.")
-        else:
-            data = db.execute(
-                "SELECT password FROM users WHERE id=? AND username=?", session["user_id"], session["uname"]
+            return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
+
+        data = db.execute("SELECT password FROM users WHERE id=? AND username=?", session["user_id"], session["uname"])
+        if data and check_password_hash(data[0]["password"], old_pass):
+            db.execute(
+                "UPDATE users SET password=? WHERE id=? AND username=?",
+                generate_password_hash(new_pass, method="scrypt"),
+                session["user_id"],
+                session["uname"],
             )
-            if data and check_password_hash(data[0]["password"], old_pass):
-                db.execute(
-                    "UPDATE users SET password=? WHERE id=? AND username=?",
-                    generate_password_hash(new_pass, method="scrypt"),
-                    session["user_id"],
-                    session["uname"],
-                )
-                flash("Password Updated!")
-            else:
-                flash("Old Password Does Not Match.")
+            flash("Password Updated!")
+            return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
+
+        flash("Old Password Does Not Match.")
         return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
+
     return render_template("settings.html", dat=loginData(), user_2fa_enabled=twoFA_enabled)
 
 

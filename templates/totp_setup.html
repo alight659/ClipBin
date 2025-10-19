@@ -77,108 +77,132 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const uri = {{ uri | tojson | safe
-  }};
-  const secret = "{{ totp_secret }}";
-  const qrcodeEl = document.getElementById("qrcode");
-  const errorMsg = document.getElementById("error-msg");
-  const otpInputs = document.querySelectorAll(".otp-input");
-  const hiddenInput = document.getElementById("totp");
-  const form = document.getElementById("totpForm");
+    const uri = {{ uri | tojson | safe }};
+    const secret = "{{ totp_secret }}";
+    const qrcodeEl = document.getElementById("qrcode");
+    const errorMsg = document.getElementById("error-msg");
+    const otpInputs = document.querySelectorAll(".otp-input");
+    const hiddenInput = document.getElementById("totp");
+    const form = document.getElementById("totpForm");
 
-  // Generate QR code
-  QRCode.toDataURL(uri, { width: 192, margin: 2 }, (err, url) => {
-    if (!err) qrcodeEl.src = url;
-  });
-
-  // Copy secret
-  document.getElementById("copy-secret").addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(secret);
-      const icon = document.querySelector("#copy-secret i");
-      icon.classList.replace("fa-copy", "fa-check");
-      setTimeout(() => icon.classList.replace("fa-check", "fa-copy"), 2000);
-    } catch { console.error("Clipboard copy failed."); }
-  });
-
-  // OTP inputs behavior
-  otpInputs.forEach((input, i) => {
-    input.addEventListener("input", (e) => {
-      if (!/^\d?$/.test(e.target.value)) e.target.value = "";
-      if (e.target.value && i < otpInputs.length - 1) otpInputs[i + 1].focus();
-      updateHiddenInput();
-    });
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Backspace" && !input.value && i > 0) otpInputs[i - 1].focus();
-    });
-
-    input.addEventListener("paste", (e) => {
-      e.preventDefault();
-      const data = e.clipboardData.getData("text").trim();
-      if (/^\d{6}$/.test(data)) {
-        data.split("").forEach((char, idx) => otpInputs[idx].value = char);
-        otpInputs[5].focus();
-        updateHiddenInput();
+    // Generate QR code
+    console.log("Generating QR code with URI:", uri);
+    QRCode.toDataURL(uri, { width: 192, margin: 2 }, (err, url) => {
+      if (err) {
+        console.error("QR code generation failed:", err);
+      } else {
+        console.log("QR code generated successfully");
+        qrcodeEl.src = url;
       }
     });
-  });
 
-  function updateHiddenInput() {
-    hiddenInput.value = Array.from(otpInputs).map(i => i.value).join("");
-  }
+    // Copy secret
+    document.getElementById("copy-secret").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(secret);
+        console.log("Secret copied to clipboard:", secret);
+        const icon = document.querySelector("#copy-secret i");
+        icon.classList.replace("fa-copy", "fa-check");
+        setTimeout(() => icon.classList.replace("fa-check", "fa-copy"), 2000);
+      } catch (err) {
+        console.error("Clipboard copy failed:", err);
+      }
+    });
 
-  // Form submit
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    updateHiddenInput(); // Make sure hidden input is updated before submit
-    const code = hiddenInput.value.trim();
-    if (code.length !== 6) {
-      showError("Please enter all 6 digits of the TOTP code!");
-      return;
-    }
-
-    try {
-      const res = await fetch("/login/totp/setup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: new URLSearchParams({ totp: code }),
+    // OTP inputs behavior
+    otpInputs.forEach((input, i) => {
+      input.addEventListener("input", (e) => {
+        if (!/^\d?$/.test(e.target.value)) e.target.value = "";
+        if (e.target.value && i < otpInputs.length - 1) otpInputs[i + 1].focus();
+        updateHiddenInput();
+        console.log("Current TOTP input:", hiddenInput.value);
       });
-      const data = await res.json();
-      handleServerResponse(data);
-    } catch (err) {
-      showError("An unexpected error occurred. Please try again.");
-      console.error(err);
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && i > 0) otpInputs[i - 1].focus();
+      });
+
+      input.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const data = e.clipboardData.getData("text").trim();
+        console.log("Pasted data:", data);
+        if (/^\d{6}$/.test(data)) {
+          data.split("").forEach((char, idx) => otpInputs[idx].value = char);
+          otpInputs[5].focus();
+          updateHiddenInput();
+          console.log("TOTP after paste:", hiddenInput.value);
+        }
+      });
+    });
+
+    function updateHiddenInput() {
+      hiddenInput.value = Array.from(otpInputs).map(i => i.value).join("");
     }
+
+    // Form submit
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      updateHiddenInput();
+      const code = hiddenInput.value.trim();
+      console.log("Submitting TOTP code:", code);
+      if (code.length !== 6) {
+        console.log("TOTP code invalid: less than 6 digits");
+        showError("Please enter all 6 digits of the TOTP code!");
+        return;
+      }
+
+      try {
+        console.log("Sending POST request to /login/totp/setup");
+        const res = await fetch("/login/totp/setup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          body: new URLSearchParams({ totp: code }),
+        });
+        console.log("Response status:", res.status);
+        const data = await res.json();
+        console.log("Server response:", data);
+        handleServerResponse(data);
+      } catch (err) {
+        console.error("Error during fetch:", err);
+        showError("An unexpected error occurred. Please try again.");
+      }
+    });
+
+    function handleServerResponse(data) {
+      console.log("Handling server response:", data);
+      errorMsg.classList.remove("hidden", "text-green-400");
+
+      if (data.status === "success") {
+        console.log("TOTP verification successful, redirecting to:", data.redirect);
+        errorMsg.classList.add("text-green-400");
+        errorMsg.textContent = data.message || "Verified successfully! Redirecting...";
+        otpInputs.forEach(i => i.value = "");
+        setTimeout(() => window.location.href = data.redirect, 1000);
+      } else if (data.status === "error") {
+        console.log("TOTP verification failed:", data.message);
+        showError(data.message || "Invalid TOTP code!");
+        otpInputs.forEach(i => i.value = "");
+        otpInputs[0].focus();
+      } else if (data.status === "regen") {
+        console.log("Too many failed attempts, regenerating:", data.message);
+        showError(data.message || "Too many failed attempts. Regenerating...");
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        console.log("Unexpected server response status:", data.status);
+        showError("Unexpected server response. Please try again.");
+      }
+    }
+
+    function showError(msg) {
+      console.log("Displaying error:", msg);
+      errorMsg.textContent = msg;
+      errorMsg.classList.remove("hidden", "text-green-400");
+    }
+
+    otpInputs[0].focus();
   });
-
-  function handleServerResponse(data) {
-    errorMsg.classList.remove("hidden", "text-green-400");
-
-    if (data.status === "success") {
-      errorMsg.classList.add("text-green-400");
-      errorMsg.textContent = data.message || " Verified successfully! Redirecting...";
-      otpInputs.forEach(i => i.value = "");  // Only clear after success
-      setTimeout(() => window.location.href = data.redirect, 1000);
-    } else if (data.status === "error") {
-      showError(data.message || "Invalid TOTP code!");
-      otpInputs.forEach(i => i.value = "");  // Clear inputs only after error
-      otpInputs[0].focus();
-    } else if (data.status === "regen") {
-      showError(data.message || "Too many failed attempts. Regenerating...");
-      setTimeout(() => window.location.reload(), 1500);
-    }
-  }
-
-  function showError(msg) {
-    errorMsg.textContent = msg;
-    errorMsg.classList.remove("hidden", "text-green-400");
-  }
-
-  otpInputs[0].focus();
-});
 </script>
 {% endblock %}
