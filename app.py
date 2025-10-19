@@ -623,13 +623,13 @@ def totp():
 @app.route("/login/totp/setup", methods=["GET", "POST"])
 @login_required
 def totp_setup():
-    if "user_id_temp" not in session or "uname_temp" not in session:
-        print("Session expired: user_id_temp or uname_temp missing")
+    if "user_id" not in session or "uname" not in session:
+        print("Session expired: user_id or uname missing")
         flash("Session expired. Please log in again.")
         return redirect("/login")
 
-    user_id = session["user_id_temp"]
-    uname = session["uname_temp"]
+    user_id = session["user_id"]
+    uname = session["uname"]
 
     twoFATable()
     existing = twoFACheck(user_id=user_id)
@@ -686,8 +686,6 @@ def permission():
         return redirect("/settings")
 
     if twofa_action == "enable":
-        session["user_id_temp"] = session["user_id"]
-        session["uname_temp"] = session["uname"]
         flash("Please complete 2FA setup with your authenticator app.")
         return redirect("/login/totp/setup")
     elif twofa_action == "disable":
