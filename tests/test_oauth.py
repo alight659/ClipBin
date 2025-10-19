@@ -23,11 +23,15 @@ def test_auth_google_creates_user(client, monkeypatch):
     def fake_authorize_access_token():
         return {"access_token": "dummy", "id_token": "dummy"}
 
-    def fake_parse_id_token(token):
-        return {"email": "guser@example.com"}
+    class FakeResponse:
+        def json(self):
+            return {"email": "guser@example.com"}
+
+    def fake_get(url):
+        return FakeResponse()
 
     monkeypatch.setattr(app.oauth.google, "authorize_access_token", fake_authorize_access_token)
-    monkeypatch.setattr(app.oauth.google, "parse_id_token", fake_parse_id_token)
+    monkeypatch.setattr(app.oauth.google, "get", fake_get)
 
     # Call the auth endpoint (follow redirect to final page)
     resp = client.get("/auth/google", follow_redirects=True)

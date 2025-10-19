@@ -568,7 +568,13 @@ def auth_google():
         flash("Google login failed.")
         return redirect("/login")
 
-    userinfo = oauth.google.parse_id_token(token)
+    # Use userinfo endpoint instead of parse_id_token to avoid nonce requirement
+    try:
+        userinfo = oauth.google.get('https://www.googleapis.com/oauth2/v3/userinfo').json()
+    except Exception:
+        flash("Failed to obtain user info from Google.")
+        return redirect("/login")
+    
     if not userinfo:
         flash("Failed to obtain user info from Google.")
         return redirect("/login")
