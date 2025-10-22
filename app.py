@@ -855,6 +855,23 @@ def api():
     return render_template("api.html", dat=loginData())
 
 
+# Serve OpenAPI spec (swagger.yaml)
+@app.route('/swagger.yaml')
+def swagger_spec():
+    # Serve the generated swagger.yaml file from the application root
+    from flask import send_from_directory
+
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    return send_from_directory(root_dir, 'swagger.yaml')
+
+
+# Interactive Swagger UI
+@app.route('/api/docs')
+def api_docs():
+    # Renders a simple page that loads Swagger UI and points at /swagger.yaml
+    return render_template('swagger.html')
+
+
 # Terms and Privacy Policy Page
 @app.route("/terms")
 def terms():
