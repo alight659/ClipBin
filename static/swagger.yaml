@@ -1,0 +1,363 @@
+openapi: 3.0.3
+info:
+  title: ClipBin API
+  description: OpenAPI (Swagger) specification for ClipBin endpoints implemented in `app.py`.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+paths:
+  /api/get_data:
+    get:
+      summary: Retrieve clip(s) by id, name or alias
+      description: |-
+        Fetch one or more clips. Query parameters supported: id, name, alias, pwd, unlisted.
+        If a clip is password-protected, supply `pwd` to decrypt the content.
+      parameters:
+        - name: id
+          in: query
+          description: Clip id or URL alias to match (can be partial, `LIKE` query supported)
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Clip name (partial matches supported). Not accepted together with `unlisted=true`.
+          required: false
+          schema:
+            type: string
+        - name: alias
+          in: query
+          description: Use alias parameter as an alternate id to search for.
+          required: false
+          schema:
+            type: string
+        - name: pwd
+          in: query
+          description: Password for encrypted clips. Required to retrieve encrypted text.
+          required: false
+          schema:
+            type: string
+        - name: unlisted
+          in: query
+          description: Set to `true` to include unlisted clips when searching by id/alias.
+          required: false
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        '200':
+          description: A JSON array of clip objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Clip'
+        '400':
+          description: Bad request (for example, searching by name with unlisted=true)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                message:
+                  value: {"Message": "To Search, enter Id not Name with unlisted!"}
+        '401':
+          description: Unauthorized - incorrect password for encrypted clip
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                incorrect_password:
+                  value: {"Error": "Incorrect Password"}
+        '404':
+          description: No data found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                no_data:
+                  value: {"Error": "No Data"}
+  /api/post_data:
+    get:
+      summary: Guidance for POST
+      description: Returns a short JSON message instructing clients to POST data to create clips.
+      responses:
+        '200':
+          description: Guidance message
+          content:
+            application/json:
+              example: {"message": "POST data to this endpoint to create clips"}
+    post:
+      summary: Create a new clip
+      description: |-
+        Accepts both JSON (application/json) and form-encoded (application/x-www-form-urlencoded) payloads.
+        Required fields: name and content/text. Optional: unlisted, pwd, remove (time key e.g. "day", "week", "never").
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostClipRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                text:
+                  type: string
+                unlisted:
+                  type: string
+                pwd:
+                  type: string
+                remove:
+                  type: string
+      responses:
+        '201':
+          description: Clip created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostClipResponse'
+              examples:
+                success:
+                  value: {"id": "abcd1234", "Message": "Successfully added!"}
+        '400':
+          description: Missing parameters or could not add
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing:
+                  value: {"Error": "Missing Parameters!"}
+  /{clip_id}/raw:
+    parameters:
+      - name: clip_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Clip id or alias
+    get:
+      summary: Get raw clip content as plain text
+      description: Returns the raw clip content. If clip is password-protected, a POST with `passwd` is required.
+      responses:
+        '200':
+          description: Raw clip text
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Not found or clip expired
+          content:
+            text/plain:
+              example: "That was not found on this server.\n"
+    post:
+      summary: Provide password to retrieve encrypted raw clip
+      description: When clip is password protected, POST with form field `passwd` will return decrypted content.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                passwd:
+                  type: string
+      responses:
+        '200':
+          description: Raw decrypted clip text
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Incorrect password
+          content:
+            text/plain:
+              example: "Incorrect Password!\n"
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              example: "That was not found on this server.\n"
+    /clip/{clip_id}/raw:
+      parameters:
+        - name: clip_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Clip id or alias (alternate route form)
+      get:
+        summary: Get raw clip content as plain text (alternate route)
+        description: Returns the raw clip content. If clip is password-protected, a POST with `passwd` is required. This path is an alternate form of `/{clip_id}/raw`.
+        responses:
+          '200':
+            description: Raw clip text
+            content:
+              text/plain:
+                schema:
+                  type: string
+          '404':
+            description: Not found or clip expired
+            content:
+              text/plain:
+                example: "That was not found on this server.\n"
+      post:
+        summary: Provide password to retrieve encrypted raw clip (alternate route)
+        description: When clip is password protected, POST with form field `passwd` will return decrypted content. Alternate route matching `/clip/<id>/raw`.
+        requestBody:
+          required: true
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  passwd:
+                    type: string
+        responses:
+          '200':
+            description: Raw decrypted clip text
+            content:
+              text/plain:
+                schema:
+                  type: string
+          '401':
+            description: Incorrect password
+            content:
+              text/plain:
+                example: "Incorrect Password!\n"
+          '404':
+            description: Not found
+            content:
+              text/plain:
+                example: "That was not found on this server.\n"
+  /download/{url_id}:
+    parameters:
+      - name: url_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Clip id or alias
+    get:
+      summary: Download clip as file
+      description: Returns the clip content as an attachment (text/plain) with a filename based on the clip name.
+      responses:
+        '200':
+          description: File response (text/plain) with Content-disposition header
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              example: "404 Not Found!"
+    post:
+      summary: Download password-protected clip
+      description: POST with form field `clip_passwd` to download a password-protected clip. If password matches, file is returned.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                clip_passwd:
+                  type: string
+      responses:
+        '200':
+          description: File download on correct password
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Incorrect password
+          content:
+            text/html:
+              example: "<html>Incorrect Password!</html>"
+        '404':
+          description: Not found
+          content:
+            text/plain:
+              example: "404 Not Found!"
+components:
+  schemas:
+    Clip:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Clip id / alias
+          example: "abcd1234"
+        name:
+          type: string
+          description: Display name or filename for the clip
+          example: "example.txt"
+        text:
+          type: string
+          description: The clip contents (decrypted when pwd is supplied)
+          example: "Hello world"
+        time:
+          type: string
+          description: Timestamp string of when the clip was created
+          example: "01-01-2020 @ 12:00:00"
+    PostClipRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Title or filename for the clip
+          example: "MyClip"
+        content:
+          type: string
+          description: Clip text content when using JSON
+          example: "This is the clip content."
+        text:
+          type: string
+          description: Clip text content when using form data
+          example: "This is the clip content."
+        unlisted:
+          type: string
+          description: Set to "true" to mark clip unlisted
+          example: "false"
+        pwd:
+          type: string
+          description: Password to encrypt the clip
+          example: "s3cret"
+        remove:
+          type: string
+          description: Time key for automatic deletion (e.g. day, week, twoweek, month, half, year, never)
+          example: "day"
+      required: [name, content]
+    PostClipResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Newly created clip id
+          example: "abcd1234"
+        Message:
+          type: string
+          example: "Successfully added!"
+    Error:
+      type: object
+      properties:
+        Error:
+          type: string
+        Message:
+          type: string
+  securitySchemes: {}
+
+
+x-generated-by: ClipBin Swagger generator
