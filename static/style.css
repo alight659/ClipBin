@@ -107,8 +107,7 @@ body[data-theme="light"] footer {
 
 body[data-theme="light"] .body-font {
     background-color: #ffffff;
-    color: #0f172a;
-    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+    color: #0f172a;    
 }
 
 body[data-theme="light"] .text-gray-400,
@@ -226,7 +225,6 @@ body[data-theme="light"] textarea:focus,
 body[data-theme="light"] select:focus {
     background-color: #ffffff !important;
     border-color: #1d4ed8 !important;
-    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
 }
 
 body[data-theme="light"] input::placeholder,
@@ -245,8 +243,7 @@ body[data-theme="light"] pre {
 .flash-message {
     background-color: rgba(30, 41, 59, 0.92);
     border: 1px solid #334155;
-    border-radius: 0.75rem;
-    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.45);
+    border-radius: 0.75rem;    
     color: #f8fafc;
     padding: 1.1rem 1.1rem;
     transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
@@ -266,8 +263,7 @@ body[data-theme="light"] pre {
 
 body[data-theme="light"] .flash-message {
     background-color: #fef2f2; 
-    border-color: #fca5a5; 
-    box-shadow: 0 18px 36px rgba(239, 68, 68, 0.12);
+    border-color: #fca5a5;     
     color: #991b1b; 
 }
 
@@ -297,21 +293,6 @@ body[data-theme="light"] .bg-indigo-500 .text-white {
     color: #ffffff !important;
 }
 
-body[data-theme="light"] .shadow-lg,
-body[data-theme="light"] .shadow-md,
-body[data-theme="light"] .shadow {
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
-}
-
-body[data-theme="light"] .shadow-sm {
-    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.06) !important;
-}
-
-body[data-theme="light"] .shadow-xl {
-    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04) !important;
-}
-
-
 body[data-theme="light"] .ring-1 {
     --tw-ring-color: #e2e8f0 !important; 
 }
@@ -332,5 +313,15 @@ body[data-theme="light"] .focus\:ring-indigo-900:focus {
 body[data-theme="light"] .bg-white {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
-    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
+}
+
+.main-header, .main-footer {
+    border: none !important;
+    box-shadow: none !important;
+}
+#clip_edit:checked ~ div {
+    background-color: #1d4ed8 !important; 
+}
+#clip_disp:checked ~ div {
+    background-color: #1d4ed8 !important; 
 }
