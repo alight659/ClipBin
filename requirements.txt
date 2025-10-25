@@ -3,6 +3,7 @@ cryptography
 flask-session
 werkzeug
 cachelib
+requests
 pytest>=7.0.0
 pytest-cov>=4.0.0
 pytest-flask>=1.2.0
