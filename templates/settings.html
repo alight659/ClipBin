@@ -62,16 +62,21 @@ Settings
                         </div>
 
                         <div class="mb-4">
-                            <label class="inline-flex items-center text-gray-300 mr-4">
-                                <input type="radio" name="2fa_action" value="enable" {% if not user_2fa_enabled
-                                    %}checked{% endif %} class="mr-2">
+                            {% if not user_2fa_enabled %}
+                            <label class="inline-flex items-center text-gray-300 mr-5">
+                                <input type="radio" name="2fa_action" value="enable" checked class="mr-2">
                                 Enable 2FA
                             </label>
-                            <label class="inline-flex items-center text-gray-300">
-                                <input type="radio" name="2fa_action" value="disable" {% if user_2fa_enabled %}checked{%
-                                    endif %} class="mr-2">
+                            {% else %}
+                            <label class="inline-flex items-center text-gray-300 mr-5">
+                                <input type="radio" name="2fa_action" value="disable" class="mr-2">
                                 Disable 2FA
                             </label>
+                            <label class="inline-flex items-center text-gray-300">
+                                <input type="radio" name="2fa_action" value="resync" checked class="mr-2">
+                                Resynchronize TOTP
+                            </label>
+                            {% endif %}
                         </div>
 
                         <div class="flex flex-wrap gap-4 items-center">
@@ -80,12 +85,7 @@ Settings
                                 Update 2FA Settings
                             </button>
 
-                            {% if user_2fa_enabled %}
-                            <button type="submit" name="2fa_action" value="resync"
-                                class="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                                Resynchronize TOTP
-                            </button>
-                            {% endif %}
+
                         </div>
                     </form>
                 </div>

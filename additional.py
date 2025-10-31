@@ -4,6 +4,7 @@ import csv
 import json
 import base64
 import pyotp
+import qrcode, io
 from uuid import uuid4
 from functools import wraps
 from io import StringIO, BytesIO
@@ -192,3 +193,20 @@ def totp_verify(encrypted_secret_b64: str, user_id: str, username: str, otp_code
         return totp.verify(otp_code, valid_window=1)
     except Exception:
         return False
+
+def qrTObasecode(uri: str, size: int = 300, border: int = 1) -> str:
+    qr = qrcode.QRCode(
+        version=1,              
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=size // 21,    
+        border=border,
+    )
+    qr.add_data(uri)
+    qr.make(fit=True)
+
+    buffer = io.BytesIO()
+    # Pillow image → PNG
+    img = qr.make_image(fill_color="black", back_color="white")
+    img = img.resize((size, size), qrcode.image.pil.Image.LANCZOS)
+    img.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")  

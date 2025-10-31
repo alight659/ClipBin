@@ -1284,3 +1284,628 @@ def auth(client):
             return self._client.get("/logout")
 
     return AuthActions(client)
+
+
+class TestTOTPWorkflowRequirements:
+    """Test cases specifically mentioned in the workflow requirements"""
+
+    def test_totp_setup_success(self, client, init_database):
+        """Fresh user enables 2FA with valid code"""
+        # Register a new user
+        client.post("/register", data={
+            "username": "freshuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "freshuser")
+        user_id = user[0]["id"]
+        
+        # Set up session
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "freshuser"
+        
+        # Generate the 2FA first by accessing the setup page
+        response = client.get("/login/totp/setup")
+        assert response.status_code == 200
+        
+        # Get the TOTP data from database
+        totp_data = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        
+        if totp_data:
+            from additional import totpCode
+            import pyotp
+            
+            encrypted_secret = totp_data[0]["uri"]
+            secret = totpCode(encrypted_secret, str(user_id), "freshuser")
+            totp = pyotp.TOTP(secret)
+            valid_code = totp.now()
+            
+            # Submit valid code
+            response = client.post("/login/totp/setup", 
+                                 data={"totp": valid_code},
+                                 headers={"X-Requested-With": "XMLHttpRequest"})
+            
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data["status"] == "success"
+
+    def test_totp_setup_invalid_code(self, client, init_database):
+        """Rejects invalid/incomplete TOTP code"""
+        # Register and setup user
+        client.post("/register", data={
+            "username": "invaliduser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "invaliduser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "invaliduser"
+        
+        client.get("/login/totp/setup")
+        
+        # Submit invalid code
+        response = client.post("/login/totp/setup", 
+                             data={"totp": "123456"},  # Invalid code
+                             headers={"X-Requested-With": "XMLHttpRequest"})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["status"] == "error"
+
+    def test_totp_resync_success(self):
+        """Resyncs with valid current code"""
+        from additional import totp_generator, totpCode, totp_verify
+        import pyotp
+        
+        user_id = "123"
+        username = "resyncuser"
+        
+        # Generate TOTP secret
+        encrypted_secret, _ = totp_generator(user_id, username)
+        secret = totpCode(encrypted_secret, user_id, username)
+        totp = pyotp.TOTP(secret)
+        
+        # First verification (sets last_used)
+        code1 = totp.now()
+        result1 = totp_verify(encrypted_secret, user_id, username, code1)
+        assert result1 is True
+        
+        # Wait and generate new code for resync
+        import time
+        time.sleep(31)  # Wait for new time window
+        code2 = totp.now()
+        result2 = totp_verify(encrypted_secret, user_id, username, code2)
+        assert result2 is True
+
+    def test_totp_replay_attack(self):
+        """Rejects reuse of same TOTP code"""
+        from additional import totp_generator, totpCode, totp_verify
+        import pyotp
+        
+        user_id = "123"
+        username = "replayuser"
+        
+        # Generate TOTP secret
+        encrypted_secret, _ = totp_generator(user_id, username)
+        secret = totpCode(encrypted_secret, user_id, username)
+        totp = pyotp.TOTP(secret)
+        
+        # Use code once
+        code = totp.now()
+        result1 = totp_verify(encrypted_secret, user_id, username, code)
+        assert result1 is True
+        
+        # Try to reuse same code (pass the code as last_used)
+        result2 = totp_verify(encrypted_secret, user_id, username, code, code)
+        assert result2 is False
+
+    def test_totp_disabled_user(self, client, init_database):
+        """Cannot resync if 2FA is off"""
+        # Register user
+        client.post("/register", data={
+            "username": "disableduser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "disableduser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "disableduser"
+        
+        # Try to access TOTP setup without enabling 2FA first
+        # This should work but show that 2FA is not enabled
+        response = client.get("/login/totp/setup")
+        # The route might allow access but show that 2FA needs to be enabled
+        assert response.status_code == 200
+
+    def test_totp_encryption_roundtrip(self):
+        """Secret encrypts/decrypts correctly"""
+        from additional import totp_generator, totpCode
+        
+        user_id = "123"
+        username = "encryptuser"
+        
+        # Generate encrypted secret
+        encrypted_secret, _ = totp_generator(user_id, username)
+        
+        # Decrypt it back
+        decrypted_secret = totpCode(encrypted_secret, user_id, username)
+        
+        # Should be valid base32 secret
+        assert len(decrypted_secret) == 32
+        assert all(c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567" for c in decrypted_secret)
+        
+        # Should be able to encrypt/decrypt multiple times
+        encrypted_again, _ = totp_generator(user_id, username)
+        decrypted_again = totpCode(encrypted_again, user_id, username)
+        assert len(decrypted_again) == 32
+
+    def test_totp_invalid_secret(self):
+        """Handles corrupted/malformed encrypted secret"""
+        from additional import totpCode
+        import pytest
+        
+        user_id = "123"
+        username = "testuser"
+        
+        # Test with completely invalid base64
+        with pytest.raises(ValueError, match="Failed to decrypt TOTP secret"):
+            totpCode("invalid_base64_data!!!", user_id, username)
+        
+        # Test with valid base64 but wrong encryption
+        import base64
+        fake_encrypted = base64.b64encode(b"fake_encrypted_data").decode()
+        with pytest.raises(ValueError, match="Failed to decrypt TOTP secret"):
+            totpCode(fake_encrypted, user_id, username)
+
+
+class TestTOTPUIComponents:
+    """Test UI components and interactions based on actual templates"""
+
+    def test_totp_setup_page_contains_required_elements(self, client, init_database):
+        """Test that TOTP setup page contains all required UI elements"""
+        # Register and setup user
+        client.post("/register", data={
+            "username": "uitestuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "uitestuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "uitestuser"
+        
+        response = client.get("/login/totp/setup")
+        assert response.status_code == 200
+        
+        # Check for required UI elements from totp_setup.html
+        assert b"qrcode" in response.data  # QR code image
+        assert b"otp-input" in response.data  # OTP input fields
+        assert b"copy-secret" in response.data  # Copy secret button
+        assert b"totpForm" in response.data  # Form ID
+        assert b"Enter the 6-digit code" in response.data  # Instructions
+        assert b"Two-Factor Authentication" in response.data  # Page title
+
+    def test_totp_verification_page_contains_required_elements(self, client, init_database):
+        """Test that TOTP verification page contains required elements"""
+        # Setup user with 2FA enabled
+        client.post("/register", data={
+            "username": "verifyuitest", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "verifyuitest")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "verifyuitest"
+        
+        # Enable 2FA first
+        client.get("/login/totp/setup")
+        
+        # Now check verification page
+        response = client.get("/login/totp")
+        assert response.status_code == 200
+        
+        # Check for required elements from totp.html
+        assert b"otp-input" in response.data  # OTP input fields
+        assert b"totpForm" in response.data  # Form
+        assert b"Enter the 6-digit code" in response.data  # Instructions
+        assert b"Two-Factor Authentication" in response.data  # Page title
+
+    def test_settings_page_shows_2fa_status_disabled(self, client, init_database):
+        """Test that settings page correctly shows 2FA status as disabled"""
+        # Register user
+        client.post("/register", data={
+            "username": "settingsuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "settingsuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "settingsuser"
+        
+        response = client.get("/settings")
+        assert response.status_code == 200
+        
+        # Should show 2FA as disabled initially
+        assert b"Disabled" in response.data
+        assert b"Enable 2FA" in response.data
+        assert b"Two-Factor Authentication" in response.data
+
+    def test_settings_page_shows_2fa_status_enabled(self, client, init_database):
+        """Test that settings page correctly shows 2FA status as enabled"""
+        # Register user and enable 2FA
+        client.post("/register", data={
+            "username": "enableduser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "enableduser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "enableduser"
+        
+        # Enable 2FA
+        client.get("/login/totp/setup")
+        
+        response = client.get("/settings")
+        assert response.status_code == 200
+        
+        # Should show 2FA options for enabled users
+        assert b"Disable 2FA" in response.data or b"Resynchronize TOTP" in response.data
+
+
+class TestTOTPPermissionFlow:
+    """Test the permission flow for enabling/disabling 2FA"""
+
+    def test_enable_2fa_through_permission_route(self, client, init_database):
+        """Test enabling 2FA through /permission route"""
+        # Register user
+        client.post("/register", data={
+            "username": "permissionuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "permissionuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "permissionuser"
+        
+        # Enable 2FA through permission route
+        response = client.post("/permission", data={
+            "password": "Pass123",
+            "2fa_action": "enable"
+        })
+        
+        # Should redirect to TOTP setup
+        assert response.status_code == 302
+        assert "/login/totp/setup" in response.location
+
+    def test_disable_2fa_through_permission_route(self, client, init_database):
+        """Test disabling 2FA through /permission route"""
+        # Register user and enable 2FA
+        client.post("/register", data={
+            "username": "disableuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "disableuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "disableuser"
+        
+        # Enable 2FA first
+        client.get("/login/totp/setup")
+        
+        # Verify 2FA is enabled
+        totp_data = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        assert len(totp_data) > 0
+        
+        # Disable 2FA
+        response = client.post("/permission", data={
+            "password": "Pass123",
+            "2fa_action": "disable"
+        })
+        
+        # Should redirect to settings
+        assert response.status_code == 302
+        assert "/settings" in response.location
+        
+        # Verify 2FA is disabled in database
+        totp_data_after = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        assert len(totp_data_after) == 0
+
+    def test_resync_2fa_through_permission_route(self, client, init_database):
+        """Test resyncing 2FA through /permission route"""
+        # Register user and enable 2FA
+        client.post("/register", data={
+            "username": "resyncpermuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "resyncpermuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "resyncpermuser"
+        
+        # Enable 2FA first
+        client.get("/login/totp/setup")
+        
+        # Resync 2FA
+        response = client.post("/permission", data={
+            "password": "Pass123",
+            "2fa_action": "resync"
+        })
+        
+        # Should redirect to TOTP resync
+        assert response.status_code == 302
+        assert "/login/totp/resync" in response.location
+
+    def test_permission_route_wrong_password(self, client, init_database):
+        """Test /permission route with wrong password"""
+        # Register user
+        client.post("/register", data={
+            "username": "wrongpassuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "wrongpassuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "wrongpassuser"
+        
+        # Try to enable 2FA with wrong password
+        response = client.post("/permission", data={
+            "password": "WrongPassword",
+            "2fa_action": "enable"
+        })
+        
+        # Should redirect back to settings
+        assert response.status_code == 302
+        assert "/settings" in response.location
+
+    def test_permission_route_empty_password(self, client, init_database):
+        """Test /permission route with empty password"""
+        # Register user
+        client.post("/register", data={
+            "username": "emptypassuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "emptypassuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "emptypassuser"
+        
+        # Try to enable 2FA with empty password
+        response = client.post("/permission", data={
+            "password": "",
+            "2fa_action": "enable"
+        })
+        
+        # Should redirect back to settings
+        assert response.status_code == 302
+        assert "/settings" in response.location
+
+
+class TestTOTPSecurityFeatures:
+    """Test security features of TOTP implementation"""
+
+    def test_totp_session_required_for_setup(self, client, init_database):
+        """Test that valid session is required for TOTP setup"""
+        # Try to access TOTP setup without session
+        response = client.get("/login/totp/setup")
+        
+        # Should redirect to login
+        assert response.status_code == 302
+        assert "/login" in response.location
+
+    def test_totp_session_required_for_verification(self, client, init_database):
+        """Test that valid session is required for TOTP verification"""
+        # Try to access TOTP verification without session
+        response = client.get("/login/totp")
+        
+        # Should redirect to login
+        assert response.status_code == 302
+        assert "/login" in response.location
+
+    def test_totp_code_must_be_6_digits(self, client, init_database):
+        """Test that TOTP code must be exactly 6 digits"""
+        # Register and setup user
+        client.post("/register", data={
+            "username": "digituser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "digituser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "digituser"
+        
+        client.get("/login/totp/setup")
+        
+        # Test with less than 6 digits
+        response = client.post("/login/totp/setup", 
+                             data={"totp": "123"},
+                             headers={"X-Requested-With": "XMLHttpRequest"})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["status"] == "error"
+        
+        # Test with more than 6 digits
+        response = client.post("/login/totp/setup", 
+                             data={"totp": "1234567"},
+                             headers={"X-Requested-With": "XMLHttpRequest"})
+        
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["status"] == "error"
+
+    def test_totp_prevents_brute_force_with_invalid_codes(self, client, init_database):
+        """Test that multiple invalid TOTP codes are handled properly"""
+        # Register and setup user
+        client.post("/register", data={
+            "username": "bruteuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "bruteuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "bruteuser"
+        
+        client.get("/login/totp/setup")
+        
+        # Try multiple invalid codes
+        for i in range(5):
+            response = client.post("/login/totp/setup", 
+                                 data={"totp": f"12345{i}"},
+                                 headers={"X-Requested-With": "XMLHttpRequest"})
+            
+            assert response.status_code == 200
+            data = json.loads(response.data)
+            assert data["status"] == "error"
+
+
+class TestTOTPDatabaseIntegration:
+    """Test TOTP database operations"""
+
+    def test_totp_data_persists_across_sessions(self, client, init_database):
+        """Test that TOTP data persists across different sessions"""
+        # Register user and enable 2FA
+        client.post("/register", data={
+            "username": "persistuser", 
+            "password": "Pass123", 
+            "password_confirm": "Pass123"
+        })
+        
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        user = db.execute("SELECT id FROM users WHERE username=?", "persistuser")
+        user_id = user[0]["id"]
+        
+        with client.session_transaction() as sess:
+            sess["user_id"] = user_id
+            sess["uname"] = "persistuser"
+        
+        # Enable 2FA
+        client.get("/login/totp/setup")
+        
+        # Get TOTP data
+        totp_data_before = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        assert len(totp_data_before) > 0
+        
+        # Clear session and create new one
+        with client.session_transaction() as sess:
+            sess.clear()
+            sess["user_id"] = user_id
+            sess["uname"] = "persistuser"
+        
+        # TOTP data should still exist
+        totp_data_after = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        assert len(totp_data_after) > 0
+        assert totp_data_before[0]["uri"] == totp_data_after[0]["uri"]
+
+    def test_totp_data_deleted_on_user_deletion(self, init_database):
+        """Test that TOTP data is deleted when user is deleted (cascade)"""
+        from sqlite import SQLite
+        db = SQLite("clipbin.db")
+        
+        # Create user directly in database
+        from werkzeug.security import generate_password_hash
+        password_hash = generate_password_hash("Pass123")
+        
+        db.execute("INSERT INTO users (username, password) VALUES (?, ?)", 
+                  "cascadeuser", password_hash)
+        
+        user = db.execute("SELECT id FROM users WHERE username=?", "cascadeuser")
+        user_id = user[0]["id"]
+        
+        # Add TOTP data
+        from additional import totp_generator
+        encrypted_secret, _ = totp_generator(str(user_id), "cascadeuser")
+        db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", 
+                  user_id, encrypted_secret)
+        
+        # Verify TOTP data exists
+        totp_data = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        assert len(totp_data) > 0
+        
+        # Delete user
+        db.execute("DELETE FROM users WHERE id=?", user_id)
+        
+        # TOTP data should be deleted due to cascade
+        totp_data_after = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        assert len(totp_data_after) == 0

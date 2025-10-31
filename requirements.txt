@@ -11,3 +11,5 @@ coverage>=7.0.0
 black>=23.0.0
 flake8>=6.0.0
 pyotp
+qrcode
+Pillow
