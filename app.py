@@ -723,19 +723,19 @@ def register():
             conf = passwd
 
         if not uname:
-            return render_template("register.html", error="Username cannot be empty!")
+            return render_template("register.html", error="Username cannot be empty!", dat=loginData())
 
         name = db.execute("SELECT username FROM users WHERE username=?", uname)
         if len(name) != 0:
-            return render_template("register.html", error="This username already exists!")
+            return render_template("register.html", error="This username already exists!", dat=loginData())
 
         if not passwd:
             return render_template("register.html", error="Password cannot be empty!")
 
         if not conf:
-            return render_template("register.html", error="Password Confirmation is required!")
+            return render_template("register.html", error="Password Confirmation is required!", dat=loginData())
         if passwd != conf:
-            return render_template("register.html", error="Passwords do not match!")
+            return render_template("register.html", error="Passwords do not match!", dat=loginData())
 
         db.execute(
             "INSERT INTO users (username, password) VALUES (?, ?)",
