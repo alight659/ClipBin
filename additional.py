@@ -194,11 +194,12 @@ def totp_verify(encrypted_secret_b64: str, user_id: str, username: str, otp_code
     except Exception:
         return False
 
+
 def qrTObasecode(uri: str, size: int = 300, border: int = 1) -> str:
     qr = qrcode.QRCode(
-        version=1,              
+        version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=size // 21,    
+        box_size=size // 21,
         border=border,
     )
     qr.add_data(uri)
@@ -209,4 +210,4 @@ def qrTObasecode(uri: str, size: int = 300, border: int = 1) -> str:
     img = qr.make_image(fill_color="black", back_color="white")
     img = img.resize((size, size), qrcode.image.pil.Image.LANCZOS)
     img.save(buffer, format="PNG")
-    return base64.b64encode(buffer.getvalue()).decode("utf-8")  
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")

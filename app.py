@@ -115,13 +115,9 @@ def twoFACheck(user_id=None):
     else:
         return data[0]["uri"]
 
+
 def render_totp_template(totp_secret, qr_b64):
-    return render_template(
-        "totp_setup.html",
-        totp_secret=totp_secret,
-        qr_code=qr_b64,
-        dat=loginData()        
-    )       
+    return render_template("totp_setup.html", totp_secret=totp_secret, qr_code=qr_b64, dat=loginData())
 
 
 # Error Handling 404
@@ -629,6 +625,7 @@ def totp():
 
     return render_template("totp.html", dat=loginData())
 
+
 @app.route("/login/totp/<mode>", methods=["GET", "POST"])
 @login_required
 def totp_manage(mode):
@@ -637,42 +634,34 @@ def totp_manage(mode):
         return redirect("/login")
 
     user_id = session["user_id"]
-    uname   = session["uname"]
+    uname = session["uname"]
 
     mode = mode.lower().strip()
     if mode not in ("setup", "resync"):
         flash("Invalid 2FA action.")
         return redirect("/settings")
 
-    twoFATable()                     
-    encrypted_uri = twoFACheck(user_id=user_id)  
-
+    twoFATable()
+    encrypted_uri = twoFACheck(user_id=user_id)
 
     if mode == "setup":
-        if not encrypted_uri:                     
+        if not encrypted_uri:
             encrypted_uri, provisioning_uri = totp_generator(user_id, uname)
-            db.execute(
-                "INSERT INTO twoFA (user_id, uri) VALUES (?, ?)",user_id, encrypted_uri
-            )
+            db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_uri)
             success_msg = "2FA setup successful!"
-        else:                                     
+        else:
             totp_secret = totpCode(encrypted_uri, user_id, uname)
-            provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(
-                name=uname, issuer_name="Clipbin"
-            )
+            provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(name=uname, issuer_name="Clipbin")
             success_msg = "2FA already enabled."
 
-    else: 
+    else:
         if not encrypted_uri:
             flash("Two-Factor Authentication is disabled.")
             return redirect("/settings")
 
         totp_secret = totpCode(encrypted_uri, user_id, uname)
-        provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(
-            name=uname, issuer_name="Clipbin"
-        )
+        provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(name=uname, issuer_name="Clipbin")
         success_msg = "2FA resynced successfully!"
-
 
     qr_b64 = qrTObasecode(provisioning_uri)
     totp_secret = totpCode(encrypted_uri, user_id, uname)
@@ -684,16 +673,9 @@ def totp_manage(mode):
             return render_totp_template(totp_secret, qr_b64)
 
         if totp_verify(encrypted_uri, user_id, uname, user_code):
-            return jsonify({
-                "status": "success",
-                "message": success_msg,
-                "redirect": "/"
-            })
+            return jsonify({"status": "success", "message": success_msg, "redirect": "/"})
         else:
-            return jsonify({
-                "status": "error",
-                "message": "Invalid TOTP code!"
-            })
+            return jsonify({"status": "error", "message": "Invalid TOTP code!"})
 
     return render_totp_template(totp_secret, qr_b64)
 
