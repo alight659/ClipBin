@@ -855,25 +855,26 @@ class TestTOTPUIInteraction:
         assert b'type="hidden"' in response.data
         assert b'name="totp"' in response.data
 
-    def test_copy_secret_button_exists(self, client, init_database):
-        """Test that copy secret button exists on setup page"""
-        client.post("/register", data={"username": "copytest", "password": "Pass123", "password_confirm": "Pass123"})
+    def test_qr_code_image_exists(self, client, init_database):
+        """Test that QR code image exists on setup page"""
+        client.post("/register", data={"username": "qrcodetest", "password": "Pass123", "password_confirm": "Pass123"})
 
         from sqlite import SQLite
 
         db = SQLite("clipbin.db")
-        user = db.execute("SELECT id FROM users WHERE username=?", "copytest")
+        user = db.execute("SELECT id FROM users WHERE username=?", "qrcodetest")
         user_id = user[0]["id"]
 
         with client.session_transaction() as sess:
             sess["user_id"] = user_id
-            sess["uname"] = "copytest"
+            sess["uname"] = "qrcodetest"
 
         response = client.get("/login/totp/setup")
         assert response.status_code == 200
 
-        # Check for copy button
-        assert b"copy-secret" in response.data or b"Copy" in response.data
+        # Check for QR code image
+        assert b"qrcode" in response.data
+        assert b"data:image/png;base64," in response.data
 
     def test_totp_setup_javascript_loaded(self, client, init_database):
         """Test that required JavaScript libraries are loaded"""
@@ -1493,10 +1494,10 @@ class TestTOTPUIComponents:
         # Check for required UI elements from totp_setup.html
         assert b"qrcode" in response.data  # QR code image
         assert b"otp-input" in response.data  # OTP input fields
-        assert b"copy-secret" in response.data  # Copy secret button
         assert b"totpForm" in response.data  # Form ID
         assert b"Enter the 6-digit code" in response.data  # Instructions
         assert b"Two-Factor Authentication" in response.data  # Page title
+        assert b"Verify" in response.data  # Submit button
 
     def test_totp_verification_page_contains_required_elements(self, client, init_database):
         """Test that TOTP verification page contains required elements"""
