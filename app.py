@@ -644,40 +644,61 @@ def totp_manage(mode):
     twoFATable()
     encrypted_uri = twoFACheck(user_id=user_id)
 
-    if mode == "setup":
-        if not encrypted_uri:
+    if mode == "setup" and not encrypted_uri:
+        if "temp_totp_secret" not in session:
             encrypted_uri, provisioning_uri = totp_generator(user_id, uname)
-            db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_uri)
-            success_msg = "2FA setup successful!"
+            session["temp_totp_secret"] = encrypted_uri
         else:
+            encrypted_uri = session["temp_totp_secret"]
             totp_secret = totpCode(encrypted_uri, user_id, uname)
             provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(name=uname, issuer_name="Clipbin")
-            success_msg = "2FA already enabled."
-
+        success_msg = "2FA setup successful!"
+    elif mode == "setup" and encrypted_uri:
+        totp_secret = totpCode(encrypted_uri, user_id, uname)
+        provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(name=uname, issuer_name="Clipbin")
+        success_msg = "2FA already enabled."
     else:
         if not encrypted_uri:
             flash("Two-Factor Authentication is disabled.")
             return redirect("/settings")
 
+        session.pop("temp_totp_secret", None)
         totp_secret = totpCode(encrypted_uri, user_id, uname)
         provisioning_uri = pyotp.TOTP(totp_secret).provisioning_uri(name=uname, issuer_name="Clipbin")
         success_msg = "2FA resynced successfully!"
 
     qr_b64 = qrTObasecode(provisioning_uri)
-    totp_secret = totpCode(encrypted_uri, user_id, uname)
-    totp = pyotp.TOTP(totp_secret)
+
+    if mode == "setup" and "temp_totp_secret" in session:
+        otp_secret = totpCode(session["temp_totp_secret"], user_id, uname)
+    else:
+        otp_secret = totpCode(encrypted_uri, user_id, uname)
+
+    totp = pyotp.TOTP(otp_secret)
 
     if request.method == "POST":
         user_code = request.form.get("totp", "").strip()
         if not user_code:
-            return render_totp_template(totp_secret, qr_b64)
+            return render_totp_template(otp_secret, qr_b64)
 
-        if totp_verify(encrypted_uri, user_id, uname, user_code):
+        if mode == "setup" and "temp_totp_secret" in session:
+            is_valid = totp_verify(session["temp_totp_secret"], user_id, uname, user_code)
+        else:
+            is_valid = totp_verify(encrypted_uri, user_id, uname, user_code)
+
+        if is_valid:
+            if mode == "setup" and "temp_totp_secret" in session:
+                db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, session["temp_totp_secret"])
+                session.pop("temp_totp_secret")
+
+            print(session)
             return jsonify({"status": "success", "message": success_msg, "redirect": "/"})
         else:
-            return jsonify({"status": "error", "message": "Invalid TOTP code!"})
+            return jsonify(
+                {"status": "error", "message": f"Invalid TOTP code! {totp.now()} secret:{session['temp_totp_secret']}"}
+            )
 
-    return render_totp_template(totp_secret, qr_b64)
+    return render_totp_template(otp_secret, qr_b64)
 
 
 # Logout Function
@@ -1041,4 +1062,4 @@ def feedbackroute():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

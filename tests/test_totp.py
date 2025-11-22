@@ -1119,11 +1119,10 @@ class TestTOTPCompleteMockScenarios:
         user = db.execute("SELECT id FROM users WHERE username=?", "setupflow")
         user_id = user[0]["id"]
 
-        totp_data = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
-        assert len(totp_data) > 0
+        with client.session_transaction() as session:
+            uri = session["temp_totp_secret"]
 
-        encrypted_secret = totp_data[0]["uri"]
-        secret = totpCode(encrypted_secret, str(user_id), "setupflow")
+        secret = totpCode(uri, user_id, "setupflow")
         totp = pyotp.TOTP(secret)
         valid_code = totp.now()
 
@@ -1132,8 +1131,12 @@ class TestTOTPCompleteMockScenarios:
             "/login/totp/setup", data={"totp": valid_code}, headers={"X-Requested-With": "XMLHttpRequest"}
         )
 
+        totp_data = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
+        assert len(totp_data) > 0
+
         assert response.status_code == 200
         data = json.loads(response.data)
+        print(data)
         assert data["status"] == "success"
 
 
@@ -1163,6 +1166,17 @@ class TestTOTPEdgeCasesAdvanced:
         # Access setup page (should create 2FA data)
         response = client.get("/login/totp/setup")
         assert response.status_code == 200
+
+        with client.session_transaction() as session:
+            uri = session["temp_totp_secret"]
+        secret = totpCode(uri, user_id, "nodata")
+        totp = pyotp.TOTP(secret)
+        valid_code = totp.now()
+
+        # Verify the code
+        response = client.post(
+            "/login/totp/setup", data={"totp": valid_code}, headers={"X-Requested-With": "XMLHttpRequest"}
+        )
 
         # Check that 2FA data was created
         totp_data = db.execute("SELECT * FROM twoFA WHERE user_id=?", user_id)
@@ -1518,6 +1532,16 @@ class TestTOTPUIComponents:
 
         # Enable 2FA first
         client.get("/login/totp/setup")
+        with client.session_transaction() as session:
+            uri = session["temp_totp_secret"]
+        secret = totpCode(uri, user_id, "verifyuitest")
+        totp = pyotp.TOTP(secret)
+        valid_code = totp.now()
+
+        # Verify the code
+        response = client.post(
+            "/login/totp/setup", data={"totp": valid_code}, headers={"X-Requested-With": "XMLHttpRequest"}
+        )
 
         # Now check verification page
         response = client.get("/login/totp")
@@ -1571,6 +1595,16 @@ class TestTOTPUIComponents:
 
         # Enable 2FA
         client.get("/login/totp/setup")
+        with client.session_transaction() as session:
+            uri = session["temp_totp_secret"]
+        secret = totpCode(uri, user_id, "enableduser")
+        totp = pyotp.TOTP(secret)
+        valid_code = totp.now()
+
+        # Verify the code
+        response = client.post(
+            "/login/totp/setup", data={"totp": valid_code}, headers={"X-Requested-With": "XMLHttpRequest"}
+        )
 
         response = client.get("/settings")
         assert response.status_code == 200
@@ -1623,6 +1657,16 @@ class TestTOTPPermissionFlow:
 
         # Enable 2FA first
         client.get("/login/totp/setup")
+        with client.session_transaction() as session:
+            uri = session["temp_totp_secret"]
+        secret = totpCode(uri, user_id, "disableuser")
+        totp = pyotp.TOTP(secret)
+        valid_code = totp.now()
+
+        # Verify the code
+        response = client.post(
+            "/login/totp/setup", data={"totp": valid_code}, headers={"X-Requested-With": "XMLHttpRequest"}
+        )
 
         # Verify 2FA is enabled
         totp_data = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
@@ -1819,6 +1863,16 @@ class TestTOTPDatabaseIntegration:
 
         # Enable 2FA
         client.get("/login/totp/setup")
+        with client.session_transaction() as session:
+            uri = session["temp_totp_secret"]
+        secret = totpCode(uri, user_id, "persistuser")
+        totp = pyotp.TOTP(secret)
+        valid_code = totp.now()
+
+        # Verify the code
+        response = client.post(
+            "/login/totp/setup", data={"totp": valid_code}, headers={"X-Requested-With": "XMLHttpRequest"}
+        )
 
         # Get TOTP data
         totp_data_before = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
