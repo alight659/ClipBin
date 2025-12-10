@@ -86,23 +86,7 @@ def loginData():
     return [login, name]
 
 
-def twoFATable():
-    db.execute(
-        """
-    CREATE TABLE IF NOT EXISTS "twoFA" (
-        "id"        INTEGER NOT NULL UNIQUE,
-        "user_id"   INTEGER NOT NULL UNIQUE,
-        "uri"    TEXT NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT),
-        FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE
-    )
-        """
-    )
-
-
 def twoFACheck(user_id=None):
-    twoFATable()
-
     if user_id is None:
         if "user_id" not in session:
             return False
@@ -641,7 +625,6 @@ def totp_manage(mode):
         flash("Invalid 2FA action.")
         return redirect("/settings")
 
-    twoFATable()
     encrypted_uri = twoFACheck(user_id=user_id)
 
     if mode == "setup" and not encrypted_uri:
@@ -712,8 +695,6 @@ def logout():
 @app.route("/permission", methods=["POST"])
 @login_required
 def permission():
-    twoFATable()
-
     twofa_action = request.form.get("2fa_action")
     password = request.form.get("password")
 
@@ -973,7 +954,7 @@ def post_data():
     if request.is_json:
         data = request.get_json()
         clip_name = str(data.get("name", ""))
-        clip_text = str(data.get("content", ""))
+        clip_text = str(data.get("text", ""))
         unlist = data.get("unlisted")
         clip_pass = data.get("pwd")
         remove_after = data.get("remove")

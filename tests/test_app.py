@@ -330,7 +330,7 @@ class TestAPIRoutes:
 
     def test_api_post_data_post_no_auth(self, client):
         """Test API post_data POST without authentication."""
-        data = {"content": "Test content", "name": "Test clip"}
+        data = {"text": "Test content", "name": "Test clip"}
         response = client.post("/api/post_data", json=data)
         assert response.status_code == 201  # Should succeed and create clip
 
