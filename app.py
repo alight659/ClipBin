@@ -447,26 +447,76 @@ def test_405():
 def update(url_id):
     if loginData()[0]:
         data = db.execute(
-            "SELECT clips.id, clips.is_editable, clips.clip_pwd FROM clipRef JOIN clips ON clips.id = clipRef.clipid WHERE clipRef.userid=? AND clips.clip_URL=?",
+            "SELECT clips.id, clips.is_editable, clips.clip_pwd, clips.clip_text "
+            "FROM clipRef JOIN clips ON clips.id = clipRef.clipid "
+            "WHERE clipRef.userid=? AND clips.clip_URL=?",
             session["user_id"],
             url_id,
         )
-        if len(data) != 0 and data[0]["is_editable"] == 1:
-            if request.method == "POST":
-                if data[0]["clip_pwd"]:
-                    flash("Password-protected clips cannot be edited directly to maintain security.")
-                    return redirect(f"/{url_id}")
-                text = str(request.form.get("clip_text")).strip()
-                cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
-                db.execute(
-                    "UPDATE clips SET clip_text=?, update_time=? WHERE id=?",
-                    text,
-                    cur_time,
-                    data[0]["id"],
-                )
+
+        if not data:
+            return render_template("error.html", code="You cannot edit this clip!")
+
+        if data[0]["is_editable"] != 1:
+            return render_template("error.html", code="Editing disabled for this clip")
+
+        clip_id = data[0]["id"]
+        clip_pwd = data[0]["clip_pwd"]
+        old_text = data[0]["clip_text"]
+
+        if request.method == "POST":
+
+            if request.form.get("clip_text") is None:
+                flash("No content submitted")
                 return redirect(f"/{url_id}")
-            return render_template("error.html", code="Cannot Edit this Clip")
-        return render_template("error.html", code="You cannot edit this clip!")
+
+            new_text = request.form.get("clip_text").strip()
+
+            if clip_pwd:
+
+                clip_pass = request.form.get("clip_passwd")
+
+                if not clip_pass:
+                    flash("Password required to update this protected clip.")
+                    return redirect(f"/{url_id}")
+
+                if not check_password_hash(clip_pwd, clip_pass):
+                    flash("Incorrect password!")
+                    return redirect(f"/{url_id}")
+
+                try:
+                    old_plain = decrypt(old_text, clip_pass).decode()
+                except Exception as e:
+                    flash("Failed to decrypt old content.")
+                    return redirect(f"/{url_id}")
+
+                if old_plain != new_text:
+                    new_text = encrypt(new_text.encode(), clip_pass)
+
+                    cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
+                    db.execute(
+                        "UPDATE clips SET clip_text=?, update_time=? WHERE id=?",
+                        new_text,
+                        cur_time,
+                        clip_id,
+                    )
+                    flash("Clip has been updated")
+
+            else:
+
+                if old_text != new_text:
+                    cur_time = datetime.now().strftime("%d-%m-%Y @ %H:%M:%S")
+                    db.execute(
+                        "UPDATE clips SET clip_text=?, update_time=? WHERE id=?",
+                        new_text,
+                        cur_time,
+                        clip_id,
+                    )
+                    flash("Clip has been updated")
+
+            return redirect(f"/{url_id}")
+
+        return render_template("error.html", code="Invalid edit request")
     return redirect("/login")
 
 
