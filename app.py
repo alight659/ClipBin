@@ -333,6 +333,7 @@ def clip(clip_url_id):
                     update=updated,
                     time_left=time_left,
                     ext=ext,
+                    passwd2=passwd,
                     dat=loginData(),
                 )
             else:
