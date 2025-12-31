@@ -77,6 +77,10 @@
                             </button>
                          {% endif %}
                     </form>
+                    {% else %}
+                        <pre>
+                            <code name="clip_text" class="w-full bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap">{{ text }}</code>
+                        </pre>
                     {% endif %}
                 </div>
             </div>
