@@ -41,7 +41,12 @@
              <div class="flex flex-col text-center w-full text-wrap">
                 <p class="leading-7 text-white-400 w-auto text-wrap items-center">
                     <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded" href="/download/{{ url_id }}">Download as {{ ext }}</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded" href="/">Create Another</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded" href="/{{ url_id }}/raw">View Raw</a>
-                    <button id="copy-content-btn" class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded">
+                    <button class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded" 
+                        {% if edit %}
+                            onclick="navigator.clipboard.writeText(document.getElementById('clip_text').value); alert('Text Copied!');"
+                        {% else %}
+                            onclick="navigator.clipboard.writeText(document.querySelector('code[name=clip_text]').innerText); alert('Text Copied!');"
+                        {% endif %}>
                             Copy 
                     </button>
                 </p>
