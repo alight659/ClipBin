@@ -471,11 +471,11 @@ def update(url_id):
                 flash("No content submitted")
                 return redirect(f"/{url_id}")
 
-            new_text = request.form.get("clip_text").strip()
+            new_text = str(request.form.get("clip_text")).strip()
 
             if clip_pwd:
 
-                clip_pass = request.form.get("clip_passwd")
+                clip_pass = str(request.form.get("clip_passwd"))
 
                 if not clip_pass:
                     flash("Password required to update this protected clip.")
