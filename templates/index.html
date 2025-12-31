@@ -11,7 +11,7 @@ Share Code or Text Instantly
             <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">Create a Clip</h1>
             <p class="lg:w-2/3 mx-auto leading-relaxed text-base">Dump your code or whatever you want.</p>
           </div>
-          <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
+          <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4 sm:space-y-0 space-y-4">
             <div class="relative sm:mb-0 flex-grow w-full">
               <label for="clip_name" class="leading-7 text-sm text-gray-400">Enter Title</label>
               <form action="/" method="post" enctype="multipart/form-data">
@@ -28,16 +28,16 @@ Share Code or Text Instantly
                 
                 </div>
 
-                <div class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 roundedtext-lg">
+                <div class="text-white border-0 py-2 px-8 focus:outline-none bg-gray-800 rounded ">
                   <h1 class="leading-7 text-white">Optionals</h1>
                   <div class="relative">
                     <label for="clip_alias" class="leading-7 text-sm text-gray-400">Custom URL Alias</label>
-                    <input type="text" id="clip_alias" name="clip_alias" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Custom-Alias (a-z A-Z 0-9 -_ only)" autocapitalize="off" autocomplete="off" maxlength="12" minlength="4">
+                    <input type="text" id="clip_alias" name="clip_alias" class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Custom-Alias (a-z A-Z 0-9 -_ only)" autocapitalize="off" autocomplete="off" maxlength="12" minlength="4">
                     <label for="clip_passwd" class="leading-7 text-sm text-gray-400">Create a Password Protected Clip</label>
-                    <input type="text" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password" autocapitalize="off" autocomplete="off">
+                    <input type="text" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" placeholder="Enter Password" autocapitalize="off" autocomplete="off">
                     <label class="leading-7 text-sm text-gray-400">Using Password also enables E2EE.</label><br>
                     <label class="leading-7 text-sm text-gray-400" for="clip_delete">Remove After:</label>
-                    <select name="clip_delete" id="clip_delete" class="w-full bg-gray-700 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
+                    <select name="clip_delete" id="clip_delete" class="w-full bg-gray-700 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-2 px-3 leading-8 transition-colors duration-200 ease-in-out">
                       <option value="never">Never</option>
                       <option value="day">1 Day</option>
                       <option value="week">1 Week</option>
@@ -66,13 +66,13 @@ Share Code or Text Instantly
                   >
                     
                     <div class="check-box-container flex text-center mt-1">
-                      <label for="clip_edit" class="leading-7 text-l text-gray-400">Make Editable? (Login)</label>
+                      <label for="clip_edit" class="leading-7  text-gray-400">Make Editable? (Login)</label>
                       <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="clip_edit" id="clip_edit" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 8920dedcb8f64121adaffd541e2ec130after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                         <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"></span> 
                       </label>
-                      <label for="clip_disp" class="leading-7 text-l text-gray-400">Set Unlisted? </label>
+                      <label for="clip_disp" class="leading-7  text-gray-400">Set Unlisted? </label>
                       <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="clip_disp" id="clip_disp" class="sr-only peer">
                         <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -82,7 +82,7 @@ Share Code or Text Instantly
                   </div>
                 </div>
                 <br>
-                <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Save</button>
+                <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 rounded " type="submit">Save</button>
               </form>
             </div>
           </div>

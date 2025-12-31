@@ -18,12 +18,12 @@
                 <p class="lg:w-2/3 mx-auto leading-relaxed text-base">{{ error }}</p>
             </div>
             {% endif %}
-            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
+            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4 sm:space-y-0 space-y-4">
                 <div class="relative sm:mb-0 flex-grow w-full">
-                    <label for="clip_passwd" class="leading-7 text-l text-gray-400">Enter Password</label>
+                    <label for="clip_passwd" class="leading-7 text-gray-400">Enter Password</label>
                     <form action="/{{ url_id }}" method="post">
-                        <input type="password" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" autocapitalize="off" autocomplete="off" autofocus>
-                        <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Go</button>
+                        <input type="password" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" autocapitalize="off" autocomplete="off" autofocus>
+                        <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 rounded" type="submit">Go</button>
                     </form>
                 </div>
             </div>
@@ -36,44 +36,90 @@
         <div class="container px-5 py-24 mx-auto">
             <div class="flex flex-col text-center w-full mb-12">
                 <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-white">{{ name }}</h1>
-                <p class="leading-7 text-l text-white-400">ID: {{ url_id }} <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(window.location.href);alert('URL Copied!');">Copy URL</button> </p>
+                <p class="leading-7  text-white-400">ID: {{ url_id }} <button class="text-white bg-green-500 border-0 py-1 px-4 focus:outline-none hover:bg-green-600 rounded " onclick="navigator.clipboard.writeText(window.location.href);alert('URL Copied!');">Copy URL</button> </p>
             </div>
-            <div class="flex flex-col text-center w-full text-wrap">
-                <p class="leading-7 text-l text-white-400 w-auto text-wrap items-center">
-                    <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/download/{{ url_id }}">Download as {{ ext }}</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/">Create Another</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 roundedtext-lg" href="/{{ url_id }}/raw">View Raw</a>
+             <div class="flex flex-col text-center w-full text-wrap">
+                <p class="leading-7 text-white-400 w-auto text-wrap items-center">
+                    <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded" href="/download/{{ url_id }}">Download as {{ ext }}</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded" href="/">Create Another</a> <a class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded" href="/{{ url_id }}/raw">View Raw</a>
+                    <button id="copy-content-btn" class="inline-flex items-center rounded text-white bg-green-500 border-0 py-2 px-4 focus:outline-none hover:bg-green-600 rounded">
+                            Copy 
+                    </button>
                 </p>
                 {% if edit and not is_owner %}
                 <br>
-                <p class="leading-7 text-l text-white-400 mt-2">This clip is editable by its owner.</p>
+                <p class="leading-7  text-white-400 mt-2">This clip is editable by its owner.</p>
                 {% endif %}
             </div>
-            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
+            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4 sm:space-y-0 space-y-4">
                 <div class="relative sm:mb-0 flex-grow w-full">
-                    {% if edit and is_owner %}
+                    {% if edit %}
                     <form action="/update/{{ url_id }}" method="post">
-                        <textarea name="clip_text" id="clip_text" class="w-full mt-4 bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap" rows="4" oninput="this.style.height = 'auto'; let min = 8 * 16; let max = 30 * 16; let scrh = this.scrollHeight; if (scrh < min) { this.style.height = min + 'px'; } else if (scrh > max) { this.style.height = max + 'px'; } else { this.style.height = scrh + 'px'; } ">{{ text }}</textarea>
-                        <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Update</button>
+                        <textarea name="clip_text" id="clip_text"
+                            class="w-full mt-4 bg-zinc-900 bg-opacity-40 rounded border outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap"
+                            rows="8" 
+                            oninput="this.style.height='auto';let min=8*16;let max=30*16;let h=this.scrollHeight;this.style.height=Math.min(Math.max(h,min),max)+'px';">{{ text }}
+                        </textarea>
+                        
+                            {% if is_owner %}                                      
+                                {% if passwd2 %}
+                                    <input type="password"
+                                        id="clip_passwd"
+                                        name="clip_passwd"
+                                        placeholder="Clip password"
+                                        class="w-full mt-2 bg-zinc-900 text-white border border-gray-700 rounded px-3 py-2"
+                                        style="display:none;"
+                                    >
+                                {% endif %}
+                      
+                            <button id="update-btn" type="button"
+                                class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 text-center focus:outline-none hover:bg-green-600 rounded ">
+                                Update
+                            </button>
+                         {% endif %}
                     </form>
-                    <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(document.getElementById('clip_text').value); alert('Text Copied!');">Copy Text</button>
-                    {% else %}
-                        <pre>
-                        <code name="clip_text" class="w-full bg-zinc-900 bg-opacity-40 roundedborder outline-dashed py-1 px-3 leading-8 ubuntu-mono-regular text-wrap">{{ text }}</code>
-                        </pre>
-                        <button class="text-white bg-green-500 border-0 mt-2 mb-2 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" onclick="navigator.clipboard.writeText(document.querySelector('code[name=clip_text]').innerText); alert('Text Copied!');">Copy Text</button>
                     {% endif %}
-                    </pre>
                 </div>
             </div>
             <div class="flex flex-col text-center w-full mb-12">
-                <p class="leading-7 text-l text-white-400"> Created: {{ time }} UTC</p>
+                <p class="leading-7  text-white-400"> Created: {{ time }} UTC</p>
                 {% if edit and update %}
-                <p class="leading-7 text-l text-white-400"> Updated: {{ update }} UTC</p>
+                <p class="leading-7  text-white-400"> Updated: {{ update }} UTC</p>
                 {% endif %}
                 {% if time_left %}
-                <p class="leading-7 text-l text-white-400"> Time Left until Expiration: {{ time_left }}</p>
+                <p class="leading-7  text-white-400"> Time Left until Expiration: {{ time_left }}</p>
                 {% endif %}
             </div>
         </div>
     </section>
     {% endif %}
+<script>
+const updateBtn = document.getElementById("update-btn");
+const passField = document.getElementById("clip_passwd");
+
+if (updateBtn) {
+    updateBtn.addEventListener("click", () => {
+        if (!passField) {
+            updateBtn.closest("form").submit();
+            return;
+        }
+
+        if (passField.style.display === "none") {
+            passField.style.display = "block";
+            passField.focus();
+            updateBtn.innerText = "Confirm Update";
+            return;
+        }
+
+        if (passField.value.trim() === "") {
+            alert("Please enter the clip password");
+            passField.focus();
+            return;
+        }
+
+        updateBtn.closest("form").submit();
+    });
+}
+</script>
+
+
 {% endblock %}

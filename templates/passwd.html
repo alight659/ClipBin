@@ -11,12 +11,12 @@
                 <p class="lg:w-2/3 mx-auto leading-relaxed text-base">{{ error }}</p>
             </div>
             {% endif %}
-            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4sm:space-y-0 space-y-4">
+            <div class="flex lg:w-2/3 w-full sm:flex-row flex-col mx-auto px-8 sm:px-0 items-end sm:space-x-4 sm:space-y-0 space-y-4">
                 <div class="relative sm:mb-0 flex-grow w-full">
-                    <label for="clip_passwd" class="leading-7 text-l text-gray-400">Enter Password</label>
+                    <label for="clip_passwd" class="leading-7 text-lg text-gray-400">Enter Password</label>
                     <form action="/download/{{ url_id }}" method="post">
-                        <input type="password" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-800 bg-opacity-40 roundedborder border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparenttext-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" autocapitalize="off" autocomplete="off" autofocus>
-                        <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 roundedtext-lg" type="submit">Go</button>
+                        <input type="password" id="clip_passwd" name="clip_passwd" class="w-full bg-gray-800 bg-opacity-40 rounded border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-900 focus:bg-transparent text-base outline-none text-gray-100 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" autocapitalize="off" autocomplete="off" autofocus>
+                        <button class="text-white bg-green-500 border-0 py-2 px-8 focus:outline-none hover:bg-green-600 rounded text-lg" type="submit">Go</button>
                     </form>
                 </div>
             </div>
