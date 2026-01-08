@@ -104,6 +104,12 @@ def render_totp_template(totp_secret, qr_b64):
     return render_template("totp_setup.html", totp_secret=totp_secret, qr_code=qr_b64, dat=loginData())
 
 
+# Server-Side Year PreProcessor
+@app.context_processor
+def inject_year():
+    return {"this_year": datetime.now().year}
+
+
 # Error Handling 404
 @app.errorhandler(404)
 def error_404(code):
