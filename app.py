@@ -293,7 +293,6 @@ def clip(clip_url_id):
         editable = data[0]["is_editable"]
         updated = data[0]["update_time"]
         remove_time = data[0]["delete_time"]
-        ext = ""
 
         time_left = ""
         if remove_time:
@@ -316,11 +315,6 @@ def clip(clip_url_id):
         if editable == 1:
             is_editable = True
 
-        try:
-            ext = name.rsplit(".")[1]
-        except IndexError:
-            ext = "txt"
-
         if passwd and request.method != "POST":
             return render_template("clip.html", passwd=True, url_id=clip_url_id, dat=loginData())
         elif request.method == "POST":
@@ -338,7 +332,6 @@ def clip(clip_url_id):
                     is_owner=is_owner,
                     update=updated,
                     time_left=time_left,
-                    ext=ext,
                     passwd2=passwd,
                     dat=loginData(),
                 )
@@ -362,7 +355,6 @@ def clip(clip_url_id):
                 is_owner=is_owner,
                 update=updated,
                 time_left=time_left,
-                ext=ext,
                 dat=loginData(),
             )
 
