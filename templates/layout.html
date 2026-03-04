@@ -12,7 +12,7 @@
 
     <!-- main stylesheet -->
     <link rel="stylesheet" href="/static/style.css" />
-    <link rel="stylesheet" href="/static/tailwind.css" />
+    <link rel="stylesheet" href="/static/tailwind.min.css" />
 
     <!-- scripts.js -->
     <!-- HEHE: DOES NOT EXIST -->
@@ -46,7 +46,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
     />
 
-    <title>ClipBin: {% block title %}{% endblock %}</title>
+    <title>ClipBin - {% block title %}{% endblock %}</title>
   </head>
 
     <body class="bg-gray-900" data-theme="dark">
@@ -64,7 +64,7 @@
                   {% endif %}
                 {% endif %}
                 <a href="/api" class="mr-5 hover:text-white">API</a>
-                <a class="mr-8 hover:text-white" href="/about">About</a>
+                <a class="hover:text-white" href="/about">About</a>
               </nav>
               <button
                 id="theme-toggle"
