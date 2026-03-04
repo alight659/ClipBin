@@ -76,7 +76,16 @@ footer {
 }
 
 .clip_file_label {
-    display: none;
+    display: block !important;
+    padding: 1px 6px;
+    width: 135px;
+    height: 30px;
+    color: #FFF;
+    text-align: center;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 2px;
+    border: 1px solid rgb(229, 231, 235);
 }
 
 td:not(:last-child) {
