@@ -591,27 +591,33 @@ def login():
         uname = request.form.get("uname") or request.form.get("username")
         # Handle both 'passwd' and 'password' field names for compatibility
         passwd = request.form.get("passwd") or request.form.get("password")
+
+        if not uname and not passwd:
+            flash("Username and Password Cannot be Empty!")
+            return render_template("login.html", dat=loginData(), reg=True)
+
         if not uname:
             flash("Username Cannot be Empty!")
 
         if not passwd:
             flash("Password Cannot be Empty!")
 
-        data = db.execute("SELECT * FROM users WHERE username=?", uname)
-        if len(data) != 0:
-            if check_password_hash(data[0]["password"], passwd):
-                twofa_enabled = twoFACheck(data[0]["id"])
-                session["user_id"] = data[0]["id"]
-                session["uname"] = uname
-                if not twofa_enabled:
-                    return redirect("/")
+        if uname and passwd:
+            data = db.execute("SELECT * FROM users WHERE username=?", uname)
+            if len(data) != 0:
+                if check_password_hash(data[0]["password"], passwd):
+                    twofa_enabled = twoFACheck(data[0]["id"])
+                    session["user_id"] = data[0]["id"]
+                    session["uname"] = uname
+                    if not twofa_enabled:
+                        return redirect("/")
+                    else:
+                        return redirect("/login/totp")
                 else:
-                    return redirect("/login/totp")
+                    flash("Incorrect Username or Password!")
+                    return render_template("login.html", dat=loginData(), reg=True)
             else:
-                flash("Incorrect Username or Password!")
-                return render_template("login.html", dat=loginData(), reg=True)
-        else:
-            flash("Account Not Found!")
+                flash("Account Not Found!")
 
     return render_template("login.html", dat=loginData(), reg=True)
 
