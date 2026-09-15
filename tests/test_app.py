@@ -385,15 +385,31 @@ class TestPasswordProtection:
 
     def test_password_verification_correct(self, client):
         """Test password verification with correct password."""
-        # This would require setting up a password-protected clip first
-        # and then testing the password verification
-        pass
+        data = {
+            "clip_name": "Protected Clip",
+            "clip_text": "This is protected content",
+            "clip_alias": "vfypass",
+            "clip_passwd": "mypassword",
+            "clip_delete": "day",
+            "clip_file": (BytesIO(b""), ""),  # Empty file
+        }
+        client.post("/", data=data)
+        response = client.post("/vfypass", data={"clip_passwd": "mypassword"})
+        assert "This is protected content" in response.text
 
     def test_password_verification_incorrect(self, client):
         """Test password verification with incorrect password."""
-        # This would require setting up a password-protected clip first
-        # and then testing with wrong password
-        pass
+        data = {
+            "clip_name": "Protected Clip",
+            "clip_text": "This is protected content",
+            "clip_alias": "vfypass",
+            "clip_passwd": "mypassword",
+            "clip_delete": "day",
+            "clip_file": (BytesIO(b""), ""),  # Empty file
+        }
+        client.post("/", data=data)
+        response = client.post("/vfypass", data={"clip_passwd": "mypass"})
+        assert "Incorrect Password!" in response.text
 
 
 class TestExportFunctionality:
