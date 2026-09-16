@@ -28,4 +28,4 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run E2E tests
-        run: pytest test_e2e.py -v
+        run: pytest tests/test_e2e.py -v
