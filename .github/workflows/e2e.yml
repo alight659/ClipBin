@@ -7,18 +7,25 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: ['3.11', '3.12', '3.13']
+          python-version: ${{ matrix.python-version }}
+          cache: pip
 
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: Install deps
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run E2E tests
         run: pytest test_e2e.py -v
