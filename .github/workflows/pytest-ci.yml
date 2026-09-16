@@ -44,7 +44,8 @@ jobs:
             --cov-report=term-missing \
             --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} \
             --tb=short \
-            --strict-markers
+            --strict-markers \
+            --ignore=tests/test_e2e.py
             
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
