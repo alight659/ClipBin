@@ -17,6 +17,9 @@ jobs:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@v1
 
+      - name: Install chromedriver
+        uses: nanasess/setup-chromedriver@v2
+
       - name: Install deps
         run: pip install -r requirements.txt
 
