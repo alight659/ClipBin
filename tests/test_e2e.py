@@ -117,11 +117,10 @@ def test_flow_with_incorrect_password(driver):
     driver.find_element(By.XPATH, "//button[text()='Go']").click()
 
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "input"))
+        EC.presence_of_element_located((By.XPATH, "//p[normalize-space()='Incorrect Password!']"))
     )
 
-    p = driver.find_element(By.TAG_NAME, "p")
-    assert p.text == "Incorrect Password!"
+    assert driver.find_element(By.XPATH, "//button[text()='Go']")
 
 
 def test_flow_empty(driver):
@@ -137,6 +136,7 @@ def test_flow_empty(driver):
 
 
 def test_flow_user(driver):
+    driver.delete_all_cookies()
     driver.get(BASE + "/")
     login = driver.find_element(By.LINK_TEXT, "Login").click()
 
@@ -191,6 +191,7 @@ def test_flow_user(driver):
 
 
 def test_flow_complete_edited(driver):
+    driver.delete_all_cookies()
     driver.get(BASE + "/")
     login = driver.find_element(By.LINK_TEXT, "Login").click()
 
@@ -252,7 +253,7 @@ def test_flow_complete_edited(driver):
         EC.presence_of_element_located((By.ID, "clip_text"))
     )
 
-    clip_text_updated = driver.find_element(By.ID, "clip_text")
+    clip_text_updated = driver.find_element(By.TAG_NAME, "textarea")
     clip_text_updated.clear()
     clip_text_updated.send_keys("This text was updated.")
     driver.find_element(By.XPATH, "//button[normalize-space()='Update']").click()
@@ -266,6 +267,7 @@ def test_flow_complete_edited(driver):
 
 
 def test_flow_dashboard(driver):
+    driver.delete_all_cookies()
     driver.get(BASE + "/")
     login = driver.find_element(By.LINK_TEXT, "Login").click()
 
@@ -309,7 +311,7 @@ def test_flow_dashboard(driver):
     driver.find_element(By.XPATH, "//button[normalize-space()='Login']").click()
 
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "h1"))
+        EC.presence_of_element_located((By.NAME, "clip_name"))
     )
 
     assert driver.current_url == BASE + "/"
