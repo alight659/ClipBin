@@ -80,8 +80,8 @@ def test_flow_with_password(driver):
     clip_passwd.send_keys("password")
     driver.find_element(By.XPATH, "//button[text()='Save']").click()
 
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "input"))
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.ID, "clip_passwd")),
     )
     
     clip_view_passwd = driver.find_element(By.NAME, "clip_passwd")
