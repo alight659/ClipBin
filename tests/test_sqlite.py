@@ -28,28 +28,24 @@ class TestSQLite:
 
     def test_execute_create_table(self, test_db):
         """Test executing CREATE TABLE query."""
-        result = test_db.execute(
-            """
+        result = test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
         # CREATE statements return an empty list, not True
         assert result == []
 
     def test_execute_insert(self, test_db):
         """Test executing INSERT query."""
         # First create table
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
 
         # Then insert data
         result = test_db.execute("INSERT INTO test_table (name) VALUES (?)", "Test Name")
@@ -58,14 +54,12 @@ class TestSQLite:
     def test_execute_select(self, test_db):
         """Test executing SELECT query."""
         # Create table and insert data
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
         test_db.execute("INSERT INTO test_table (name) VALUES (?)", "Test Name")
 
         # Select data
@@ -77,14 +71,12 @@ class TestSQLite:
     def test_execute_update(self, test_db):
         """Test executing UPDATE query."""
         # Create table and insert data
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
         test_db.execute("INSERT INTO test_table (name) VALUES (?)", "Test Name")
 
         # Update data
@@ -98,14 +90,12 @@ class TestSQLite:
     def test_execute_delete(self, test_db):
         """Test executing DELETE query."""
         # Create table and insert data
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
         test_db.execute("INSERT INTO test_table (name) VALUES (?)", "Test Name")
 
         # Delete data
@@ -118,15 +108,13 @@ class TestSQLite:
 
     def test_execute_multiple_args(self, test_db):
         """Test executing query with multiple arguments."""
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 age INTEGER
             )
-        """
-        )
+        """)
 
         result = test_db.execute("INSERT INTO test_table (name, age) VALUES (?, ?)", "John Doe", 25)
         assert result is True
@@ -143,26 +131,22 @@ class TestSQLite:
     def test_execute_with_foreign_keys(self, test_db):
         """Test that foreign keys are enabled."""
         # Create parent table
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE parent (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
 
         # Create child table with foreign key
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE child (
                 id INTEGER PRIMARY KEY,
                 parent_id INTEGER,
                 name TEXT NOT NULL,
                 FOREIGN KEY (parent_id) REFERENCES parent (id)
             )
-        """
-        )
+        """)
 
         # Insert parent record
         test_db.execute("INSERT INTO parent (name) VALUES (?)", "Parent")
@@ -173,15 +157,13 @@ class TestSQLite:
 
     def test_row_factory_dict(self, test_db):
         """Test that rows are returned as dictionaries."""
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 age INTEGER
             )
-        """
-        )
+        """)
         test_db.execute("INSERT INTO test_table (name, age) VALUES (?, ?)", "John", 30)
 
         result = test_db.execute("SELECT * FROM test_table")
@@ -203,14 +185,12 @@ class TestSQLite:
             test_db.execute("INSERT INTO test_table (name) VALUES (?)", name)
 
         # Create table
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE test_table (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
 
         # Create multiple threads
         threads = []
@@ -230,14 +210,12 @@ class TestSQLite:
     def test_cleanup_all_tables_method(self, test_db):
         """Test the cleanup_all_tables method."""
         # Create test table and data
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE cleanup_test (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
 
         # Insert test data
         test_db.execute("INSERT INTO cleanup_test (name) VALUES (?)", "test1")
@@ -266,14 +244,12 @@ class TestSQLite:
         assert isinstance(initial_tables, list)
 
         # Create additional test table
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE table_names_test (
                 id INTEGER PRIMARY KEY,
                 data TEXT
             )
-        """
-        )
+        """)
 
         # Get table names
         tables = test_db.get_table_names()
@@ -284,25 +260,21 @@ class TestSQLite:
     def test_cleanup_with_foreign_keys(self, test_db):
         """Test cleanup works properly with foreign key constraints."""
         # Create tables with foreign key relationships
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE parent_table (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL
             )
-        """
-        )
+        """)
 
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE child_table (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 parent_id INTEGER,
                 data TEXT,
                 FOREIGN KEY(parent_id) REFERENCES parent_table(id) ON DELETE CASCADE
             )
-        """
-        )
+        """)
 
         # Insert related data
         test_db.execute("INSERT INTO parent_table (name) VALUES (?)", "parent1")

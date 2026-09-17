@@ -1251,26 +1251,22 @@ def init_database():
     db = SQLite("clipbin.db")
 
     # Create tables
-    db.execute(
-        """
+    db.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )
-    """
-    )
+    """)
 
-    db.execute(
-        """
+    db.execute("""
         CREATE TABLE IF NOT EXISTS twoFA (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER UNIQUE NOT NULL,
             uri TEXT NOT NULL,
             FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
         )
-    """
-    )
+    """)
 
     yield db
 

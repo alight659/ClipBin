@@ -85,14 +85,12 @@ class TestDatabaseCleanup:
     def test_cleanup_method_exists_and_works(self, test_db):
         """Test that the cleanup_all_tables method exists and works."""
         # Test with isolated test database
-        test_db.execute(
-            """
+        test_db.execute("""
             CREATE TABLE IF NOT EXISTS test_cleanup (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 data TEXT
             )
-        """
-        )
+        """)
 
         # Insert test data
         test_db.execute("INSERT INTO test_cleanup (data) VALUES (?)", "test_data")

@@ -110,19 +110,16 @@ def test_db():
 def init_test_db():
     """Initialize the test database with required tables."""
     # Create required tables for testing
-    db.execute(
-        """
+    db.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER NOT NULL UNIQUE,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
             PRIMARY KEY(id AUTOINCREMENT)
         )
-    """
-    )
+    """)
 
-    db.execute(
-        """
+    db.execute("""
         CREATE TABLE IF NOT EXISTS clips (
             id INTEGER NOT NULL UNIQUE,
             clip_url TEXT NOT NULL UNIQUE,
@@ -136,11 +133,9 @@ def init_test_db():
             delete_time TEXT,
             PRIMARY KEY(id AUTOINCREMENT)
         )
-    """
-    )
+    """)
 
-    db.execute(
-        """
+    db.execute("""
         CREATE TABLE IF NOT EXISTS clipRef(
             id INTEGER NOT NULL UNIQUE,
             userid INTEGER,
@@ -149,25 +144,21 @@ def init_test_db():
             FOREIGN KEY(clipid) REFERENCES clips(id) ON DELETE CASCADE,
             FOREIGN KEY(userid) REFERENCES users(id)
         )
-    """
-    )
+    """)
 
 
 def init_test_db_with_sqlite(sqlite_instance):
     """Initialize a SQLite instance with required tables."""
-    sqlite_instance.execute(
-        """
+    sqlite_instance.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER NOT NULL UNIQUE,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
             PRIMARY KEY(id AUTOINCREMENT)
         )
-    """
-    )
+    """)
 
-    sqlite_instance.execute(
-        """
+    sqlite_instance.execute("""
         CREATE TABLE IF NOT EXISTS clips (
             id INTEGER NOT NULL UNIQUE,
             clip_url TEXT NOT NULL UNIQUE,
@@ -181,11 +172,9 @@ def init_test_db_with_sqlite(sqlite_instance):
             delete_time TEXT,
             PRIMARY KEY(id AUTOINCREMENT)
         )
-    """
-    )
+    """)
 
-    sqlite_instance.execute(
-        """
+    sqlite_instance.execute("""
         CREATE TABLE IF NOT EXISTS clipRef(
             id INTEGER NOT NULL UNIQUE,
             userid INTEGER,
@@ -194,8 +183,7 @@ def init_test_db_with_sqlite(sqlite_instance):
             FOREIGN KEY(clipid) REFERENCES clips(id) ON DELETE CASCADE,
             FOREIGN KEY(userid) REFERENCES users(id)
         )
-    """
-    )
+    """)
 
 
 @pytest.fixture
