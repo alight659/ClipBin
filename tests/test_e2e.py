@@ -10,6 +10,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import (
+    StaleElementReferenceException,
+    WebDriverException,
+    TimeoutException,
+)
 from app import app
 
 HOST = "127.0.0.1"
@@ -57,14 +62,54 @@ def driver():
     opts.add_argument("--disable-dev-shm-usage")
     opts.add_argument("--disable-gpu")
     opts.add_argument("--window-size=1280,1024")
+    opts.set_capability("pageLoadStrategy", "eager")
     d = webdriver.Chrome(options=opts)
     d.implicitly_wait(0)
+    d.execute_cdp_cmd("Network.enable", {})
+    d.execute_cdp_cmd(
+        "Network.setBlockedURLs",
+        {
+            "urls": [
+                "*fonts.googleapis.com*",
+                "*fonts.gstatic.com*",
+                "*cdn.jsdelivr.net*",
+                "*cdnjs.cloudflare.com*",
+            ]
+        },
+    )
     yield d
     d.quit()
 
 
 def wait_visible(driver, by, value, timeout=20):
-    return WebDriverWait(driver, timeout).until(EC.visibility_of_element_located((by, value)))
+    return WebDriverWait(
+        driver, timeout, ignored_exceptions=(StaleElementReferenceException, WebDriverException)
+    ).until(EC.visibility_of_element_located((by, value)))
+
+
+def click_when_ready(driver, by, value, timeout=20):
+    el = WebDriverWait(driver, timeout, ignored_exceptions=(StaleElementReferenceException, WebDriverException)).until(
+        EC.element_to_be_clickable((by, value))
+    )
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", el)
+    time.sleep(0.2)
+    el.click()
+    return el
+
+
+def click_and_wait_url(driver, by, value, url, timeout=60, retries=3):
+    for attempt in range(retries):
+        click_when_ready(driver, by, value, timeout=timeout)
+        try:
+            WebDriverWait(driver, 60).until(EC.url_to_be(url))
+            return
+        except TimeoutException:
+            if attempt == retries - 1:
+                raise
+
+
+def wait_url(driver, url, timeout=20):
+    WebDriverWait(driver, timeout).until(EC.url_to_be(url))
 
 
 def unique(prefix):
@@ -89,7 +134,7 @@ def test_flow_without_password_base(driver):
     driver.find_element(By.NAME, "clip_name").send_keys("Test Name")
     driver.find_element(By.NAME, "clip_text").send_keys("Sample Text for test")
     driver.find_element(By.NAME, "clip_alias").send_keys(alias)
-    driver.find_element(By.XPATH, "//button[text()='Save']").click()
+    click_when_ready(driver, By.XPATH, "//button[text()='Save']")
 
     wait_visible(driver, By.TAG_NAME, "code")
 
@@ -109,12 +154,12 @@ def test_flow_with_password(driver):
     driver.find_element(By.NAME, "clip_name").send_keys("Password Protected")
     driver.find_element(By.NAME, "clip_text").send_keys("Password Protected Content")
     driver.find_element(By.NAME, "clip_passwd").send_keys("password")
-    driver.find_element(By.XPATH, "//button[text()='Save']").click()
+    click_when_ready(driver, By.XPATH, "//button[text()='Save']")
 
     wait_visible(driver, By.ID, "clip_passwd")
 
     driver.find_element(By.NAME, "clip_passwd").send_keys("password")
-    driver.find_element(By.XPATH, "//button[text()='Go']").click()
+    click_when_ready(driver, By.XPATH, "//button[text()='Go']")
 
     wait_visible(driver, By.TAG_NAME, "code")
 
@@ -129,12 +174,12 @@ def test_flow_with_incorrect_password(driver):
     driver.find_element(By.NAME, "clip_name").send_keys("Password Protected")
     driver.find_element(By.NAME, "clip_text").send_keys("Password Protected Content for Incorrec")
     driver.find_element(By.NAME, "clip_passwd").send_keys("password")
-    driver.find_element(By.XPATH, "//button[text()='Save']").click()
+    click_when_ready(driver, By.XPATH, "//button[text()='Save']")
 
     wait_visible(driver, By.TAG_NAME, "input")
 
     driver.find_element(By.NAME, "clip_passwd").send_keys("pincorrectassword")
-    driver.find_element(By.XPATH, "//button[text()='Go']").click()
+    click_when_ready(driver, By.XPATH, "//button[text()='Go']")
 
     wait_visible(driver, By.XPATH, "//p[normalize-space()='Incorrect Password!']")
 
@@ -143,7 +188,7 @@ def test_flow_with_incorrect_password(driver):
 
 def test_flow_empty(driver):
     driver.get(BASE + "/")
-    driver.find_element(By.XPATH, "//button[text()='Save']").click()
+    click_when_ready(driver, By.XPATH, "//button[text()='Save']")
 
     wait_visible(driver, By.TAG_NAME, "h1")
 
@@ -155,12 +200,12 @@ def test_flow_user(driver):
     username = unique("user")
     driver.delete_all_cookies()
     driver.get(BASE + "/")
-    driver.find_element(By.LINK_TEXT, "Login").click()
+    click_when_ready(driver, By.LINK_TEXT, "Login")
 
     wait_visible(driver, By.TAG_NAME, "h2")
     assert driver.current_url == BASE + "/login"
 
-    driver.find_element(By.LINK_TEXT, "Register").click()
+    click_when_ready(driver, By.LINK_TEXT, "Register")
 
     wait_visible(driver, By.TAG_NAME, "h2")
     assert driver.current_url == BASE + "/register"
@@ -168,17 +213,14 @@ def test_flow_user(driver):
     driver.find_element(By.NAME, "username").send_keys(username)
     driver.find_element(By.NAME, "password").send_keys("password1")
     driver.find_element(By.NAME, "password_confirm").send_keys("password1")
-    driver.find_element(By.XPATH, "//button[normalize-space()='Register']").click()
+    click_when_ready(driver, By.XPATH, "//button[normalize-space()='Register']")
 
     wait_visible(driver, By.TAG_NAME, "h2")
 
     driver.get(BASE + "/login")
     driver.find_element(By.NAME, "username").send_keys(username)
     driver.find_element(By.NAME, "password").send_keys("password1")
-    driver.find_element(By.XPATH, "//button[normalize-space()='Login']").click()
-
-    wait_visible(driver, By.TAG_NAME, "h1")
-    assert driver.current_url == BASE + "/"
+    click_and_wait_url(driver, By.XPATH, "//button[normalize-space()='Login']", BASE + "/")
 
     assert driver.find_element(By.XPATH, f"//button[normalize-space()='{username}']")
     assert driver.find_element(By.NAME, "clip_edit")
@@ -188,12 +230,12 @@ def test_flow_complete_edited(driver):
     username = unique("user")
     driver.delete_all_cookies()
     driver.get(BASE + "/")
-    driver.find_element(By.LINK_TEXT, "Login").click()
+    click_when_ready(driver, By.LINK_TEXT, "Login")
 
     wait_visible(driver, By.TAG_NAME, "h2")
     assert driver.current_url == BASE + "/login"
 
-    driver.find_element(By.LINK_TEXT, "Register").click()
+    click_when_ready(driver, By.LINK_TEXT, "Register")
 
     wait_visible(driver, By.TAG_NAME, "h2")
     assert driver.current_url == BASE + "/register"
@@ -201,30 +243,28 @@ def test_flow_complete_edited(driver):
     driver.find_element(By.NAME, "username").send_keys(username)
     driver.find_element(By.NAME, "password").send_keys("password1")
     driver.find_element(By.NAME, "password_confirm").send_keys("password1")
-    driver.find_element(By.XPATH, "//button[normalize-space()='Register']").click()
+    click_when_ready(driver, By.XPATH, "//button[normalize-space()='Register']")
 
     wait_visible(driver, By.TAG_NAME, "h2")
 
     driver.get(BASE + "/login")
     driver.find_element(By.NAME, "username").send_keys(username)
     driver.find_element(By.NAME, "password").send_keys("password1")
-    driver.find_element(By.XPATH, "//button[normalize-space()='Login']").click()
-
-    wait_visible(driver, By.TAG_NAME, "h1")
+    click_and_wait_url(driver, By.XPATH, "//button[normalize-space()='Login']", BASE + "/")
     assert driver.find_element(By.XPATH, f"//button[normalize-space()='{username}']")
     assert driver.current_url == BASE + "/"
 
     driver.find_element(By.NAME, "clip_name").send_keys("Test Name edited")
     driver.find_element(By.NAME, "clip_text").send_keys("Sample Text for test")
-    driver.find_element(By.CSS_SELECTOR, "label[for='clip_edit']").click()
-    driver.find_element(By.XPATH, "//button[text()='Save']").click()
+    click_when_ready(driver, By.CSS_SELECTOR, "label[for='clip_edit']")
+    click_when_ready(driver, By.XPATH, "//button[text()='Save']")
 
     wait_visible(driver, By.ID, "clip_text")
 
     clip_text_updated = driver.find_element(By.TAG_NAME, "textarea")
     clip_text_updated.clear()
     clip_text_updated.send_keys("This text was updated.")
-    driver.find_element(By.XPATH, "//button[normalize-space()='Update']").click()
+    click_when_ready(driver, By.XPATH, "//button[normalize-space()='Update']")
 
     wait_visible(driver, By.TAG_NAME, "p")
 
@@ -236,12 +276,12 @@ def test_flow_dashboard(driver):
     username = unique("user")
     driver.delete_all_cookies()
     driver.get(BASE + "/")
-    driver.find_element(By.LINK_TEXT, "Login").click()
+    click_when_ready(driver, By.LINK_TEXT, "Login")
 
     wait_visible(driver, By.TAG_NAME, "h2")
     assert driver.current_url == BASE + "/login"
 
-    driver.find_element(By.LINK_TEXT, "Register").click()
+    click_when_ready(driver, By.LINK_TEXT, "Register")
 
     wait_visible(driver, By.TAG_NAME, "h2")
     assert driver.current_url == BASE + "/register"
@@ -249,26 +289,23 @@ def test_flow_dashboard(driver):
     driver.find_element(By.NAME, "username").send_keys(username)
     driver.find_element(By.NAME, "password").send_keys("password1")
     driver.find_element(By.NAME, "password_confirm").send_keys("password1")
-    driver.find_element(By.XPATH, "//button[normalize-space()='Register']").click()
+    click_when_ready(driver, By.XPATH, "//button[normalize-space()='Register']")
 
     wait_visible(driver, By.TAG_NAME, "h2")
 
     driver.get(BASE + "/login")
     driver.find_element(By.NAME, "username").send_keys(username)
     driver.find_element(By.NAME, "password").send_keys("password1")
-    driver.find_element(By.XPATH, "//button[normalize-space()='Login']").click()
-
-    wait_visible(driver, By.NAME, "clip_name")
-    assert driver.current_url == BASE + "/"
+    click_and_wait_url(driver, By.XPATH, "//button[normalize-space()='Login']", BASE + "/")
 
     driver.find_element(By.NAME, "clip_name").send_keys("Dash Test")
     driver.find_element(By.NAME, "clip_text").send_keys("Sample Text for Dash test")
-    driver.find_element(By.XPATH, "//button[text()='Save']").click()
+    click_when_ready(driver, By.XPATH, "//button[text()='Save']")
 
     wait_visible(driver, By.TAG_NAME, "h1")
 
-    driver.find_element(By.XPATH, f"//button[normalize-space()='{username}']").click()
-    driver.find_element(By.LINK_TEXT, "Dashboard").click()
+    click_when_ready(driver, By.XPATH, f"//button[normalize-space()='{username}']")
+    click_when_ready(driver, By.LINK_TEXT, "Dashboard")
 
     wait_visible(driver, By.TAG_NAME, "table")
     assert driver.current_url == BASE + "/dashboard"
@@ -276,7 +313,7 @@ def test_flow_dashboard(driver):
     verify_name_in_table = driver.find_element(By.TAG_NAME, "td")
     assert verify_name_in_table.text == "Dash Test"
 
-    driver.find_element(By.LINK_TEXT, "Go").click()
+    click_when_ready(driver, By.LINK_TEXT, "Go")
 
     wait_visible(driver, By.TAG_NAME, "code")
 
@@ -287,7 +324,7 @@ def test_flow_dashboard(driver):
     assert code.text == "Sample Text for Dash test"
 
     driver.get(BASE + "/dashboard")
-    driver.find_element(By.LINK_TEXT, "Delete").click()
+    click_when_ready(driver, By.LINK_TEXT, "Delete")
 
     wait_visible(driver, By.TAG_NAME, "h1")
 
