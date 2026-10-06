@@ -606,13 +606,14 @@ def login():
             data = db.execute("SELECT * FROM users WHERE username=?", uname)
             if len(data) != 0:
                 if check_password_hash(data[0]["password"], passwd):
-                    twofa_enabled = twoFACheck(data[0]["id"])
+                    if twoFACheck(data[0]["id"]):
+                        # Password verified, but the session is not logged in until TOTP passes
+                        session["pending_2fa_user_id"] = data[0]["id"]
+                        session["pending_2fa_uname"] = uname
+                        return redirect("/login/totp")
                     session["user_id"] = data[0]["id"]
                     session["uname"] = uname
-                    if not twofa_enabled:
-                        return redirect("/")
-                    else:
-                        return redirect("/login/totp")
+                    return redirect("/")
                 else:
                     flash("Incorrect Username or Password!")
                     return render_template("login.html", dat=loginData(), reg=True)
@@ -624,16 +625,17 @@ def login():
 
 # TOTP Function
 @app.route("/login/totp", methods=["GET", "POST"])
-@login_required
 def totp():
-    if "user_id" not in session or "uname" not in session:
+    user_id = session.get("pending_2fa_user_id")
+    uname = session.get("pending_2fa_uname")
+    if user_id is None or uname is None:
         flash("Session expired. Please log in again.")
         return redirect("/login")
 
-    user_id = session["user_id"]
-    uname = session["uname"]
     twofa_data = twoFACheck(user_id)
     if not twofa_data:
+        session.pop("pending_2fa_user_id", None)
+        session.pop("pending_2fa_uname", None)
         flash("2FA not set up for this account.")
         return redirect("/login")
 
@@ -643,18 +645,14 @@ def totp():
             flash("TOTP code cannot be empty!")
             return render_template("totp.html", dat=loginData())
 
-        # FIX: Extract the encrypted secret from the database result
-        data = db.execute("SELECT uri FROM twoFA WHERE user_id =?", user_id)
-        if not data:
-            flash("2FA data not found!")
-            return redirect("/login")
-
-        encrypted_secret = data[0]["uri"]  # This should be the actual bytes
-        totp_secret = totpCode(encrypted_secret=encrypted_secret, user_id=user_id, username=uname)
+        totp_secret = totpCode(encrypted_secret=twofa_data, user_id=user_id, username=uname)
 
         # Verify the TOTP code
         totp = pyotp.TOTP(totp_secret)
         if totp.verify(user_code):
+            # Only now is the user fully logged in
+            session.pop("pending_2fa_user_id", None)
+            session.pop("pending_2fa_uname", None)
             session["user_id"] = user_id
             session["uname"] = uname
             return redirect("/")
