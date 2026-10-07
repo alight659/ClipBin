@@ -459,8 +459,8 @@ class TestFlaskTOTPRoutes:
         db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_b64)
 
         with client.session_transaction() as sess:
-            sess["user_id"] = user_id
-            sess["uname"] = "displaytest"
+            sess["pending_2fa_user_id"] = user_id
+            sess["pending_2fa_uname"] = "displaytest"
 
         response = client.get("/login/totp")
         assert response.status_code == 200
@@ -505,8 +505,8 @@ class TestFlaskTOTPRoutes:
         db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_b64)
 
         with client.session_transaction() as sess:
-            sess["user_id"] = user_id
-            sess["uname"] = "invalidcode"
+            sess["pending_2fa_user_id"] = user_id
+            sess["pending_2fa_uname"] = "invalidcode"
 
         response = client.post("/login/totp", data={"totp": "000000"}, follow_redirects=True)
         assert response.status_code == 200
@@ -827,8 +827,8 @@ class TestTOTPUIInteraction:
         db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_b64)
 
         with client.session_transaction() as sess:
-            sess["user_id"] = user_id
-            sess["uname"] = "loginotp"
+            sess["pending_2fa_user_id"] = user_id
+            sess["pending_2fa_uname"] = "loginotp"
 
         response = client.get("/login/totp")
         assert response.status_code == 200
@@ -1222,8 +1222,8 @@ class TestTOTPEdgeCasesAdvanced:
         db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", user_id, encrypted_b64)
 
         with client.session_transaction() as sess:
-            sess["user_id"] = user_id
-            sess["uname"] = "emptycode"
+            sess["pending_2fa_user_id"] = user_id
+            sess["pending_2fa_uname"] = "emptycode"
 
         # Submit empty code
         response = client.post("/login/totp", data={"totp": ""}, follow_redirects=True)
@@ -1538,6 +1538,13 @@ class TestTOTPUIComponents:
         response = client.post(
             "/login/totp/setup", data={"totp": valid_code}, headers={"X-Requested-With": "XMLHttpRequest"}
         )
+
+        # Simulate a fresh login: password verified, TOTP pending
+        with client.session_transaction() as sess:
+            sess.pop("user_id", None)
+            sess.pop("uname", None)
+            sess["pending_2fa_user_id"] = user_id
+            sess["pending_2fa_uname"] = "verifyuitest"
 
         # Now check verification page
         response = client.get("/login/totp")
