@@ -1917,3 +1917,51 @@ class TestTOTPDatabaseIntegration:
         # TOTP data should be deleted due to cascade
         totp_data_after = db.execute("SELECT uri FROM twoFA WHERE user_id=?", user_id)
         assert len(totp_data_after) == 0
+
+
+class Test2FALoginFlow:
+    """Password-only login must not grant access when 2FA is enabled"""
+
+    def _setup_user_with_2fa(self, client):
+        import pyotp
+        from app import db
+        from werkzeug.security import generate_password_hash
+
+        db.execute("INSERT INTO users (username, password) VALUES (?, ?)", "tfauser", generate_password_hash("pw12345"))
+        uid = db.execute("SELECT id FROM users WHERE username=?", "tfauser")[0]["id"]
+        encrypted, uri = totp_generator(str(uid), "tfauser")
+        db.execute("INSERT INTO twoFA (user_id, uri) VALUES (?, ?)", uid, encrypted)
+        return pyotp.TOTP(totpCode(encrypted, uid, "tfauser"))
+
+    def test_protected_routes_blocked_before_totp(self, client):
+        self._setup_user_with_2fa(client)
+        resp = client.post("/login", data={"uname": "tfauser", "passwd": "pw12345"})
+        assert resp.status_code == 302
+        assert resp.headers["Location"].endswith("/login/totp")
+
+        for path in ("/dashboard", "/settings"):
+            resp = client.get(path)
+            assert resp.status_code == 302
+            assert resp.headers["Location"].endswith("/login")
+
+        with client.session_transaction() as sess:
+            assert "user_id" not in sess
+
+    def test_wrong_totp_does_not_log_in(self, client):
+        self._setup_user_with_2fa(client)
+        client.post("/login", data={"uname": "tfauser", "passwd": "pw12345"})
+        client.post("/login/totp", data={"totp": "000000"})
+        resp = client.get("/dashboard")
+        assert resp.status_code == 302
+
+    def test_valid_totp_logs_in(self, client):
+        totp = self._setup_user_with_2fa(client)
+        client.post("/login", data={"uname": "tfauser", "passwd": "pw12345"})
+        resp = client.post("/login/totp", data={"totp": totp.now()})
+        assert resp.status_code == 302
+        assert client.get("/dashboard").status_code == 200
+
+    def test_totp_page_requires_password_step(self, client):
+        resp = client.get("/login/totp")
+        assert resp.status_code == 302
+        assert resp.headers["Location"].endswith("/login")
